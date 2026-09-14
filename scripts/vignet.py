@@ -22,9 +22,9 @@ class Surf:
         s.c, s.k, s.A, s.z, s.n, s.semi, s.stop = c, k, A, z, n_after, semi, is_stop
     def sag(s, y):
         y2 = y * y
-        # 定点迭代偶尔会发散（强弯月 + 负厚度的哑面序列上实测过），y 冲到 1e19 时
-        # y**16 直接 OverflowError 把整个求解打断。超出任何真实镜头尺度就当追失。
-        if not (y2 < 1.0e8): return None
+        # r^18 / r^20 项在追迹发散时会把 y 顶到 1e15，y**20 直接 OverflowError。
+        # 任何真实镜片都不会有 |y| > 1000mm，越界一律当追失。
+        if not (y2 < 1e6): return None
         r = 1 - (1 + s.k) * s.c * s.c * y2
         if r < 0: return None
         z = s.c * y2 / (1 + math.sqrt(r))
@@ -44,7 +44,7 @@ def build(spec, emb, state, dmap=None):
         D = s['D']
         if isinstance(D, str): D = (dmap or {}).get(D, emb['variable'][D][state])
         a = asph.get(str(s['i']))
-        A = [a.get(k) or 0.0 for k in ('A4','A6','A8','A10','A12','A14','A16')] if a else []
+        A = [a.get(k) or 0.0 for k in ('A4','A6','A8','A10','A12','A14','A16','A18','A20')] if a else []
         phi = (s.get('extra') or {}).get('有効径 φi')
         S.append(Surf(0.0 if s['R'] in (None, 0) else 1.0/float(s['R']),
                       (a or {}).get('k', 0.0) or 0.0, A, z,
@@ -201,23 +201,25 @@ def solve_state(S, zimg, zx, obj=None, margin=0.010, verbose=True, tag='', fit_e
         def val(ye):
             hs, _b, yi = shoot(p, ye, apert=False)
             return (hs[ks] if len(hs) > ks else None), yi
+        # 取「离入瞳中心最近」的那个根，不是从最负端数过来的第一个。
+        # 大孔径强像差系统里 h_stop(ye) 并不单调，远端会出现**伪根**；旧写法一撞上
+        # 伪根就返回一个荒唐的像高，外层按像高二分视场角的 bracket 随之塌掉 ——
+        # 实测本篇 INF 的 12.98/8.65 两个视场都被钉在 8.69°（真值 14.9°/10.1°）。
+        # 真主光线按定义过近轴入瞳中心，实光线只偏一点点，所以 |ye| 最小的根才是它。
         for span in (1.5, 4.0, 12.0):
-            prev_m = prev_v = None; lo = hi = None
-            N = 48
+            prev_m = prev_v = None; cands = []
+            N = 96
             for i in range(N+1):
                 ye = -span*rEP + 2*span*rEP*i/N
                 v, _ = val(ye)
-                # ★ 变号只认**相邻两个有效采样**。旧写法把 prev 一直留着，于是能跨过中间
-                # 一整段追失的 ye 去配一个反号点，解出一条根本不存在的"主光线"。
-                # 实测 WO2021241230 Ex1：∞ 态在 35° 上这样配出 yep=3.78/像高 −3.23，
-                # 外层解半视场的二分被骗着一路往大角爬，最后把 22.8° 的视场解成 35.24°，
-                # 5 个离轴视场全退成 vig=[0,0,0,0]（＝满光瞳，最坏的兜底）。
-                if v is None:
-                    prev_m = prev_v = None; continue
+                if v is None: prev_m = prev_v = None; continue
                 if prev_v is not None and (v == 0 or (v > 0) != (prev_v > 0)):
-                    lo, hi = prev_m, ye; break
+                    cands.append((abs(0.5*(prev_m+ye)), prev_m, ye))
                 prev_m, prev_v = ye, v
-            if lo is not None: break
+            lo = hi = None
+            if cands:
+                cands.sort(); lo, hi = cands[0][1], cands[0][2]
+                break
         if lo is None: return None, None
         for _ in range(44):
             m = 0.5*(lo+hi); v, _ = val(m)
@@ -266,22 +268,7 @@ def solve_state(S, zimg, zx, obj=None, margin=0.010, verbose=True, tag='', fit_e
         if Y == 0:
             p = 0.0
         elif obj is None:
-            # 半视场角：从 0 起**逐步扫**，取第一次跨过 Y 的区间再二分。
-            # 直接在 [0,70°] 上二分是错的 —— 大角上 chief 仍能解出「幽灵主光线」
-            # （大部分光瞳追失、剩下一小段凑出的变号点），像高很小甚至反号，
-            # 二分就被骗着一路往大角爬。实测 WO2021241230 Ex1：真值 22.8° 被解成 35.24°，
-            # 于是 ∞ 态 5 个离轴视场全部退成 vig=[0,0,0,0]（＝满光瞳，最坏的兜底）。
-            NP, PMAX = 140, math.radians(70)
-            lo = hi = None; pm = pv = None
-            for _i in range(1, NP + 1):
-                q = PMAX * _i / NP
-                _, yq = chief(q)
-                if yq is None: pm = pv = None; continue
-                yq = abs(yq)
-                if pv is not None and pv < Y <= yq: lo, hi = pm, q; break
-                pm, pv = q, yq
-            if lo is None:
-                vig.append([0.0, 0.0, 0.0, 0.0]); continue
+            lo, hi = 1e-4, math.radians(70)
             for _ in range(34):
                 m = 0.5*(lo+hi); _, yi = chief(m)
                 if yi is None: hi = m

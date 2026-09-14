@@ -23,7 +23,7 @@ def sag(s, r):
     t = 1 - (1+k)*c*c*r*r
     if t <= 0: return None
     z = c*r*r/(1+sqrt(t))
-    for key, e in (('A4',4),('A6',6),('A8',8),('A10',10),('A12',12),('A14',14),('A16',16)):
+    for key, e in (('A4',4),('A6',6),('A8',8),('A10',10),('A12',12),('A14',14),('A16',16),('A18',18),('A20',20)):
         z += (s.get('asp') or {}).get(key, 0.0) * r**e
     return z
 

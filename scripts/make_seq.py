@@ -29,6 +29,9 @@ Zemax → CODE V 的对应关系（都验过）：
 import argparse, json, datetime, re
 
 ASPKEYS = ['A4', 'A6', 'A8', 'A10', 'A12', 'A14', 'A16']
+# CODE V 的 ASP 原生带到 r^20（A..D=r^4..r^10, E..H=r^12..r^18, J=r^20），
+# 所以 A18/A20 在 .seq 里是**精确**的，不像 Zemax 的 Even Asphere 只到 r^16。
+ASPKEYS_FULL = ASPKEYS + ['A18', 'A20']
 CVLET = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J']      # r⁴ … r²⁰
 
 
@@ -132,7 +135,7 @@ def build(spec, emb, title, gmode):
         A = asp.get(str(s['i']))
         if A:
             a('  ASP'); a('  K   %s' % num(A.get('k', 0.0))); a('  CUF 0.0')
-            co = [float(A.get(k) or 0.0) for k in ASPKEYS] + [0.0, 0.0]   # 补到 9 项(H、J)
+            co = [float(A.get(k) or 0.0) for k in ASPKEYS_FULL]   # 9 项 = A..D, E..H, J
             last = max([i for i, v in enumerate(co) if v] or [0])
             # CODE V 的习惯：只要写了 E..H 这一组，后面一定跟一行 J（哪怕是 0）；
             # 全部高次项为零时就只写 A..D 那一行。
@@ -142,25 +145,14 @@ def build(spec, emb, title, gmode):
                   .replace('A ', 'A   ', 1).replace('E ', 'E   ', 1).replace('J ', 'J   ', 1))
     a('SI    0.0 0.0')
     noaal = gmode.endswith('|no-oal')
-    solved = set()
+    solved = None
     if fc and not noaal:
         va, vb = int(fc['var_after']), int(fc['var_before'])
-        solved.add(va)
+        solved = va
         tot = fc['sum'] + sum(float(x['D']) for x in surfs
                               if isinstance(x['D'], (int, float))
                               and fc['var_before'] < _si(x) < fc['var_after'])
         a('THI   S%d OAL S%d..%d %s' % (va, vb, va + 1, num(round(tot, 6))))
-        # 双浮动对焦（两对各自守恒，如 WO2024147268 尼康 135/1.8）：**第 2 组也要有自己的
-        # OAL 解**。少写这一条的话 ka2 那个间隔在所有结构里被冻结成基准值 —— 第 2 对焦群
-        # 只前进不后退，全长跟着变，像面在近距结构上整体跑掉。
-        # 链式三段（key_last）只有一个守恒和，不能再加第二条。
-        if fc2 and fc2.get('key_after') and not fc.get('key_last'):
-            va2, vb2 = int(fc2['var_after']), int(fc2['var_before'])
-            solved.add(va2)
-            tot2 = fc2['sum'] + sum(float(x['D']) for x in surfs
-                                    if isinstance(x['D'], (int, float))
-                                    and fc2['var_before'] < _si(x) < fc2['var_after'])
-            a('THI   S%d OAL S%d..%d %s' % (va2, vb2, va2 + 1, num(round(tot2, 6))))
 
     # ---- 多重结构 ----
     if len(cfgs) > 1:
@@ -182,18 +174,15 @@ def build(spec, emb, title, gmode):
         # 这条规则与 zmx 侧同源：用了位置解，MCE 里就不要再写该面的 THIC 行。
         rows = [(0, [c['d0'] for c in cfgs])]
         if kb and fc: rows.append((int(fc['var_before']), [c[kb] for c in cfgs]))
-        if fc and fc.get('key_last') and not solved:
+        if fc and fc.get('key_last') and solved is None:
             # 链式三段浮动：位置解那一面的厚度 = 守恒和 − 前两个可变间隔
             rows.append((int(fc['var_after']),
                          [round(fc['sum'] - c[kb] - c[kb2], 6) for c in cfgs]))
-        elif fc and fc.get('key_after') and not solved:
+        elif fc and fc.get('key_after') and solved is None:
             rows.append((int(fc['var_after']),
                          [round(fc['sum'] - c[kb], 6) for c in cfgs]))
         if kb2 and fc2: rows.append((int(fc2['var_before']), [c[kb2] for c in cfgs]))
-        if fc2 and fc2.get('key_after') and not solved:
-            rows.append((int(fc2['var_after']),
-                         [round(fc2['sum'] - c[kb2], 6) for c in cfgs]))
-        rows = [r for r in rows if r[0] not in solved]
+        rows = [r for r in rows if r[0] != solved]
         for sn, vals in rows:
             v = ['0.1e11' if str(x).upper().startswith('INF') else num(x) for x in vals]
             L.extend(wrap('ZOO   THI S%d' % sn, v))

@@ -17,7 +17,7 @@ description: "把光学镜头专利 PDF（日本特开 JP-A、中国 CN-A、美�
 | `玻璃汇总` | 全部材料去重，标注使用位置，便于集中采购/替换决策 |
 | `粘贴用_<实施例>` | 每个实施例一张纯数据表，无格式、可变间隔已展开成数值，框选即可粘贴 |
 
-## 五条不可协商的红线（用户反复打回过的）
+## 不可协商的红线（用户反复打回过的）
 
 1. **日系专利不许出现国产玻璃当首选。** 索尼/尼康/佳能/腾龙/适马基本不用 CDGM 等国产料。
    命令行固定 `--vendors HOYA OHARA CDGM --alt-only CDGM`；
@@ -39,7 +39,15 @@ description: "把光学镜头专利 PDF（日本特开 JP-A、中国 CN-A、美�
    F 数直接变大。实测 JP2025052870A：面21/22/23 的玻璃外径比轴上锥需求小 1.0~1.3%，
    等效 F 数从 1.23 变成 **1.247**，用户当场打回。`vignet.py` 现在会算 `zmx.axial_3d`
    （逐面**不加渐晕、不受口径阻挡**的轴上满光瞳需求半径）并逐面体检，`apcap.py` 拿它当硬底线。
-6. **把口径全部固定以后，必须再跑 `apcap.py`。** 固定住 Zemax 就不再替你查相邻面撞不撞，
+6. **非球面阶数超过 r¹⁶ 就必须换面型，不许丢项、不许"拟合近似"。**
+   Zemax 的 Even Asphere 只有 8 个 PARM（r²~r¹⁶）。专利给到 A18/A20 时，
+   丢掉高次项是**毁灭性**的 —— 这类强非球面各阶在边缘是巨额相消，实测 JP2023-183894A 面7
+   的 A18·r¹⁸ 在净口径处就有 **2.1mm**，丢掉后轴上 TA-RMS 从 0.0028mm 崩到 **0.94mm**。
+   正确做法是换 **Extended Asphere（`TYPE XASPHERE`）**，见「高阶非球面」一节。
+   （曾经交付过"把 9 项重拟合进 7 项"的版本，残差压到 24nm 也还是被用户打回：
+   **能精确表达就不要近似**。`--asph-type even` 那条回退路只在别的工具读不了 XASPHERE 时才用。）
+
+7. **把口径全部固定以后，必须再跑 `apcap.py`。** 固定住 Zemax 就不再替你查相邻面撞不撞，
    强弯月/强非球面的相邻两面在大半径处会反向弯，**空气间隙的边缘厚度变成负的、前后透镜互相侵入**。
 
 ## 成本模型：要省的是往返次数，不是 CPU
@@ -120,6 +128,7 @@ export PATENT_GLASS_DIR=/tmp/gc
      && covercheck.py --write                              # 串同一个 bash
 10 aptrace.py in.pdf <断面图页> --crop … --rotate 0/90 --dpi 600
                                   # **逐面**沿面型曲线量口径（首选；figmeas 是逐元件的老路）
+10b apcap.py --trim 0                     # **先**按几何干涉收口（相接的空气透镜会让 aptrace 读过头）
 11 vignet.py --write                     # 逐结构解（含有限共轭）+ VCX + 逐面余量
 12 clearance.py --write && **apcap.py**  # apcap 必跑：相邻面干涉收口 + 重建 fix_semi_surfaces
 13 layout_check.py 出叠加图 → Read ov.png                  # 交付第三道卡
@@ -175,6 +184,21 @@ pdfinfo in.pdf | head -3; pdffonts in.pdf | head -3; pdftotext -layout in.pdf p.
   **OCR 出来的数字全错**（`∞`→`ce`、`0.40`→`O40`、`1.58144`→`158144`），
   但 **OCR 层对看「结构」仍然有用**：几行、几列、哪些面带玻璃、非球面有几个。
   先读一遍 OCR 搞清楚结构再去裁图，比直接看图省一轮。
+
+- **`pdffonts` 报一堆 `Unknown font tag` / `No font in show`、渲染出来的正文页全白** →
+  **字体没内嵌**，`pdftoppm` 抽不出字形（图页照样正常，口径还是能量）。这时
+  `pdftotext` 不但日文乱码，**还会静默丢数字**（实测 JP2023-183894A 的 νd "52.32" 只抽出 "5"），
+  `-table` 也救不了。**别跟它较劲，直接上 `pypdf`**：
+  ```python
+  from pypdf import PdfReader
+  items=[]
+  def vis(text, cm, tm, fd, fs):
+      if text.strip(): items.append((round(tm[5],1), round(tm[4],1), text))
+  PdfReader(pdf).pages[pg].extract_text(visitor_text=vis)      # tm[4]=x, tm[5]=y
+  ```
+  按 y 分行、按 x 排列，面数据表/非球面表/各种数据表都能**无损**重建，日文也是对的。
+  一次性把正文页也抽出来，能白捡「几群几枚」「哪几个 d 在变」这些描述（见下）。
+  **结论：表格数值走 pypdf，断面图走 pdftoppm 600dpi。**
 
 日系专利的正文还能白捡三样东西，**顺手一起读掉**：
 **对焦时哪几个 D 变**（直接给出对焦组，也是判断有没有双浮动对焦群的入口）、
@@ -988,7 +1012,7 @@ SURF 26
   MIRR 2 0
   STOP                     ← 只有光阑面写这一行
   PARM 1 0                 ← r² 项，恒为 0
-  PARM 2 <A4>  …  PARM 7 <A14>   PARM 8 <A16>
+  PARM 2 <A4>  …  PARM 7 <A14>   PARM 8 <A16>   ← **到 r¹⁶ 为止，A18/A20 放不下**
   DISZ  3.83
   TOLE 13 35.86            ← 位置厚度解
   CONI  0
@@ -1002,6 +1026,62 @@ SURF 26
 - `FNUM <F值> 0` 定 F 数；`FTYP 3 0 <场数> <波长数> 0 0 0` 首位 3 = 实际像高场。
 - 渐晕：`VDXN` / `VDYN` / `VCXN` / `VCYN` 每行按视场号排，长度补齐到 12。**VCXN 不许全 0。**
 - 物面 `DISZ INFINITY`；像面单独一个 SURF，`DISZ 0`。专利的有効径列是**直径**，要除 2。
+
+### 高阶非球面：A18/A20 装不下 Even Asphere，换 Extended Asphere（`XASPHERE`）
+
+**判据（逐面判，不是逐文件）**：该面的 r¹⁸ / r²⁰ 系数只要有一个非零 → `TYPE XASPHERE`；
+否则仍写 `EVENASPH`。这与用户自己的 CODE V 宏 **cv2zmx**（github.com/anvcor/cv2zmx，
+`^opt_asp`）是同一套策略，两条出口保持一致。`make_zmx.py --asph-type auto|extended|even`
+默认 `auto` 就是这条判据。
+
+**面型式子与 Even Asphere 同源**，所以 `CURV` / `CONI` 原样照写，只是多项式搬进 Extra Data：
+
+```
+z = c·r² / (1 + √(1 − (1+k)·c²·r²)) + Σᵢ αᵢ · (r/Rn)^(2i)
+```
+
+**XDAT 行的排布（实证，不是推断）** —— 用户机器上 5 个不同 OpticStudio 版本存出来的真文件
+（`135 1.4 ART DG.zmx`、`FE 16-35mm F2.8 GM II.zmx`、`GF 110mm F5.6 TS Macro.zmx`、
+`12mm F1.4 DC.zmx`、`Autosave/649/000.zmx`）逐字一致，且与 cv2zmx 宏写出来的一致：
+
+```
+SURF 7
+  TYPE XASPHERE
+  CURV 0.0111994624258 0 0 0 0 ""
+  HIDE 0 0 0 0 0 0 0 0 0 0
+  MIRR 2 0
+  XDAT 1  1.000000000000E+01 0 0 1.000000000000E+00 0.000000000000E+00 0 ""   ← 项数 N = 10
+  XDAT 2  1.000000000000E+00 0 0 …                                            ← 归一化半径 Rn = 1
+  XDAT 3  0.000000000000E+00 0 0 …                                            ← ρ² 项，**必须 0**
+  XDAT 4  <A4>   XDAT 5 <A6>   XDAT 6 <A8>    XDAT 7 <A10>   XDAT 8  <A12>
+  XDAT 9  <A14>  XDAT 10 <A16> XDAT 11 <A18>  XDAT 12 <A20>
+  DISZ 7.4823
+  CONI -2.0205
+  GLAS …
+  DIAM …
+```
+
+每行尾部那串 `0 0 1.000000000000E+00 0.000000000000E+00 0 ""` 是求解/变量字段，照抄即可；
+数值用 `%.12E`（真文件就是 12 位小数的 E 记法）。XDAT 块放在 `PARM` 原来的位置
+（`MIRR`/`STOP` 之后、`DISZ` 之前）。
+
+**这个面型的四个坑：**
+
+1. **`XDAT 2`（Norm Radius）必须留 1.0。** 取 1 时 αᵢ 就是专利印的 A4…A20，一比一照抄；
+   一旦改成别的值（比如净口径），每个系数都要乘 `Rn^(2i)` —— 漏乘就是一只完全不同的镜头。
+2. **`XDAT 3`（ρ² 项）必须留 0。** 它等价于改曲率，非零会直接改掉近轴光焦度，EFL 对不上专利。
+   专利的非球面表从 A4 起，本来就没有这一项。
+3. **`XDAT 1` 写项数，恒填 10**（真文件全是 10，即 r²~r²⁰）。少填会把高次项截掉，
+   等于又回到丢项。自校验要数 XDAT 行数 = **2 + 10 = 12** 行。
+4. **系数在 Extra Data Editor 里，不在 Lens Data Editor。** 做变量、做公差、写 MCE 操作数时
+   引用的是 EDE 的列（`PRAM` 换成 `EDVA`/`XDAT`），别照搬 Even Asphere 的写法。
+   另外 XASPHERE 是迭代求交，追迹比 EVENASPH 慢，只在真需要时才用（所以默认逐面判）。
+
+**CODE V 侧没有这个问题**：`ASP` 原生带到 r²⁰（`A..D`=r⁴~r¹⁰、`E..H`=r¹²~r¹⁸、`J`=r²⁰），
+`make_seq.py` 直接精确写出。
+
+**交付前验一遍**：把生成的 `.zmx` 反解析回来，逐面比 `CURV`/`CONI`/9 个系数是不是与专利表
+**逐位相同**，并在净口径上对比矢高（应当是 0，不是"小残差"）。
 
 ### 对焦组与位置厚度解 —— 默认就要带上
 
@@ -1082,6 +1162,14 @@ FVDY   1   1 0.1263 0 0 0 1 1 1 0 0
 | `make_zmx.py` | 自校验拿 GLAS 的字段4 当折射率，Offset 面用的是基准玻璃 → EFL 算成 34.4369（真值 34.4045） | code=4 时把最后第 2 个字段的 Nd offset 加回去 |
 | **口径** | **按元件给一个口径**，强弯月片的深弯面被推到半球边上出锋利刃口（面2 r/|R|=0.98） | 改用 `aptrace.py` **逐面**量 |
 | **口径** | 口径全固定后没人再查相邻面干涉，面31/32 在 r≈18.95 处穿插、空气间隙为负 | 新增 `apcap.py`，排在 vignet 之后、make_zmx 之前 |
+| **`make_zmx.py`** | **非球面一律写 EVENASPH，A18/A20 被悄悄丢掉**。JP2023-183894A 面7 的 A18·r¹⁸ 在净口径处就有 2.1mm，丢了轴上 TA-RMS 从 0.0028 崩到 0.94mm；退而求其次"重拟合进 r¹⁶"残差 24nm 仍被用户打回 | 逐面判断，有 r¹⁸/r²⁰ 就写 **Extended Asphere `TYPE XASPHERE` + XDAT**（格式实证自 5 个真文件与 cv2zmx 宏），零残差；`--asph-type` 可强制 |
+| `lensmath.py` / `vignet.py` / `clearance.py` / `covercheck.py` / `apcap.py` / `aptrace.py` | 非球面式子只算到 **A16**，追迹、盖板判据、口径、渐晕全部建立在一张**错的面**上 | 各处系数表补到 `A18`/`A20`；`sag()` 加 `y²<1e6` 护栏（r²⁰ 在追迹发散时会 OverflowError） |
+| `lensmath.py` | **单对焦组分支根本没有 `--mfd`**（只有双浮动分支有），按产品标称 MFD 反解一态用不了 | 单组分支补上同样的二分反解，输出 `1:x` 倍率 |
+| **`vignet.py`** | **主光线求根取"从最负端数过来第一个变号"，撞上伪根**：大孔径强像差系统 h_stop(ye) 不单调，外层按像高二分视场角的 bracket 随之塌掉 —— 实测 12.98/8.65 两个视场都被钉在 8.69°（真值 14.9°/10.1°） | 扫全区间收集所有变号段，取 **\|ye\| 最小**的那个（真主光线按定义过近轴入瞳中心） |
+| `figmeas.py` / `aptrace.py` / `layout_check.py` | 裁切/旋转/画叠加图调 `convert`，**Windows 上 `convert.exe` 是 FAT→NTFS 转换器**，同名撞车 | 改用 Pillow：`figmeas.crop_rotate()` 等价 `-crop/-rotate`，`layout_check.im_draw()` 实现 `-draw` 的 line/rectangle/text 子集 |
+| 口径 | **相接的空气透镜**（两面弧在边缘正好碰上）会让 `aptrace.py` 顺着邻片轮廓一路跑过头，口径读大 1~2mm，解出来的渐晕偏松 | 先 `apcap.py --trim 0` 收口到干涉极限，**再**跑 `vignet.py`；`--trim` 的按光束收紧仍放在最后（顺序见下） |
+| **`make_zmx.py`** | **链式三段浮动（`key_last`）根本进不了 `make_zmx.py`**：`kb, ka = fc['key_before'], fc['key_after']` 硬取键，链式 spec 没有 `key_after` → 直接 KeyError，`.zmx` 写出个 0 字节文件（实测 JP2021-148808A 実施例1 = 适马 105 微距，G2 与开口絞り各自移动） | `fc.get('key_after')` + 新增 `kl = fc.get('key_last')` 分支：该面 DISZ = `sum − kb − kb2`（随后被位置解 `TOLE` 覆盖）。`make_seq.py` 本来就支持，两条出口现在一致 |
+| **口径** | **`aptrace.py` 只有 `--clip`（截底边）、没有截顶边**。上下半平面**都有**标注时（上：群括号+引出线；下：CL 括号+focus 箭头）两侧都会被污染，单跑一侧必错 | **两侧各跑一遍 `--side lower` / `--side upper`，逐面取较小者**（污染只会往外加、不会往内减，与 figmeas 取小的逻辑同源）。实测该篇两侧大多差 <0.3mm，只有面9/10 下半被 CL1 括号顶到 19.50（真值 17.35/17.10） |
 
 ## 出口三（反向）：CODE V `.seq` → Zemax `.zmx`（`seq2zmx.py`）
 
@@ -1116,7 +1204,7 @@ python3 scripts/seq2zmx.py A2628.seq -o A2628.zmx \
 
 **不转的东西**（脚本会逐条打印出来，回话要说）：`CCY`/`THC` 变量标记（那是优化变量不是处方）、
 `PIK` 拾取解（数值已经是当前值，但改上游不会跟随）、`CMP`/`DSX`/`DSY`/`BTX`/`BTY` 公差与补偿器。
-`H`(r¹⁸)/`J`(r²⁰) 非零时 EVENASPH 放不下（只到 r¹⁶），脚本会告警，要手工改 Extended Asphere。
+`H`(r¹⁸)/`J`(r²⁰) 非零时脚本**自动改写成 Extended Asphere（`TYPE XASPHERE`）**，系数进 Extra Data（见「高阶非球面」一节），不再需要手工改。
 
 **交付前的自校验**（`.seq` 没给 f，没法跟专利对，所以这条更重要）：反解析自己写出来的 `.zmx`，
 逐结构做近轴追迹，**近轴像面应当落在像面上**。实测 A2628 五个结构偏 +5/+11/+15/+18/+14 μm ——
@@ -1137,14 +1225,15 @@ python3 scripts/seq2zmx.py A2628.seq -o A2628.zmx \
 | **`vignet.py`** | **轴上满光瞳需求体检（写 `zmx.axial_3d`）**；**逐结构**（含有限共轭）3D 斜光线追迹 → VDY/VCY/**VCX** → `vignetting_cfg`；渐晕定义面（整片扩展）+ 逐面余量报告（取全结构最大光束）+ 实际半角（验 ω）+ 写 `semi_3d`；`--margin` / `--first-only` / `--fit-ellipse` |
 | `clearance.py` | 边缘厚度/间隙/薄厚比体检；`--compare-aim`；`--solve` 反解渐晕；优先采用 `semi_3d` |
 | `layout_check.py` | 叠加图（交付第三道卡）；`--pxmm`/`--x0` 手动标定；`--grid N` 毫米刻度线 |
-| `make_zmx.py` | spec → 目录版/模型玻璃版 .zmx，含全部约定与自校验（**Offset 解的偏移会加回去再算 EFL**）；**`glass_offset` → `GLAS <基准> 4 …`**；MCE 铺 THIC + **APER/FVCY/FVCX/FVDY** |
-| **`make_seq.py`** | **spec → CODE V 序列文件 `.seq`**（另一条出口，省掉 Zemax→CODE V 的往返）；波长/视场（**倒序**）/渐晕（**要换算**）/口径/非球面/位置解/多重结构全套对应；`--glass catalog\|exact`、`--no-oal` |
+| `make_zmx.py` | spec → 目录版/模型玻璃版 .zmx，含全部约定与自校验（**Offset 解的偏移会加回去再算 EFL**；自校验会报每个非球面的面型与 XDAT 行数）；**`glass_offset` → `GLAS <基准> 4 …`**；**有 A18/A20 的面自动写成 Extended Asphere `XASPHERE`+XDAT**（`--asph-type auto\|extended\|even`）；MCE 铺 THIC + **APER/FVCY/FVCX/FVDY** |
+| **`make_seq.py`** | **spec → CODE V 序列文件 `.seq`**（另一条出口，省掉 Zemax→CODE V 的往返）；波长/视场（**倒序**）/渐晕（**要换算**）/口径/非球面（**A..J 到 r²⁰，精确**）/位置解/多重结构全套对应；`--glass catalog\|exact`、`--no-oal` |
 | **`seq2zmx.py`** | **反方向：CODE V `.seq` → Zemax `.zmx`**（用户自己在 CODE V 里做的设计要拿进 Zemax 时用；不经过 spec.json）；玻璃名反查目录牌号、渐晕反算、CIR→DIAM+CLAP、多重结构；`--reverse-fields` / `--raim` / `--gcat` |
 | `build_workbook.py` | spec → Excel 工作簿 |
 | `glasslib.py` / `hikari_xlsx_to_csv.py` | 旧的 nd 速查器 / HIKARI 目录转 CSV |
 
-全部**零第三方依赖**：纯标准库解析 PGM、调 ImageMagick 裁图、自带二分法求根与 2D/3D 实光线追迹。
-依赖：`poppler-utils`、`imagemagick`、`openpyxl`。
+追迹与拟合全是纯标准库（自带二分法求根、MGS 最小二乘、2D/3D 实光线追迹）。
+外部依赖：`poppler-utils`（渲染断面图）、**`Pillow`**（裁切/旋转/画叠加图，2026-09 起取代 ImageMagick）、
+`openpyxl`（Excel）、**`pypdf`**（抽表格数值，见 §2）。
 
 ## 出口二：CODE V 序列文件（`make_seq.py`）
 

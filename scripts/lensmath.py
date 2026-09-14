@@ -237,53 +237,28 @@ def brentq(f, lo, hi, xtol=1e-12, maxiter=200):
     return 0.5 * (lo + hi)
 
 
-def solve_obj(g, f, ok=None):
-    """解「像面固定」的物距 o：g(o)=0。解不出返回 None（＝物在无穷远之外）。
+def solve_obj(g, f, omax=1e9):
+    """解 g(o)=0 求物距 o（g = 该物距下的近轴像距 − 目标像距）。
 
-    旧写法固定拿括号 [1.02|f|, 1e4…1e9]，当 1.02|f| 落在**前焦点以内**时
-    g(lo) 与 g(hi) 同号（中间跨了一个极点：物正好在前焦点上，像跑到无穷远），
-    于是整条行程一个解都找不到 —— WO2024147268 的双浮动分支实测全军覆没
-    （每个 D12 都报「超出对焦行程」）。
-
-    现在：对数网格扫描收集**全部**变号区间，从**最大 o** 往小依次求根，
-    第一个通过 ok() 体检的就是答案。
-    ok 必须卡住倍率：极点两侧 g 也会真的穿过 0，那个根物理上是废的
-    （实测 D12=1.749 解出 o=205.58、β=-2.6e9），只按「最大 o」挑仍会中招 ——
-    因为 D12=1.749 本来就该无解（物在无穷远），此时极点根成了唯一候选。"""
-    import math
-    INF = float('inf')
-    def gs(o):
-        # 物正好落在前焦点上时 u=0（像跑到无穷远），paraxial 会 ZeroDivisionError。
-        try: v = g(o)
-        except Exception: return float('nan')
-        return v if (v == v and abs(v) != INF) else float('nan')
-    lo0 = 1.02 * abs(f)
-    a0, b0, N = math.log(lo0), math.log(1e9), 240
-    xs = [math.exp(a0 + (b0 - a0) * i / N) for i in range(N + 1)]
-    vs = [gs(o) for o in xs]
-    brs = []
+    ★ 不能用「lo = 1.02|f| 起、hi 逐级 ×10」那套固定括号 ——
+    物在**前焦点**处像距发散，这个极点落在 lo 与真根之间时，g(lo) 与 g(hi) 同号，
+    真根被整段跳过（实测 JP2022-61515A Ex2：真根 o≈6000，lo=89 恰在极点内侧，
+    整个对焦解全部返回 None）。
+    做法改成：在 (1.001|f|, omax] 上做对数扫描，物理支是极点右侧那一段 ——
+    g 在该段从 +∞ 单调降到 bf_inf − BF0(<0)，所以**最右侧的「+ → −」变号**就是真根。
+    极点本身是「− → +」的巨幅跳变，天然被排除。
+    """
+    lo0 = 1.001 * abs(f)
+    N = 400
+    xs = [lo0 * (omax / lo0) ** (i / N) for i in range(N + 1)]
+    vs = [g(o) for o in xs]
+    br = None
     for i in range(N):
-        v1, v2 = vs[i], vs[i + 1]
-        if v1 != v1 or v2 != v2: continue
-        if v1 == 0.0: brs.append((xs[i], xs[i])); continue
-        if v1 * v2 < 0: brs.append((xs[i], xs[i + 1]))
-    def bisect(lo, hi, flo):
-        if lo == hi: return lo
-        for _ in range(200):
-            mid = 0.5 * (lo + hi)
-            fm = gs(mid)
-            if fm != fm:                       # 正好踩到极点，微移一点
-                mid = lo + 0.499 * (hi - lo); fm = gs(mid)
-                if fm != fm: return None
-            if fm == 0.0 or (hi - lo) < 1e-9 * max(1.0, abs(hi)): return mid
-            if flo * fm < 0: hi = mid
-            else: lo, flo = mid, fm
-        return 0.5 * (lo + hi)
-    for lo, hi in reversed(brs):               # 从最大 o 往小试
-        r = bisect(lo, hi, gs(lo))
-        if r is None: continue
-        if ok is None or ok(r): return r
-    return None
+        a, b = vs[i], vs[i + 1]
+        if a == a and b == b and a > 0 >= b:
+            br = (xs[i], xs[i + 1])
+    if br is None: return None
+    return brentq(g, br[0], br[1])
 
 
 def main():
@@ -468,12 +443,7 @@ def main():
             BF0 = bfd2(xs[0])[1]
             target = lambda x: BF0
         def solve_d0(x):
-            # 只认「物在前焦点之外、成实像」的那一支：极点另一侧的根 |β| 会大到 1e9
-            def ok(o):
-                try: b = bfd2(x, o)[2]
-                except Exception: return False
-                return b is not None and -5.0 < b < 0.0
-            return solve_obj(lambda o: bfd2(x, o)[1] - target(x), f, ok)
+            return solve_obj(lambda o: bfd2(x, o)[1] - target(x), f)
         def beta2(x):
             o = solve_d0(x)
             if o is None: return 0.0, None
@@ -573,11 +543,7 @@ def main():
 
         def solve_d0(d13):
             """像面固定在 ∞ 近轴焦点，解物距；解不出返回 None（等于物在无穷远之外）。"""
-            def ok(o):
-                try: b = bfd(d13, o)[2]
-                except Exception: return False
-                return b is not None and -5.0 < b < 0.0
-            return solve_obj(lambda o: bfd(d13, o)[1] - BF0, f, ok)
+            return solve_obj(lambda o: bfd(d13, o)[1] - BF0, f)
 
         def beta(d13):
             o = solve_d0(d13)
@@ -624,6 +590,28 @@ def main():
                   % ('%.2fx' % m, o, kb, x, ka, tot - x, b, ext))
             cfgs.append({'name': '%.2fx' % m, 'd0': round(o, 2), kb: round(x, 4),
                          'extrapolated': bool(ext)})
+        # --mfd: 按产品标称最短撮影距離反解一态（物距 = MFD - ΣD，均自像面起算）
+        if a.mfd:
+            tgt = a.mfd - SD
+            xs_scan = [x for x, _ in sorted(tab, key=lambda t: t[0])]
+            o_of = lambda x: (beta(x)[1] or float('inf'))
+            pr = [q for q in zip(xs_scan, xs_scan[1:])
+                  if (o_of(q[0]) - tgt) * (o_of(q[1]) - tgt) <= 0]
+            if not pr:
+                print('  MFD(%gmm): 超出对焦行程' % a.mfd)
+            else:
+                x1, x2 = pr[0]
+                for _ in range(60):
+                    xm = 0.5 * (x1 + x2)
+                    if (o_of(x1) - tgt) * (o_of(xm) - tgt) <= 0: x2 = xm
+                    else: x1 = xm
+                x = 0.5 * (x1 + x2); b, o = beta(x)
+                ext = '' if p_lo - 1e-9 <= x <= p_hi + 1e-9 else '   ← ★外推：超出专利记载的对焦范围'
+                nm = 'MFD(%gmm)' % a.mfd
+                print('  %-12s d0=%-10.2f %s=%.4f %s=%.4f  β=%+.5f  (1:%.1f)%s'
+                      % (nm, o, kb, x, ka, tot - x, b, 1 / abs(b) if b else 0, ext))
+                cfgs.append({'name': nm, 'd0': round(o, 2), kb: round(x, 4),
+                             'extrapolated': bool(ext)})
         done = {c0['name'] for c0 in cfgs}
         for extra in emb.get('states', [])[1:]:
             if extra in done: continue

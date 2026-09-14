@@ -22,6 +22,77 @@ PWAV_DEFAULT = 2
 FIELD_FRACS = [1.0, 0.8, 0.6, 0.4, 0.2, 0.0]
 
 
+ASPKEYS_FULL = ASPKEYS + ['A18', 'A20']
+ASPKEYS_HIGH = ['A18', 'A20']          # EVENASPH 装不下的那两项
+
+# Extended Asphere（OpticStudio 里叫 Extended Asphere，.zmx 里 TYPE 是 XASPHERE）的
+# Extra Data 行。实证来源：用户机器上 5 个不同版本存出来的真文件
+#   E:/Download/"135 1.4 ART DG.zmx" / "FE 16-35mm F2.8 GM II.zmx"
+#   E:/Download/"GF 110mm F5.6 TS Macro.zmx" / "12mm F1.4 DC.zmx"
+#   Documents/Zemax/Autosave/649/000.zmx
+# 以及用户自己的 CODE V 宏 cv2zmx（github.com/anvcor/cv2zmx）的写法，两边完全一致：
+#   XDAT 1 = 项数 N（真文件里恒为 10）
+#   XDAT 2 = 归一化半径 Rn（恒为 1 —— 取 1 时系数就是专利印的 A2..A20，不用换算）
+#   XDAT 3 = ρ² 项（= r² 项，专利没有这一项，必须留 0，否则近轴曲率被改掉）
+#   XDAT 4..12 = r⁴ r⁶ r⁸ r¹⁰ r¹² r¹⁴ r¹⁶ r¹⁸ r²⁰ 的系数
+# 面型式子与 Even Asphere 同源：z = cr²/(1+√(1-(1+k)c²r²)) + Σ αi·(r/Rn)^(2i)，
+# 所以 CURV / CONI 原样照写，只是多项式搬到 Extra Data 里、能一直到 r²⁰。
+XDAT_FMT = '  XDAT %d %.12E 0 0 1.000000000000E+00 0.000000000000E+00 0 ""'
+XDAT_NTERMS = 10
+
+
+def _wls(cols, f, w):
+    """加权最小二乘，MGS 正交化（列是 u^4..u^16，u∈[0,1]，正规方程会病态到没法用）。"""
+    n, k = len(f), len(cols)
+    sw = [math.sqrt(x) for x in w]
+    Q = [[cols[j][i] * sw[i] for i in range(n)] for j in range(k)]
+    y = [f[i] * sw[i] for i in range(n)]
+    R = [[0.0] * k for _ in range(k)]
+    for j in range(k):
+        for i in range(j):
+            dd = sum(Q[i][s] * Q[j][s] for s in range(n))
+            R[i][j] = dd
+            qi = Q[i]; qj = Q[j]
+            for s in range(n): qj[s] -= dd * qi[s]
+        nr = math.sqrt(sum(x * x for x in Q[j]))
+        R[j][j] = nr
+        if nr > 0:
+            qj = Q[j]
+            for s in range(n): qj[s] /= nr
+    b = [sum(Q[j][s] * y[s] for s in range(n)) for j in range(k)]
+    c = [0.0] * k
+    for j in range(k - 1, -1, -1):
+        s = b[j] - sum(R[j][m] * c[m] for m in range(j + 1, k))
+        c[j] = s / R[j][j] if R[j][j] else 0.0
+    return c
+
+
+def refit_even(A, rmax, npts=1501, iters=50):
+    """A18/A20 不为零时，把 9 项多项式在 [0, rmax] 上重新拟合进 Even Asphere 的 7 项
+    (r^4..r^16)，曲率与 conic 原样不动（所以近轴一点不变）。
+
+    为什么必须拟合而不是直接丢掉 A18：这类强非球面的各阶项在边缘是巨额相消 ——
+    本篇面7 的 A18*r^18 在净口径处就有 2.1mm，丢掉它轴上 TA-RMS 会从 0.008mm 崩到 1.33mm。
+    IRLS 逼近 minimax，残差比普通最小二乘小 3~4 倍。返回 (7 个系数, 最大矢高残差 mm)。"""
+    co = [float(A.get(k) or 0.0) for k in ASPKEYS_FULL]
+    if abs(co[7]) < 1e-30 and abs(co[8]) < 1e-30: return None
+    us = [i / (npts - 1.0) for i in range(npts)]
+    f = [sum(co[j] * rmax ** (4 + 2 * j) * u ** (4 + 2 * j) for j in range(9)) for u in us]
+    cols = [[u ** (4 + 2 * j) for u in us] for j in range(7)]
+    w = [1.0] * npts; best = None
+    for _ in range(iters):
+        c = _wls(cols, f, w)
+        res = [sum(c[j] * cols[j][i] for j in range(7)) - f[i] for i in range(npts)]
+        m = max(abs(x) for x in res)
+        if best is None or m < best[0]: best = (m, c[:])
+        w = [w[i] * (abs(res[i]) / m + 1e-3) ** 0.5 for i in range(npts)]
+        sc = sum(w) / npts
+        w = [x / sc for x in w]
+    m, c = best
+    return [c[j] / rmax ** (4 + 2 * j) for j in range(7)], m
+
+
+
 def waves_of(zx):
     """zmx.waves 支持 [[um, weight], ...]；zmx.waves_um 是只给波长的老写法。"""
     if zx.get('waves'):
@@ -66,12 +137,15 @@ def ascii_(t):
             return 'Example' + (('_' + base) if base else '')
         return base
 
-def build(spec, emb, catalog):
+def build(spec, emb, catalog, asph_mode='auto'):
     zx = spec['zmx']; fc = zx['focus']
-    kb, ka = fc['key_before'], fc['key_after']
+    kb, ka = fc['key_before'], fc.get('key_after')
+    # 链式三段浮动（d_a + d_b + d_c = const，如本篇适马 105 微距：G2 与絞り各自移动）：
+    # 第三段 key_last 的 DISZ = 守恒和 − 前两段，位置解随后会覆盖它。
+    kl = fc.get('key_last')
     # 第二个对焦群（双浮动对焦，如索尼 135GM）。没有就是 None，行为与以前完全一致。
     fc2 = zx.get('focus2')
-    kb2, ka2 = (fc2['key_before'], fc2['key_after']) if fc2 else (None, None)
+    kb2, ka2 = (fc2['key_before'], fc2.get('key_after')) if fc2 else (None, None)
     cfgs = zx['configs']
     surfs = [s for s in emb['surfaces'] if s['i'] != 'IMG']
     img   = [s for s in emb['surfaces'] if s['i'] == 'IMG']
@@ -83,12 +157,61 @@ def build(spec, emb, catalog):
     _gv = [s['glass'] for s in surfs if s.get('glass')] + \
           [s['glass_offset']['base'] for s in surfs if s.get('glass_offset')]
     vendors = sorted({gmap.get(g.split()[0], g.split()[0]) for g in _gv})
+    # ---- 非球面面型选择：EVENASPH 只到 r^16，有 A18/A20 就换 XASPHERE ----
+    # 与用户的 CODE V 宏 cv2zmx 同一套策略（^opt_asp）：逐面判断，
+    # H(r^18)/J(r^20) 一旦非零就换 Extended Asphere，其余仍用 Even Asphere。
+    atype, refit, rf_notes, xa_notes = {}, {}, [], []
+    for s in surfs:
+        key = str(s['i']); A = asp.get(key)
+        if not A: continue
+        hi = any(abs(float(A.get(k) or 0.0)) > 0.0 for k in ASPKEYS_HIGH)
+        if asph_mode == 'extended' or (asph_mode == 'auto' and hi):
+            atype[key] = 'XASPHERE'
+            if hi: xa_notes.append(key)
+            continue
+        atype[key] = 'EVENASPH'
+        if not hi: continue
+        # 被 --asph-type even 强按回 Even Asphere：只能在净口径上把 9 项重拟合进 7 项。
+        phi = (s.get('extra') or {}).get('有効径 φi')
+        if not phi:
+            R_ = s['R']
+            phi = abs(float(R_)) if R_ not in (None, 0, 'inf') else 0.0
+        rr = refit_even(A, float(phi) / 2.0)
+        if rr:
+            refit[key] = rr[0]
+            rf_notes.append((key, float(phi) / 2.0, rr[1],
+                             float(A.get('A18') or 0.0), float(A.get('A20') or 0.0)))
     L=[]; a=L.append
     a('VERS 190513 693 1 L000001')
     a('MODE SEQ')
     a('NAME %s' % (ascii_(zx['name']) if zx.get('name')
                    else '%s %s' % (ascii_(spec['patent']), ascii_(emb['name']))))
     for n in spec.get('zmx_notes', []): a('NOTE 0 %s' % ascii_(n))
+    if xa_notes:
+        a('NOTE 0 %s' % ascii_(
+            'Aspheres: surfaces %s carry r^18 / r^20 terms, which Even Asphere cannot hold'
+            % ', '.join(xa_notes)))
+        a('NOTE 0 %s' % ascii_(
+            '  (it stops at r^16), so they are Extended Asphere (TYPE XASPHERE). Coefficients'))
+        a('NOTE 0 %s' % ascii_(
+            '  are in the Extra Data Editor: 1=number of terms (10), 2=norm radius (1.0),'))
+        a('NOTE 0 %s' % ascii_(
+            '  3=r^2 (kept 0), 4..12 = r^4..r^20 = the printed A4..A20. Curvature and conic'))
+        a('NOTE 0 %s' % ascii_(
+            '  are unchanged, so the surfaces are bit-exact against the patent table.'))
+        a('NOTE 0 %s' % ascii_(
+            '  Norm radius must stay 1.0 - change it and every coefficient must be rescaled'))
+        a('NOTE 0 %s' % ascii_(
+            '  by Rn^(2i); term 3 must stay 0 or the paraxial curvature changes.'))
+    if rf_notes:
+        a('NOTE 0 %s' % ascii_(
+            'Aspheres: --asph-type even was forced, so surfaces with r^18/r^20 were REFITTED'))
+        a('NOTE 0 %s' % ascii_(
+            '  into r^4..r^16 (curvature + conic unchanged, paraxial identical):'))
+        for key, rr, err, a18, a20 in rf_notes:
+            a('NOTE 0 %s' % ascii_(
+                '  surf %s: fitted over r<=%.3f mm, max sag error %.1f nm; exact A18 = %.5E'
+                % (key, rr, err * 1e6, a18)))
     a('NOTE 1 ""')
     a('PFIL 0 0 0'); a('LANG 0'); a('UNIT MM X W X CM MR CPMM')
     a('FNUM %s 0' % num(zx['fno']))
@@ -143,15 +266,24 @@ def build(spec, emb, catalog):
         i = _idx(s); key = str(s['i'])
         A = asp.get(key)
         a('SURF %d' % k)
-        a('  TYPE %s' % ('EVENASPH' if A else 'STANDARD'))
+        ty = atype.get(key, 'STANDARD') if A else 'STANDARD'
+        a('  TYPE %s' % ty)
         c = 0.0 if s['R'] in (None, 0, 'inf') else 1.0/float(s['R'])
         a('  CURV %s 0 0 0 0 ""' % num(c, '%.12G'))
         a('  HIDE 0 0 0 0 0 0 0 0 0 0'); a('  MIRR 2 0')
         if s.get('stop') or s['i'] == 'STO': a('  STOP')
-        if A:
-            a('  PARM 1 0')
+        if ty == 'EVENASPH':
+            a('  PARM 1 0')                      # PARM1 = r^2 项，专利没有，恒 0
+            rc = refit.get(key)
             for j, kk in enumerate(ASPKEYS, 2):
-                a('  PARM %d %s' % (j, num(A.get(kk) or 0.0)))
+                v = rc[j - 2] if rc else (A.get(kk) or 0.0)
+                a('  PARM %d %s' % (j, num(v, '%.12G')))
+        elif ty == 'XASPHERE':
+            a(XDAT_FMT % (1, float(XDAT_NTERMS)))   # 项数
+            a(XDAT_FMT % (2, 1.0))                  # 归一化半径 Rn = 1
+            a(XDAT_FMT % (3, 0.0))                  # r^2 项，必须 0
+            for j, kk in enumerate(ASPKEYS_FULL, 4):
+                a(XDAT_FMT % (j, float(A.get(kk) or 0.0)))
         D = s['D']
         if isinstance(D, str):
             if D == kb:
@@ -162,6 +294,8 @@ def build(spec, emb, catalog):
                 D = [c0 for c0 in cfgs if kb2 in c0][0][kb2]
             elif ka2 and D == ka2:
                 D = fc2['sum'] - cfgs[0][kb2]
+            elif kl and D == kl:
+                D = fc['sum'] - cfgs[0][kb] - cfgs[0][kb2]
             else:
                 # 对焦组以外的第三个可变量（常见的是末面 BF=D<n>）——按基准状态取值，
                 # 绝不能当成 key_after 走 sum-kb（那会把 BF 写成对焦间隔的值）
@@ -280,7 +414,9 @@ def verify(path, patent_f):
         t = ln.strip()
         if t.startswith('SURF '): cur={'c':0.,'d':0.,'nd':None,'stop':False,'tole':None}; S.append(cur)
         elif cur is not None:
-            if t.startswith('CURV '): cur['c']=float(t.split()[1])
+            if t.startswith('TYPE '): cur['type']=t.split()[1]
+            elif t.startswith('XDAT '): cur['xdat']=cur.get('xdat',0)+1
+            elif t.startswith('CURV '): cur['c']=float(t.split()[1])
             elif t.startswith('DISZ '):
                 v=t.split()[1]; cur['d']=float('inf') if v.upper()=='INFINITY' else float(v)
             elif t.startswith('GLAS '):
@@ -307,11 +443,23 @@ def verify(path, patent_f):
           (len(body), sum(1 for s in body if s['nd']),
            [i+1 for i,s in enumerate(body) if s['stop']],
            [(i+1,s['tole']) for i,s in enumerate(body) if s['tole']]))
+    xa = [(i+1, s.get('xdat', 0)) for i, s in enumerate(body) if s.get('type') == 'XASPHERE']
+    ev = [i+1 for i, s in enumerate(body) if s.get('type') == 'EVENASPH']
+    if ev: print('  自校验: Even Asphere 面%s' % ev)
+    if xa:
+        bad = [i for i, n in xa if n != XDAT_NTERMS + 2]
+        print('  自校验: Extended Asphere(XASPHERE) 面%s  XDAT 行数 %s%s'
+              % ([i for i, _ in xa], sorted({n for _, n in xa}),
+                 '  ★ 面%s 的 XDAT 条数不对' % bad if bad else '  (= 2 + 10 项，正确)'))
     print('  自校验: 反解析 EFL=%.4f (专利 %.2f)  结构=%s' % (-1/u, patent_f, names))
 
 def main():
     ap=argparse.ArgumentParser(); ap.add_argument('spec'); ap.add_argument('-o',required=True)
     ap.add_argument('--emb', type=int, default=0)
+    ap.add_argument('--asph-type', choices=('auto', 'even', 'extended'), default='auto',
+                    help='auto=有 A18/A20 的面用 Extended Asphere(XASPHERE)、其余 Even Asphere；'
+                         'extended=所有非球面都用 XASPHERE；'
+                         'even=全部强按 Even Asphere（高次项会被重拟合进 r^16，有残差）')
     a=ap.parse_args()
     spec=json.load(open(a.spec,encoding='utf-8'))
     emb=spec['embodiments'][a.emb]
@@ -321,7 +469,7 @@ def main():
     pf=dict(emb.get('general',[])).get('f (mm)', 0)
     for cat,tag in ((True,'catalog'),(False,'modelglass')):
         p='%s_%s.zmx'%(a.o,tag)
-        open(p,'wb').write(build(spec,emb,cat))
+        open(p,'wb').write(build(spec,emb,cat,a.asph_type))
         print(p); verify(p, pf)
 
 if __name__=='__main__':

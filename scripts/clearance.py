@@ -20,7 +20,7 @@ sag 用完整非球面式（含 k 与 A4..A16），在各面自己的 clear semi
 """
 import json, math, argparse
 
-AK = ('A4','A6','A8','A10','A12','A14','A16')
+AK = ('A4','A6','A8','A10','A12','A14','A16','A18','A20')
 
 
 class Surf:
@@ -30,9 +30,9 @@ class Surf:
         s.glass = None
     def sag(s, y):
         y2 = y * y
-        # 定点迭代偶尔会发散（强弯月 + 负厚度的哑面序列上实测过），y 冲到 1e19 时
-        # y**16 直接 OverflowError 把整个求解打断。超出任何真实镜头尺度就当追失。
-        if not (y2 < 1.0e8): return None
+        # r^18 / r^20 项在追迹发散时会把 y 顶到 1e15，y**20 直接 OverflowError。
+        # 任何真实镜片都不会有 |y| > 1000mm，越界一律当追失。
+        if not (y2 < 1e6): return None
         r = 1 - (1 + s.k) * s.c * s.c * y2
         if r < 0: return None
         z = s.c * y2 / (1 + math.sqrt(r))

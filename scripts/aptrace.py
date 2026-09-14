@@ -33,7 +33,7 @@ import argparse, json, os, subprocess, sys, tempfile
 from math import sqrt
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from figmeas import read_pgm, geom, autocal          # 复用渲染/标定，别重复造
+from figmeas import read_pgm, geom, autocal, crop_rotate          # 复用渲染/标定，别重复造
 
 
 def build(spec, emb):
@@ -60,7 +60,8 @@ def sag(s, r):
     v = c * r * r / (1 + sqrt(t))
     if s['A']:
         for key, e in (('A4', 4), ('A6', 6), ('A8', 8), ('A10', 10),
-                       ('A12', 12), ('A14', 14), ('A16', 16)):
+                       ('A12', 12), ('A14', 14), ('A16', 16),
+                       ('A18', 18), ('A20', 20)):
             v += (s['A'].get(key) or 0.0) * r ** e
     return v
 
@@ -94,12 +95,7 @@ def main():
     subprocess.run('pdftoppm -r %d -gray -f %d -l %d %s %s/p'
                    % (a.dpi, a.page, a.page, a.pdf, td), shell=True, check=True)
     src = [f for f in os.listdir(td) if f.endswith('.pgm')][0]
-    cmd = 'convert %s/%s' % (td, src)
-    if a.crop: cmd += ' -crop %s +repage' % a.crop
-    if a.rotate: cmd += ' -rotate %d' % a.rotate
-    cmd += ' %s/f.pgm' % td
-    subprocess.run(cmd, shell=True, check=True)
-    W, H, px = read_pgm('%s/f.pgm' % td)
+    W, H, px = crop_rotate('%s/%s' % (td, src), a.crop, a.rotate, '%s/f.pgm' % td)
     dark = [[px[y * W + x] < a.thr for x in range(W)] for y in range(H)]
     axis = a.axis if a.axis is not None else max(range(H), key=lambda y: sum(dark[y]))
 

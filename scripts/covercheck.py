@@ -28,9 +28,9 @@ class Surf:
         s.c, s.k, s.A, s.z, s.n = c, k, A, z, n_after
     def sag(s, y):
         y2 = y * y
-        # 定点迭代偶尔会发散（强弯月 + 负厚度的哑面序列上实测过），y 冲到 1e19 时
-        # y**16 直接 OverflowError 把整个求解打断。超出任何真实镜头尺度就当追失。
-        if not (y2 < 1.0e8): return None
+        # r^18 / r^20 项在追迹发散时会把 y 顶到 1e15，y**20 直接 OverflowError。
+        # 任何真实镜片都不会有 |y| > 1000mm，越界一律当追失。
+        if not (y2 < 1e6): return None
         r = 1 - (1 + s.k) * s.c * s.c * y2
         if r < 0: return None
         z = s.c * y2 / (1 + math.sqrt(r))
@@ -58,7 +58,7 @@ def build(emb, state, extra_tail=None):
     S, z = [], 0.0
     for s, D in zip(rows, ds):
         a = asph.get(str(s['i']))
-        A = [a.get(k) or 0.0 for k in ('A4','A6','A8','A10','A12','A14','A16')] if a else []
+        A = [a.get(k) or 0.0 for k in ('A4','A6','A8','A10','A12','A14','A16','A18','A20')] if a else []
         S.append(Surf(0.0 if s['R'] in (None, 0) else 1.0 / float(s['R']),
                       (a or {}).get('k', 0.0) or 0.0, A, z, s.get('nd') or 1.0))
         z += D
@@ -142,11 +142,8 @@ def main():
     #   照原样判会漏掉「专利自己给了盖板」这种情况。）
     if len(rows) >= 2 and rows[-2].get('nd') and rows[-2]['R'] in (None, 0) \
        and rows[-1]['R'] in (None, 0):
-        # 末面的 D 常常是可变量名（BF 在可变间隔表里逐状态给），按基准状态取值。
-        _dv = lambda r: float(r['D']) if not isinstance(r['D'], str) \
-                        else float(emb['variable'][r['D']][state])
         print('末端已有平行平板：盖板 %.2fmm nd=%.5f + 空气 %.2fmm —— 专利自己给了，无需补。'
-              % (_dv(rows[-2]), float(rows[-2]['nd']), _dv(rows[-1])))
+              % (float(rows[-2]['D']), float(rows[-2]['nd']), float(rows[-1]['D'])))
         return
 
     S0, zi0 = build(emb, state)

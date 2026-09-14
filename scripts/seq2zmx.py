@@ -207,14 +207,24 @@ def build(seq, args):
     for idx, s in enumerate(S):
         a('SURF %d' % idx)
         if s['sto']: a('  STOP')
-        a('  TYPE ' + ('EVENASPH' if s['asp'] else 'STANDARD'))
+        # CODE V 的 ASP 带到 r^20（A..D / E..H / J）。Zemax 的 Even Asphere 只到 r^16，
+        # 所以 H(r^18)/J(r^20) 一旦非零就必须换 Extended Asphere（TYPE XASPHERE），
+        # 系数改放 Extra Data：XDAT 1=项数(10)、2=归一化半径(1.0)、3=r^2(留 0)、4..12=r^4..r^20。
+        # 格式实证自用户机器上 5 个真文件与 cv2zmx 宏，见 references/zmx-format.md。
+        hi = bool(s['asp']) and (s['asp']['c'][7] or s['asp']['c'][8])
+        ztyp = 'STANDARD' if not s['asp'] else ('XASPHERE' if hi else 'EVENASPH')
+        a('  TYPE ' + ztyp)
         a('  CURV %s 0 0 0 0 ""' % num(0.0 if s['rdy'] == 0 else 1.0/s['rdy'], '%.16G'))
         a('  HIDE 0 0 0 0 0 0 0 0 0 0 0 0'); a('  MIRR 2 0'); a('  SLAB %d' % (idx+1))
-        if s['asp']:
+        if ztyp == 'EVENASPH':
             a('  PARM 1 0')
             for p in range(2, 9): a('  PARM %d %s' % (p, num(s['asp']['c'][p-2])))
-            if s['asp']['c'][7] or s['asp']['c'][8]:
-                notes.append('面%d 的 H(r^18)/J(r^20) 项非零，EVENASPH 放不下（只到 r^16），需改 Extended Asphere' % idx)
+        elif ztyp == 'XASPHERE':
+            xd = '  XDAT %d %.12E 0 0 1.000000000000E+00 0.000000000000E+00 0 ""'
+            a(xd % (1, 10.0)); a(xd % (2, 1.0)); a(xd % (3, 0.0))
+            for j in range(9): a(xd % (j + 4, float(s['asp']['c'][j])))
+            notes.append('面%d 的 H(r^18)/J(r^20) 非零 → 已写成 Extended Asphere（XASPHERE），'
+                         '系数在 Extra Data Editor 里' % idx)
         a('  DISZ ' + ('INFINITY' if s['kind'] == 'SO' and s['thi'] > 1e9 else
                        ('0' if s['kind'] == 'SI' else num(s['thi']))))
         if s['oal']:

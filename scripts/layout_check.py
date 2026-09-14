@@ -16,6 +16,53 @@
 import os, json, argparse, subprocess, tempfile
 
 
+
+def crop_rotate(src, crop, rotate, dst):
+    """等价于 `convert src [-crop WxH+X+Y +repage] [-rotate deg] dst`（纯 Pillow 实现）。"""
+    from PIL import Image
+    im = Image.open(src).convert('L')
+    if crop:
+        wh, _, off = crop.partition('+')
+        wv, hv = (int(v) for v in wh.split('x'))
+        xv, yv = (int(v) for v in off.split('+'))
+        im = im.crop((xv, yv, min(xv + wv, im.width), min(yv + hv, im.height)))
+    if rotate:
+        r = int(rotate) % 360
+        if r == 90:    im = im.transpose(Image.ROTATE_270)
+        elif r == 180: im = im.transpose(Image.ROTATE_180)
+        elif r == 270: im = im.transpose(Image.ROTATE_90)
+        elif r:        im = im.rotate(-r, expand=True, fillcolor=255)
+    im.save(dst)
+    return im.width, im.height, im.tobytes()
+
+
+def im_draw(src, dr, out):
+    """执行 `-draw` 子集（line / rectangle / text），红色描边，Pillow 实现。"""
+    from PIL import Image, ImageDraw
+    im = Image.open(src).convert('RGB')
+    g = ImageDraw.Draw(im)
+    RED = (255, 0, 0)
+    k = 0
+    while k < len(dr):
+        if dr[k] != '-draw': k += 1; continue
+        cmd = dr[k + 1]; k += 2
+        op, _, rest = cmd.partition(' ')
+        if op == 'line':
+            p1, p2 = rest.split()
+            g.line([tuple(float(v) for v in p1.split(',')),
+                    tuple(float(v) for v in p2.split(','))], fill=RED, width=1)
+        elif op == 'rectangle':
+            p1, p2 = rest.split()
+            x1, y1 = (float(v) for v in p1.split(','))
+            x2, y2 = (float(v) for v in p2.split(','))
+            g.rectangle([x1, y1, x2, y2], outline=RED, fill=RED)
+        elif op == 'text':
+            pos, _, s = rest.partition(' ')
+            x1, y1 = (float(v) for v in pos.split(','))
+            g.text((x1, y1 - 20), s.strip().strip("'"), fill=RED)
+    im.save(out)
+
+
 def read_pgm(path):
     d = open(path, 'rb').read(); pos, toks = 0, []
     while len(toks) < 4:
@@ -75,11 +122,10 @@ def main():
     subprocess.run(['pdftoppm', '-r', str(a.dpi), '-gray', '-f', str(a.page), '-l', str(a.page),
                     a.pdf, os.path.join(d, 'p')], check=True)
     src = os.path.join(d, [f for f in os.listdir(d) if f.startswith('p')][0])
-    base = ['convert', src] + (['-crop', a.crop, '+repage'] if a.crop else []) \
-        + (['-rotate', str(a.rotate)] if a.rotate else [])
+    # 裁切/旋转/画图改用 Pillow：本机无 ImageMagick，且 Windows 的 convert.exe 是
+    # FAT->NTFS 转换器，同名撞车，绝对不能调。
     pgm = os.path.join(d, 'r.pgm')
-    subprocess.run(base + [pgm], check=True)
-    w, h, px = read_pgm(pgm)
+    w, h, px = crop_rotate(src, a.crop, a.rotate, pgm)
 
     dark = [[x for x in range(w) if px[y * w + x] < 150] for y in range(h)]
     yax = a.axis if a.axis is not None else max(range(h), key=lambda y: len(dark[y]))
@@ -161,8 +207,7 @@ def main():
         for sg in (-1, 1):
             y = yax + sg * float(sd[i]) * s
             dr += ['-draw', 'rectangle %.0f,%.0f %.0f,%.0f' % (x - 2, y - 2, x + 2, y + 2)]
-    subprocess.run(base + ['-colorspace', 'sRGB', '-fill', 'red', '-stroke', 'red',
-                           '-strokewidth', '1', '-pointsize', '26'] + dr + [a.o], check=True)
+    im_draw(pgm, dr, a.o)
     print('已写出 %s —— 红点 = 算出的 clear semi-dia，应当都落在镜片轮廓里侧一点点' % a.o)
 
 

@@ -34,6 +34,26 @@ def read_pgm(path):
     return w, h, d[pos:pos+w*h]
 
 
+
+def crop_rotate(src, crop, rotate, dst):
+    """等价于 `convert src [-crop WxH+X+Y +repage] [-rotate deg] dst`（纯 Pillow 实现）。"""
+    from PIL import Image
+    im = Image.open(src).convert('L')
+    if crop:
+        wh, _, off = crop.partition('+')
+        w, h = (int(v) for v in wh.split('x'))
+        x, y = (int(v) for v in off.split('+'))
+        im = im.crop((x, y, min(x + w, im.width), min(y + h, im.height)))
+    if rotate:
+        r = int(rotate) % 360
+        if r == 90:    im = im.transpose(Image.ROTATE_270)   # IM 的 +90 是顺时针
+        elif r == 180: im = im.transpose(Image.ROTATE_180)
+        elif r == 270: im = im.transpose(Image.ROTATE_90)
+        elif r:        im = im.rotate(-r, expand=True, fillcolor=255)
+    im.save(dst)
+    return im.width, im.height, im.tobytes()
+
+
 def geom(emb, spec):
     """展开基准状态的 R/D/nd；已补的盖板折回空气换算长（图画的是专利原始数据）。"""
     st = emb.get('states', [None])[0]
@@ -177,12 +197,10 @@ def main():
     subprocess.run('pdftoppm -r %d -gray -f %d -l %d %s %s/p' % (a.dpi, a.page, a.page, a.pdf, td),
                    shell=True, check=True)
     src = [f for f in os.listdir(td) if f.endswith('.pgm')][0]
-    cmd = 'convert %s/%s' % (td, src)
-    if a.crop: cmd += ' -crop %s +repage' % a.crop
-    if a.rotate: cmd += ' -rotate %d' % a.rotate
-    cmd += ' %s/f.pgm' % td
-    subprocess.run(cmd, shell=True, check=True)
-    W, H, px = read_pgm('%s/f.pgm' % td)
+    # 裁切/旋转改用 Pillow（本机没有 ImageMagick，而 Windows 的 convert.exe 是
+    # FAT->NTFS 转换器，同名撞车，绝对不能调）。行为与 IM 一致：-crop WxH+X+Y、
+    # -rotate 为顺时针角度。
+    W, H, px = crop_rotate('%s/%s' % (td, src), a.crop, a.rotate, '%s/f.pgm' % td)
     dark = [[px[y*W+x] < 140 for x in range(W)] for y in range(H)]
     axis = a.axis if a.axis is not None else max(range(H), key=lambda y: sum(dark[y]))
 
