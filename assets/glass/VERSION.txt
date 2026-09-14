@@ -1,0 +1,21 @@
+玻璃目录版本（打包时间：2026-08）
+
+  OHARA.AGF   = OHARA_260529_CATALOG.AGF     (2026-05-29 版)   166 种
+  HOYA.AGF    = HOYA20260601.agf             (2026-06-01 版)   239 种
+  CDGM.AGF    = CDGM-ZEMAX202603.AGF         (2026-03 版)      348 种
+  HIKARI.csv  = HIKARI_ALL_Catalog_Data.xlsx (2025-06-01 版)   155 种
+
+支持两种格式：
+  *.AGF  Zemax 玻璃目录（UTF-16 或 ASCII 均可，只读取 NM 行的 nd / vd）
+  *.csv  三列表头 name,nd,vd（给只发 Excel 目录、不发 AGF 的厂家用）
+
+更新方法
+  AGF 厂家（OHARA / HOYA / CDGM）：官网下新版 .AGF，改名覆盖同名文件。
+  HIKARI：官网下新版 HIKARI_ALL_Catalog_Data.xlsx，然后
+      python3 scripts/hikari_xlsx_to_csv.py 新文件.xlsx -o assets/glass/HIKARI.csv
+
+新增厂家
+  把 <厂家名大写>.AGF 或 <厂家名大写>.csv 放进本目录，spec.json 的 vendors
+  里写同名即可，无需改代码。
+
+也可用环境变量 PATENT_GLASS_DIR 指向外部目录，优先级高于本目录。
