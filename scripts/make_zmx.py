@@ -346,7 +346,7 @@ def build(spec, emb, catalog, asph_mode='auto'):
                                if isinstance(s['D'], (int, float))
                                and f_['var_before'] < _idx(s) < f_['var_after'])
     poslen = _poslen(fc)
-    poslen2 = _poslen(fc2) if fc2 else None
+    poslen2 = _poslen(fc2) if fc2 and fc2.get('var_after') else None   # 链式三段：focus2 无 var_after
     for k, s in enumerate(surfs, 1):
         i = _idx(s); key = str(s['i'])
         A = asp.get(key)
@@ -414,7 +414,7 @@ def build(spec, emb, catalog, asph_mode='auto'):
         a('  DISZ %s' % num(float(D), '%.6G'))
         if i == fc['var_after']:
             a('  TOLE %d %s' % (fc['var_before'], num(poslen, '%.6G')))
-        elif fc2 and i == fc2['var_after']:
+        elif poslen2 is not None and i == fc2['var_after']:
             a('  TOLE %d %s' % (fc2['var_before'], num(poslen2, '%.6G')))
         a('  CONI %s' % num((A or {}).get('k', (A or {}).get('K', 0.0))))
         if s.get('nd'):
