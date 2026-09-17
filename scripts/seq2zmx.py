@@ -91,7 +91,7 @@ def parse(lines):
                 rest = m.group(4).split()
                 s = {'kind': m.group(1), 'rdy': float(m.group(2)), 'thi': float(m.group(3)),
                      'glass': None, 'model': None, 'asp': None, 'cir': None,
-                     'sto': False, 'oal': None}
+                     'sto': False, 'oal': None, 'doe': None}
                 if len(rest) == 1:
                     s['glass'] = rest[0]
                 elif len(rest) >= 2:
@@ -122,6 +122,17 @@ def parse(lines):
                 hdr[k] = t[len(k):].strip()
             continue
         if cur is None: continue                          # 面属性
+        # 衍射面 DIF DOE：HWL 基准波长(nm)、HCO Cj = r^(2j) 的 OPD 系数(mm)（与 make_seq 同义）
+        if t.startswith('DIF') and 'DOE' in t.upper():
+            cur['doe'] = {'wl_nm': 587.56, 'C': {}}; continue
+        if cur['doe'] is not None and re.match(r'^(HOR|HWL|HCT|HCO|HCC|BLT|BLD)\b', t):
+            for part in t.split(';'):
+                q = part.split()
+                if not q: continue
+                if q[0] == 'HWL': cur['doe']['wl_nm'] = float(q[1])
+                elif q[0] == 'HCO' and len(q) >= 3 and q[1].upper().startswith('C'):
+                    cur['doe']['C'][int(q[1][1:])] = float(q[2])
+            continue
         if   t.startswith('CIR'): cur['cir'] = float(t.split()[1])
         elif t == 'STO':          cur['sto'] = True
         elif t == 'ASP':          cur['asp'] = {'K': 0.0, 'c': [0.0]*9}
@@ -221,10 +232,23 @@ def build(seq, args):
         # 格式实证自用户机器上 5 个真文件与 cv2zmx 宏，见 references/zmx-format.md。
         hi = bool(s['asp']) and (s['asp']['c'][7] or s['asp']['c'][8])
         ztyp = 'STANDARD' if not s['asp'] else ('XASPHERE' if hi else 'EVENASPH')
+        if s.get('doe'):
+            if s['asp']: raise SystemExit('面%d 同时有 ASP 与 DOE，未支持' % idx)
+            ztyp = 'BINARY_2'
         a('  TYPE ' + ztyp)
         a('  CURV %s 0 0 0 0 ""' % num(0.0 if s['rdy'] == 0 else 1.0/s['rdy'], '%.16G'))
         a('  HIDE 0 0 0 0 0 0 0 0 0 0 0 0'); a('  MIRR 2 0'); a('  SLAB %d' % (idx+1))
-        if ztyp == 'EVENASPH':
+        if ztyp == 'BINARY_2':
+            # 与 make_zmx 相同：PARM 0 = 级次；XDAT1 = 项数、XDAT2 = Rn(1)、XDAT 2+j = 2π/λ0[mm]·Cj
+            a('  PARM 0 1')
+            for p in range(1, 9): a('  PARM %d 0' % p)
+            C = s['doe']['C']; nmax = max(C) if C else 0
+            lam = s['doe']['wl_nm'] * 1e-6
+            xd = '  XDAT %d %.12E 0 0 0.000000000000E+00 0.000000000000E+00 0 ""'
+            a(xd % (1, float(nmax))); a(xd % (2, 1.0))
+            for j in range(1, nmax + 1):
+                a(xd % (j + 2, 2 * math.pi / lam * C.get(j, 0.0)))
+        elif ztyp == 'EVENASPH':
             a('  PARM 1 0')
             for p in range(2, 9): a('  PARM %d %s' % (p, num(s['asp']['c'][p-2])))
         elif ztyp == 'XASPHERE':
