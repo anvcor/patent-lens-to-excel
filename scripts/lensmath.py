@@ -19,7 +19,11 @@ MOLD = re.compile(r'^(D-|M-|MP-|MC-|Q-|L-)')
 # 现行是 **J-（研磨）/ Q-（模压）**。用户 2026-09 明确：新尼康镜头一般就是 J- 开头的。
 # 目录里 E-/J- 常常是同 nd 的新旧两代（E-LAK01↔J-LAK01、E-BK7↔J-BK7A、E-PSKH1↔J-PSKH1、
 # E-SK15↔J-SK15），按 Δ 排序必然挑到 E-，所以必须显式让老牌号靠后。
-CURRENT = {'HIKARI': re.compile(r'^[JQ]-')}
+# OHARA：**S- / L- 开头的才是 2000 年环保化以后的无铅(且无砷)牌号**。
+# 目录里 210 个不带前缀的（PBM/PBH/BPH/BAL/BAM/BSL/BSM/TIM/TIH/LAL/LAH/NSL/FSL…）
+# 是含铅老系列，只有老镜头（2000 年前）才会用。注意**光靠 AGF 的 Obsolete 位挡不住**：
+# PBM2Y 在目录里仍是 Preferred，但它是含铅的 S-TIM2 的老款。用户 2026-09 打回过。
+CURRENT = {'HIKARI': re.compile(r'^[JQ]-'), 'OHARA': re.compile(r'^(S-|L-)')}
 def _gen(g):
     r = CURRENT.get(g.get('vendor'))
     return 0 if (r is None or r.match(g['name'])) else 1
@@ -89,14 +93,16 @@ def load(vendor):
         out = []
         for r in csv.DictReader(open(p, encoding='utf-8-sig')):
             out.append({'name': r['name'].strip(), 'nd': float(r['nd']), 'vd': float(r['vd']),
-                        'ne': None, 'vendor': vendor.upper()})
+                        'ne': None, 'vendor': vendor.upper(), 'status': 0})
         return out
     out, cur = [], None
     for line in _decode(open(p, 'rb').read()).splitlines():
         if line.startswith('NM '):
             q = line.split()
             cur = {'name': q[1], 'f': int(float(q[2])), 'nd': float(q[4]), 'vd': float(q[5]),
-                   'vendor': vendor.upper(), 'cd': None, 'ne': None}
+                   'vendor': vendor.upper(), 'cd': None, 'ne': None,
+                   # NM 行第 8 个数 = status：0=Standard 1=Preferred 2=Obsolete 3=Special 4=Melt
+                   'status': int(float(q[7])) if len(q) > 7 else 0}
             out.append(cur)
         elif line.startswith('CD ') and cur is not None:
             cur['cd'] = [float(x) for x in line.split()[1:]]
@@ -119,13 +125,18 @@ def _ulp(v):
 BRAND_SLACK = 0.0020      # Δnd 落在最优值 + 这个带宽内，视为「同一档」，改按厂家优先级选
 BRAND_SLACK_VD = 1.0
 
-def best(val, vd, libs, key, asph, brand_slack=BRAND_SLACK, match_tol=2e-5, alt_only=()):
+def legacy(g):
+    """停产牌号（AGF status=2）或该厂的老一代（含铅系列）—— 2000 年环保化以后的镜头不会用。"""
+    return g.get('status') == 2 or _gen(g) != 0
+
+def best(val, vd, libs, key, asph, brand_slack=BRAND_SLACK, match_tol=2e-5, alt_only=(), eco=True):
     un, uv = _ulp(val), _ulp(vd)
     c = []
     for rank, lib in enumerate(libs.values()):
         for g in lib:
             gv = g[key]
             if gv is None: continue
+            if eco and legacy(g): continue      # 含铅/停产的一律不参与（--allow-legacy 可关）
             s = ((gv - val) / 2e-4) ** 2 + ((g['vd'] - vd) / 0.15) ** 2
             if MOLD.match(g['name']) and not asph: s += 60
             # 边界要含进来：印 νd=30.1 时半刻度正好 0.05，目录里 30.05 的牌号
@@ -218,7 +229,9 @@ def paraxial(surfs, dmap=None, obj=None):
     for k, s in enumerate(surfs):
         c = 0.0 if s['R'] in (None, 0) else 1.0 / s['R']
         n2 = s['nd'] or 1.0
-        u = (n * u - y * c * (n2 - n)) / n2
+        # 衍射面（DOE）：φ_DOE = −2·C2（基准波长、m=1），见 vignet.doe_dw
+        c2 = ((s.get('doe') or {}).get('C') or [0.0])[0]
+        u = (n * u - y * c * (n2 - n) + 2.0 * c2 * y) / n2
         if k < last: y += u * s['D']
         n = n2
     return (None if obj else -1.0 / u), -y / u, (u1 / u if obj else None)
@@ -274,6 +287,9 @@ def main():
     ap.add_argument('--mfd', type=float, default=None,
                     help='产品标称最短撮影距離(mm，物体→像面)。给了就额外解一个 MFD 状态：'
                          '物距 = MFD − ΣD。专利近距态离产品 MFD 很远时用它。')
+    ap.add_argument('--allow-legacy', action='store_true',
+                    help='允许含铅/停产牌号做候选。**只在 2000 年前的老专利上用** —— '
+                         '默认排除 OHARA 的 PBM/PBH/BPH/BAL/BSM… 这些含铅老系列与 AGF 里 status=Obsolete 的牌号。')
     ap.add_argument('--emb', type=int, default=0)
     ap.add_argument('--write', nargs='?', const='AUTO', default=None,
                     help='写出匹配后的 spec（默认 <spec>.matched.json，不覆盖原文件）')
@@ -297,7 +313,13 @@ def main():
     for s in surfaces_with_glass(emb):
         asph = s.get('type') == '非球面'
         asph_eff = asph or (s.get('lens') in ASPH_LENS)
-        c = best(s['nd'], s['vd'], libs, line, asph, a.brand_slack, a.match_tol, tuple(a.alt_only))
+        c = best(s['nd'], s['vd'], libs, line, asph, a.brand_slack, a.match_tol,
+                 tuple(a.alt_only), eco=not a.allow_legacy)
+        if not c:        # 无铅池里一个都没有 —— 退回全目录并告警，绝不静默
+            c = best(s['nd'], s['vd'], libs, line, asph, a.brand_slack, a.match_tol,
+                     tuple(a.alt_only), eco=False)
+            if c: print('  ★ 面%s 无铅目录里没有候选，回退到含铅/停产牌号 %s'
+                        % (s['i'], c[0][2]['name']))
         g = c[0][2]
         promoted = c[0][5] if len(c[0]) > 5 else None
         alts = []
@@ -381,7 +403,7 @@ def main():
             D = s['D']
             if isinstance(D, str):
                 D = (dmapover or {}).get(D) or emb['variable'][D][state]
-            out.append({'R': s['R'], 'D': float(D), 'nd': s.get('nd')})
+            out.append({'R': s['R'], 'D': float(D), 'nd': s.get('nd'), 'doe': s.get('doe')})
         return out
     base = expand(st)
     SD = sum(s['D'] for s in base)
@@ -390,8 +412,71 @@ def main():
     print('\n== 近轴校验 ==')
     print('  ΣD = %.2f   (专利 L = %s)' % (SD, gen.get('L 光学全长 (mm)', '?')))
     print('  EFL = %.4f  BF = %.4f   (专利 f = %s)' % (f, bf, gen.get('f (mm)', '?')))
+    def _var_on_last_surface(key):
+        """可変間隔是否就是「最終レンズ面 → 像面」那一段。"""
+        rows = [q for q in emb['surfaces'] if q['i'] != 'IMG']
+        return bool(rows) and rows[-1]['D'] == key
+
     fc2 = zx.get('focus2')
     if not fc: print('\n(spec 无 zmx.focus，跳过对焦解)'); 
+    elif not fc2 and fc.get('key_after') is None and _var_on_last_surface(fc['key_before']):
+        # ===== 整組繰り出し：可変間隔 = 最終レンズ面〜像面 =====
+        # 紧凑型定焦常见（本例 JP2023-140823A）：对焦时整个镜筒相对像面前伸，
+        # 唯一在变的就是最后那一段空气。
+        # ⚠ 它**不是内部间隔** —— 改它不会改变光学系统本身，所以通用分支那套
+        # 「把像面钉在 ∞ 态后焦上、解物距」的方程恒等于 0=0，会把所有倍率
+        # 都误报成「超出对焦行程」。这里反过来做：给物距 → 近轴像距**就是**该状态的间隔。
+        kb = fc['key_before']
+        d0v = float(emb['variable'][kb][st])
+        base_s = expand(st, {kb: d0v})
+        f0, bf0, _ = paraxial(base_s)
+        SD_fix = sum(q['D'] for q in base_s) - d0v       # 面1 → 最終面 的轴上长度
+        cap = float(fc.get('sum') or 0.0)                # 可変間隔的机械上限（只用来告警）
+        bf_of = lambda o: paraxial(base_s, obj=o)[1]
+        bet_of = lambda o: paraxial(base_s, obj=o)[2]
+
+        def _root(g, N=2000):
+            """在 (1.001|f|, 1e9] 上对数扫描，取最右侧的「+ -> -」变号。
+            物在前焦点处像距发散，极点是「- -> +」的巨跳，天然排除。"""
+            lo0 = 1.001 * abs(f0)
+            xs = [lo0 * (1e9 / lo0) ** (i / float(N)) for i in range(N + 1)]
+            gs = [g(x) for x in xs]
+            br = None
+            for i in range(N):
+                if gs[i] is None or gs[i + 1] is None: continue
+                if gs[i] > 0 >= gs[i + 1]: br = (xs[i], xs[i + 1])
+            if not br: return None
+            lo, hi = br
+            for _ in range(200):
+                mid = 0.5 * (lo + hi)
+                if g(lo) * g(mid) <= 0: hi = mid
+                else: lo = mid
+            return 0.5 * (lo + hi)
+
+        print('\n== 对焦位置解（整組繰り出し：面1〜面%d 全体前伸、%s = 最終面〜像面）=='
+              % (len(base_s), kb))
+        print('  ★ 专利只印 ∞ 一态，以下近距状态全部是近轴反解，一律标 ★外推 —— '
+              '专利没有背书那里的像差校正。')
+        print('  %-14s d0=∞          %s=%.4f  β=0' % (st, kb, d0v))
+        cfgs = [{'name': st, 'd0': 'INFINITY', kb: round(d0v, 4)}]
+
+        def _emit(nm, o):
+            if o is None:
+                print('  %-14s 超出对焦行程' % nm); return
+            x = bf_of(o); b = bet_of(o)
+            warn = '   ← ★ 超出设定的行程上限 %.2f' % cap if cap and x > cap else ''
+            print('  %-14s d0=%-10.2f %s=%.4f  β=%+.5f  (1:%.1f)  撮影距離=%.1fmm  ★外推%s'
+                  % (nm, o, kb, x, b, 1 / abs(b) if b else 0, o + SD_fix + x, warn))
+            cfgs.append({'name': nm, 'd0': round(o, 2), kb: round(x, 4),
+                         'extrapolated': True})
+
+        for m in a.betas:
+            _emit('%.2fx' % m, _root(lambda o, _m=m: abs(bet_of(o)) - _m))
+        if a.mfd:
+            # 撮影距離（像面起算）= 物距 + 面1→最終面 + 最終面→像面
+            _emit('MFD(%gmm)' % a.mfd,
+                  _root(lambda o: (a.mfd - (o + SD_fix + bf_of(o)))))
+        if a.write: spec.setdefault('zmx', {})['configs'] = cfgs
     elif fc2:
         # ===== 双浮动对焦群（两组独立移动，如索尼 135GM）=====
         # 一个像面共轭方程解不出两个未知量，所以把第 2 组的位置当成第 1 组的函数：
@@ -443,7 +528,11 @@ def main():
             BF0 = bfd2(xs[0])[1]
             target = lambda x: BF0
         def solve_d0(x):
-            return solve_obj(lambda o: bfd2(x, o)[1] - target(x), f)
+            # ★ 括号起点必须用**该结构自己的 EFL**，不是 ∞ 态的 f：
+            # 高倍率微距对焦后 EFL 会大幅下降（本篇 100.81 → 36.01），
+            # 物距可以小于 ∞ 态的 f，用 1.001|f_inf| 起扫会把真根整段跳过（d0 变 nan）。
+            fx = bfd2(x)[0] or f
+            return solve_obj(lambda o: bfd2(x, o)[1] - target(x), min(abs(fx), abs(f)))
         def beta2(x):
             o = solve_d0(x)
             if o is None: return 0.0, None
@@ -499,18 +588,18 @@ def main():
                          kb1: round(x, 4), kb2: round(y, 4),
                          'extrapolated': bool(ext)})
         if a.mfd:
-            tgt = a.mfd - SD
+            sd_of = lambda x: sum(q['D'] for q in expand(st, dmap_of(x)))
             xs_scan = [t[0] for t in tab]
             o_of = lambda x: (beta2(x)[1] or float('inf'))
-            pr = [p for p in zip(xs_scan, xs_scan[1:])
-                  if (o_of(p[0]) - tgt) * (o_of(p[1]) - tgt) <= 0]
+            gg = lambda x: o_of(x) - (a.mfd - sd_of(x))
+            pr = [p for p in zip(xs_scan, xs_scan[1:]) if gg(p[0]) * gg(p[1]) <= 0]
             if not pr:
                 print('  MFD(%gmm): 超出对焦行程' % a.mfd)
             else:
                 x1, x2 = pr[0]
                 for _ in range(60):
                     xm = 0.5 * (x1 + x2)
-                    if (o_of(x1) - tgt) * (o_of(xm) - tgt) <= 0: x2 = xm
+                    if gg(x1) * gg(xm) <= 0: x2 = xm
                     else: x1 = xm
                 x = 0.5 * (x1 + x2); b, o = beta2(x); y = cam(x)
                 ext = '' if p_lo - 1e-9 <= x <= p_hi + 1e-9 else '   ← ★外推：超出专利记载的对焦范围'
@@ -529,9 +618,10 @@ def main():
                 o = float(given)
             print('  %-14s d0=%-10.2f  %s  β=%+.5f%s'
                   % (extra, o or float('nan'), show(x), b, tagg))
-            if extra == sts[-1]:
-                cfgs.append({'name': extra, 'd0': round(o, 4) if o else None,
-                             kb1: x, kb2: y})
+            # 专利记载的每个近距态都要进 configs（原来只收 sts[-1]，
+            # 中间态如 0.5倍 会被丢掉，而那是专利原值、比插值更可信）
+            cfgs.append({'name': extra, 'd0': round(o, 4) if o else None,
+                         kb1: x, kb2: y})
         if a.write: spec.setdefault('zmx', {})['configs'] = cfgs
     else:
         vb, va, tot = fc['var_before'], fc['var_after'], fc['sum']
@@ -543,7 +633,8 @@ def main():
 
         def solve_d0(d13):
             """像面固定在 ∞ 近轴焦点，解物距；解不出返回 None（等于物在无穷远之外）。"""
-            return solve_obj(lambda o: bfd(d13, o)[1] - BF0, f)
+            fx = bfd(d13)[0] or f      # 同上：用该结构自己的 EFL 定括号起点
+            return solve_obj(lambda o: bfd(d13, o)[1] - BF0, min(abs(fx), abs(f)))
 
         def beta(d13):
             o = solve_d0(d13)
@@ -551,13 +642,36 @@ def main():
             return bfd(d13, o)[2], o
 
         d0v = emb['variable'][kb][st]
-        near = emb['variable'][kb][emb['states'][-1]] if len(emb.get('states', [])) > 1 else 0.2 * d0v
+        multi = len(emb.get('states', [])) > 1
+        if multi:
+            near = emb['variable'][kb][emb['states'][-1]]
+        elif ka is None:
+            # 整組繰り出し式（key_after 为 null）：对焦组只朝物侧走，可变间隔单调增大。
+            # 专利只印 ∞ 一态时不能用 0.2*d0v 当近距端，那会把扫描方向整个弄反。
+            near = tot - 0.10
+        else:
+            # 专利只印 ∞ 一态时方向不能预设：内对焦组可能朝物侧也可能朝像侧走
+            # （EP4215968A1 的负 L2 朝像侧走，预设 0.2*d0v 会整段扫反）。
+            # 两侧各探一步，取解出**正的实物距**的那一侧。
+            near = 0.2 * d0v
+            if not multi:
+                def _ok(x):
+                    try:
+                        _b, _o = beta(x)
+                        return bool(_o) and _o > 0
+                    except Exception:
+                        return False
+                up = min(d0v + 0.05 * (tot - d0v), tot - 0.10)
+                if _ok(up) and not _ok(0.5 * d0v):
+                    near = tot - 0.10
         # 扫描范围要按**机械行程**给，不能只给「专利记载的 ∞↔近距」那一段 ——
         # 有的专利（如 US20150092100 的近距态只到 0.033x）记载范围比镜头实际行程短得多，
         # 只扫记载范围会把 0.06x 误判成「超出对焦行程」。
         # 方向仍锁在对焦组实际移动的那一侧，避免扫到另一支非物理的解。
         p_lo, p_hi = (near, d0v) if near < d0v else (d0v, near)
         lo_d, hi_d = (d0v, tot - 0.10) if near > d0v else (0.10, d0v)
+        if not multi:
+            p_lo = p_hi = d0v      # 专利只记载 ∞ 一态 → 其余解一律标 ★外推
         N = 400
         tab = []
         for i in range(N + 1):
@@ -592,18 +706,21 @@ def main():
                          'extrapolated': bool(ext)})
         # --mfd: 按产品标称最短撮影距離反解一态（物距 = MFD - ΣD，均自像面起算）
         if a.mfd:
-            tgt = a.mfd - SD
+            # ΣD 不一定是常数：整組繰り出し式对焦（key_after 为 null）时两个可变间隔没有
+            # 配对守恒，全长随对焦状态变化，拿 ∞ 态的 ΣD 当常数会把 MFD 解偏一整个行程量。
+            sd_of = lambda x: sum(q['D'] for q in expand(st, {kb: x, ka: tot - x}))
+            gg = lambda x: o_of_(x) - (a.mfd - sd_of(x))
             xs_scan = [x for x, _ in sorted(tab, key=lambda t: t[0])]
-            o_of = lambda x: (beta(x)[1] or float('inf'))
-            pr = [q for q in zip(xs_scan, xs_scan[1:])
-                  if (o_of(q[0]) - tgt) * (o_of(q[1]) - tgt) <= 0]
+            o_of_ = lambda x: (beta(x)[1] or float('inf'))
+            o_of = o_of_
+            pr = [q for q in zip(xs_scan, xs_scan[1:]) if gg(q[0]) * gg(q[1]) <= 0]
             if not pr:
                 print('  MFD(%gmm): 超出对焦行程' % a.mfd)
             else:
                 x1, x2 = pr[0]
                 for _ in range(60):
                     xm = 0.5 * (x1 + x2)
-                    if (o_of(x1) - tgt) * (o_of(xm) - tgt) <= 0: x2 = xm
+                    if gg(x1) * gg(xm) <= 0: x2 = xm
                     else: x1 = xm
                 x = 0.5 * (x1 + x2); b, o = beta(x)
                 ext = '' if p_lo - 1e-9 <= x <= p_hi + 1e-9 else '   ← ★外推：超出专利记载的对焦范围'

@@ -35,6 +35,15 @@ ASPKEYS_FULL = ASPKEYS + ['A18', 'A20']
 CVLET = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J']      # r⁴ … r²⁰
 
 
+def _apow(A):
+    """把非球面字典里的 A<n> 取成 {次数: 系数}，支持奇数次（佳能 A3..A15）。"""
+    out = {}
+    for k, v in (A or {}).items():
+        m = re.fullmatch(r'[Aa]\s*(\d+)', str(k))
+        if m and v: out[int(m.group(1))] = float(v)
+    return out
+
+
 def num(v):
     """CODE V 的写法：小数直接写，很小的数写成 0.xxxe±n（照它自己导出的样子）。"""
     v = float(v)
@@ -79,7 +88,20 @@ def build(spec, emb, title, gmode):
     # 但它自己**读**这种写法会读成空 —— 实测把脚本生成的文件在 CODE V 里过一遍，
     # 四个结构名全变成 ' '。所以写入要用单层引号，别照抄它的导出格式。
     a("TITLE '%s'" % title)
-    a('FNO   %s' % num(zx['fno']))
+    # 孔径：CODE V 的 FNO = **所用共轭下的近轴工作 F 数** 1/(2·NA')（LensSystemSetupRM p.27-29：
+    # "adjusts EPD to keep f_ratio satisfied"，NAO=n·sin(atan(EPD/2L))、NA=NAO/RED、FNO=1/(2NA)），
+    # 与 Zemax 的 Paraxial Working F/#（FNUM <v> 1）是同一个量。所以两边写同一组逐结构值：
+    # 头部 FNO = 结构 1，ZOO FNO 逐结构。值由 vignet.aperture_cfg 给出（专利各态 F 数 / 物理光阑固定）。
+    # ★ 旧版把 ∞ 的 F 数原样铺满 ZOO FNO，CODE V 会在近距结构把入瞳**放大**去凑 F2.92
+    #   （JP2021-148808A 1:1 结构 EPD 35.7 → 146.7），与 Zemax 旧版的「缩小」正好反向，一样是错的。
+    # ★ 有限共轭下两边的定义差一个 sin/tan：CODE V 用物方 NAO = n·sin(atan(EPD/2L))
+    #   （LensSystemSetupRM p.29；宏 fct_ABCD.seq：F/# used = |m|·√(r²+L²)/(n·EPD)），
+    #   Zemax 的 Paraxial Working F/# 用近轴斜率 tan。要两边**入瞳完全相同**，就得
+    #   FNO_CV² = PWFN² + (β/2)²（闭式，与 EPD、L 无关）。RF100 1.4x：6.640 → 6.677（+0.55%），∞ 结构不变。
+    from make_zmx import wfno_cfg
+    wf0, _ss, bts = wfno_cfg(spec, emb, with_beta=True)
+    wf = [(w*w + (b/2.0)**2) ** 0.5 for w, b in zip(wf0, bts)]
+    a('FNO   %s' % num(round(wf[0], 6)))
     a('DIM   M')
     # 波长：Zemax 那组固定加权（0.4861/12, 0.5461/30 主, 0.6563/3, 0.5876/22, 0.4358/3）
     wv = zx.get('waves') or [(0.4861, 12), (0.5461, 30), (0.6563, 3), (0.5876, 22), (0.4358, 3)]
@@ -118,8 +140,15 @@ def build(spec, emb, title, gmode):
             D = (cfgs[0].get(D) if D in (kb, kb2) else None) or float(emb['variable'][D][st])
         g = ''
         if s.get('nd'):
+            # 面上写了 glass_codev 就原样用它（CODE V 目录里的真牌号）。
+            # 两边目录并不一一对应：Zemax 的 ZEON.AGF 把 K22R 与 K26R 合并成
+            # ZEONEX_K22R&K26R_2017，而 CODE V 的 ZEON.xml 是分开的 K22R / K26R（同一个
+            # 指数 535557），机械地去掉符号拼出来的名字 CODE V 查不到。
             go = s.get('glass_offset')
-            if go and gmode.startswith('exact'):
+            if s.get('glass_codev') and not gmode.startswith('exact'):
+                g = ' ' + s['glass_codev']
+                if go: warn.append((s['i'], s['glass_codev'], go['d_nd'], go['d_vd']))
+            elif go and gmode.startswith('exact'):
                 g = ' %s %s' % (num(s['nd']), num(s['vd']))
             elif go:
                 g = ' ' + cvglass(go['base'])
@@ -132,9 +161,28 @@ def build(spec, emb, title, gmode):
         phi = (s.get('extra') or {}).get('有効径 φi')
         if phi: a('  CIR %s' % num(round(phi / 2.0, 6)))
         if s.get('stop') or s['i'] == 'STO': a('  STO')
+        if s.get('doe'):
+            # 衍射面：CODE V DOE，旋转对称相位多项式。HCO Cj = r^(2j) 的 OPD 系数(mm)，
+            # 与专利 C_2j 同义（实证 E:/CODEV11.5/lens/bindoub.seq：DIF DOE / HOR / HWL nm / HCT R / HCO）
+            d = s['doe']
+            a('  DIF DOE'); a('  HOR 1.0')
+            a('  HWL %s; HCT R' % num(float(d.get('wl_nm', 587.56))))
+            a('  ' + '; '.join('HCO C%d %s' % (j, num(float(v))) for j, v in enumerate(d['C'], 1)))
         A = asp.get(str(s['i']))
-        if A:
-            a('  ASP'); a('  K   %s' % num(A.get('k', 0.0))); a('  CUF 0.0')
+        if A and any(n % 2 for n in _apow(A)):
+            # 含奇数次项（佳能的 A3..A15）→ CODE V 的 Odd Polynomial 特殊面 SPS ODD。
+            # 参数表见 CODE V 2026《Lens System Setup Reference Manual》p.353：
+            #   C1 = K（円錐定数）、C2 = AR1(r^1)、C3 = AR2、… C(n+1) = AR n(r^n)，到 r^30；
+            #   C33 = NRADIUS。SPS 后面那个数就是 NRADIUS，0.0 = 不归一化（等效 1.0），
+            #   与 Zemax 侧 XOSPHERE 把 Rn 取 1.0 一致，两边系数都是专利印的原值。
+            # ASP 面只有偶数次（A..J = r^4..r^20），装不下，所以这里不能走 ASP。
+            pw = _apow(A)
+            a('  SPS ODD 0.0')
+            a('  SCO K %s' % num(A.get('k', A.get('K', 0.0))))
+            for n in sorted(pw):
+                a('  SCO AR%d %s' % (n, num(pw[n])))
+        elif A:
+            a('  ASP'); a('  K   %s' % num(A.get('k', A.get('K', 0.0)))); a('  CUF 0.0')
             co = [float(A.get(k) or 0.0) for k in ASPKEYS_FULL]   # 9 项 = A..D, E..H, J
             last = max([i for i, v in enumerate(co) if v] or [0])
             # CODE V 的习惯：只要写了 E..H 这一组，后面一定跟一行 J（哪怕是 0）；
@@ -145,20 +193,23 @@ def build(spec, emb, title, gmode):
                   .replace('A ', 'A   ', 1).replace('E ', 'E   ', 1).replace('J ', 'J   ', 1))
     a('SI    0.0 0.0')
     noaal = gmode.endswith('|no-oal')
-    solved = None
-    if fc and not noaal:
-        va, vb = int(fc['var_after']), int(fc['var_before'])
-        solved = va
-        tot = fc['sum'] + sum(float(x['D']) for x in surfs
-                              if isinstance(x['D'], (int, float))
-                              and fc['var_before'] < _si(x) < fc['var_after'])
+    solved = []
+    # 双浮动对焦群要写**两条** OAL 解。只写第一条时，第二组的 key_after（如 d22）
+    # 既没有解也不进 ZOO THI，四个结构里会被一直钉在 ∞ 态的值上 —— 像面跟着跑掉。
+    for f in (fc, fc2):
+        if not f or noaal or f.get('key_last') or not f.get('key_after'): continue
+        va, vb = int(f['var_after']), int(f['var_before'])
+        solved.append(va)
+        tot = f['sum'] + sum(float(x['D']) for x in surfs
+                             if isinstance(x['D'], (int, float))
+                             and f['var_before'] < _si(x) < f['var_after'])
         a('THI   S%d OAL S%d..%d %s' % (va, vb, va + 1, num(round(tot, 6))))
 
     # ---- 多重结构 ----
     if len(cfgs) > 1:
         a('ZOO   %d' % len(cfgs)); a('ZOO   TIT')
         for i, c in enumerate(cfgs, 1): a('TIT   Z%d "%s"' % (i, c['name']))
-        a('ZOO   FNO ' + ' '.join(num(zx['fno']) for _ in cfgs))
+        L.extend(wrap('ZOO   FNO', [num(round(v, 6)) for v in wf]))
         vc = [FLIP(v) for v in (zx.get('vignetting_cfg') or [])]
         if vc and len(vc) == len(cfgs):
             vx = lambda f: round(f[2], 6)
@@ -174,15 +225,15 @@ def build(spec, emb, title, gmode):
         # 这条规则与 zmx 侧同源：用了位置解，MCE 里就不要再写该面的 THIC 行。
         rows = [(0, [c['d0'] for c in cfgs])]
         if kb and fc: rows.append((int(fc['var_before']), [c[kb] for c in cfgs]))
-        if fc and fc.get('key_last') and solved is None:
+        if fc and fc.get('key_last') and not solved:
             # 链式三段浮动：位置解那一面的厚度 = 守恒和 − 前两个可变间隔
             rows.append((int(fc['var_after']),
                          [round(fc['sum'] - c[kb] - c[kb2], 6) for c in cfgs]))
-        elif fc and fc.get('key_after') and solved is None:
+        elif fc and fc.get('key_after') and int(fc['var_after']) not in solved:
             rows.append((int(fc['var_after']),
                          [round(fc['sum'] - c[kb], 6) for c in cfgs]))
         if kb2 and fc2: rows.append((int(fc2['var_before']), [c[kb2] for c in cfgs]))
-        rows = [r for r in rows if r[0] != solved]
+        rows = [r for r in rows if r[0] not in solved]
         for sn, vals in rows:
             v = ['0.1e11' if str(x).upper().startswith('INF') else num(x) for x in vals]
             L.extend(wrap('ZOO   THI S%d' % sn, v))

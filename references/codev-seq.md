@@ -8,7 +8,7 @@
 ```
 RDM;LEN       "VERSION: 2026       LENS VERSION: 92       Creation Date:  8-Sep-2026"
 TITLE '"INF"'                 ← 基准结构名，注意是 单引号包双引号
-FNO   1.23
+FNO   1.23                    ← 所用共轭下的近轴工作 F 数（= Zemax Paraxial Working F/#）；多结构时另写 ZOO FNO 逐位置给值
 DIM   M                       ← 毫米
 WL    656.3 587.6 546.1 486.1 435.8     ← **降序**
 REF   3                       ← 主波长在上面这行里的序号（546.1 排第 3）
@@ -85,7 +85,7 @@ CODE V 侧的习惯是**用评价函数优化**出对焦组位置，不依赖软
 | 方向 | 要点 |
 |---|---|
 | `VUY/VLY` → `VDY/VCY` | `VCY=(VUY+VLY)/2`、**`VDY=(VLY−VUY)/2`（负号）**。上光瞳切得多 ⇒ 光瞳中心偏下 ⇒ VDY 负 |
-| `ZOO FNO` → **不写 APER** | 那是有限共轭的工作 F 数，入瞳恒定；只写一行 `FNUM`，逐结构铺 APER 会把光瞳二次缩小 |
+| `FNO` / `ZOO FNO` → `FNUM v 1` + 逐结构 `APER` | CODE V 的 FNO = 所用共轭下的近轴工作 F 数（LensSystemSetupRM p.27–29），与 Zemax **Paraxial Working F/#** 同义，原样搬。**别写 `FNUM v 0`**（Image Space F/#，按 ∞ 共轭 EFL/EPD 定义，内对焦近距会把光阑缩掉） |
 | `CIR` → `DIAM …1` + `CLAP` | CODE V 的 CIR 挡光，而 Zemax 的 semi-diameter 不挡，必须补 `CLAP 0 <v> 0` |
 | 牌号 `XXX_厂家` → 目录名 | 去掉厂家后缀，按「去掉所有非字母数字」与 `.AGF` 的 NM 行比对（`DQK3L_CDGM`→`D-QK3L`）。查不到就退出，别退化成模型玻璃 |
 

@@ -13,6 +13,7 @@ Zemax 不会再自己发明口径，但也不会再替你检查相邻两面会�
     floor 收口后必须仍比 semi_3d 光束半径大出这么多；顶不住就保留光束+floor 并打★
 （CT/ET≤6 的薄厚比只报告、不用来收口 —— 大孔径厚正透镜本来就超，收了会切光束。）
 """
+import re
 import json, argparse
 from math import sqrt
 
@@ -23,8 +24,11 @@ def sag(s, r):
     t = 1 - (1+k)*c*c*r*r
     if t <= 0: return None
     z = c*r*r/(1+sqrt(t))
-    for key, e in (('A4',4),('A6',6),('A8',8),('A10',10),('A12',12),('A14',14),('A16',16),('A18',18),('A20',20)):
-        z += (s.get('asp') or {}).get(key, 0.0) * r**e
+    # 非球面系数：任意整数次（含佳能的奇数次 A3..A15）。r 恒为非负。
+    ar = abs(r)
+    for key, val in (s.get('asp') or {}).items():
+        m = re.fullmatch(r'[Aa]\s*(\d+)', str(key))
+        if m and val: z += float(val) * ar ** int(m.group(1))
     return z
 
 def main():
@@ -57,7 +61,7 @@ def main():
         if isinstance(D, str): D = float(emb['variable'][D][st])
         A = asp.get(str(q['i']))
         S.append({'i': q['i'], 'R': q['R'], 'D': float(D), 'z': z, 'nd': q.get('nd'),
-                  'k': (A or {}).get('k', 0.0), 'asp': A,
+                  'k': (A or {}).get('k', (A or {}).get('K', 0.0)), 'asp': A,
                   'phi': (q.get('extra') or {}).get('有効径 φi')})
         z += float(D)
     beam = (spec.get('zmx') or {}).get('semi_3d') or []

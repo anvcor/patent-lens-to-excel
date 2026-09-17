@@ -21,21 +21,29 @@ description: "把光学镜头专利 PDF（日本特开 JP-A、中国 CN-A、美�
 
 1. **日系专利不许出现国产玻璃当首选。** 索尼/尼康/佳能/腾龙/适马基本不用 CDGM 等国产料。
    命令行固定 `--vendors HOYA OHARA CDGM --alt-only CDGM`；
-   **尼康专利把 HIKARI 放第一**：`--vendors HIKARI HOYA OHARA CDGM --alt-only CDGM`。
+   **尼康专利把 HIKARI 放第一**：`--vendors HIKARI HOYA OHARA CDGM --alt-only CDGM`；
+   **佳能专利把 OHARA 放第一**：`--vendors OHARA HOYA CDGM --alt-only CDGM`（用户 2026-09 明确）。
    **厂家优先是硬约束，不是打分项，不能被「精确命中」推翻** —— 见「玻璃匹配」一节的反例。
-   **同一家目录内部还要挑现行牌号**：HIKARI 的 E-/P-/无前缀都停产了，新镜头用 J-（研磨）/ Q-（模压）。
-2. **渐晕三条一起犯错才算过关**（见「口径与渐晕」）：
+   **同一家目录内部还要挑现行牌号**：HIKARI 的 E-/P-/无前缀都停产了，新镜头用 J-（研磨）/ Q-（模压）；
+   **OHARA 只许用 S- / L- 开头的无铅牌号**，见下一条。
+2. **2000 年以后的镜头不许出现含铅玻璃。** OHARA 目录里 `PBM* / PBH* / PBL* / BPH* / BAL* / BAM* /
+   BSL* / BSM* / TIM* / TIH* / LAL* / LAH* / NSL* / FSL*`（凡是不以 `S-` 或 `L-` 开头的）都是
+   2000 年环保化之前的**含铅**老系列，只有老镜头（EF 时代）才会用。用户 2026-09 当场打回过
+   `PBM2Y / PBH21 / BPH5`。**光看 AGF 的 Obsolete 位挡不住** —— PBM2Y、BSL7Y、PBL1Y 这一票
+   `-Y` 后缀的含铅款在目录里仍标着 Preferred。`lensmath.py` 现在默认开 eco 过滤
+   （`CURRENT['OHARA'] = ^(S-|L-)` + AGF `status==2` 一律不参与），**老专利（2000 年前）才加 `--allow-legacy`**。
+3. **渐晕三条一起犯错才算过关**（见「口径与渐晕」）：
    **VCX 不许留 0** —— 只解子午面会让 Zemax 按全宽 X 光瞳追迹，光阑后各面自动口径被撑大；
    **对焦镜头的渐晕必须逐结构进 MCE** —— VDX/VDY/VCX/VCY 是全局量，不写 FVDY/FVCY/FVCX
    操作数就等于所有结构共用一套，近距结构的光瞳会被整片切掉；
    **Py=±1 必须真过得去** —— Layout 画的就是这两条，卡在口径上就等着被打回。
-3. **牌号必须在用户机器的目录里真实存在**。**无等效牌号的面不要退化成模型玻璃** ——
+4. **牌号必须在用户机器的目录里真实存在**。**无等效牌号的面不要退化成模型玻璃** ——
    用「贴合实物的基准玻璃 + Zemax 官方 Offset 玻璃解」补 Nd/Vd 偏移（见「无等效牌号」一节）；
    万不得已用模型玻璃时**必须带 dPgF**、不能留 0。
-4. **口径要逐面给，不是逐元件给。** 同一元件前后两面差好几 mm 是正常的（前面画到玻璃外径带法兰，
+5. **口径要逐面给，不是逐元件给。** 同一元件前后两面差好几 mm 是正常的（前面画到玻璃外径带法兰，
    后面的弧止于一圈平环）。按元件给一个值，会把强弯月片的深弯那一面推到半球边上，
    出**物理上不存在的锋利刃口**（实测面2 R=31.105 被给成半径 30.48，r/|R|=0.98，用户当场打回）。
-5. **口径绝不许切到轴上满光瞳。** 切了不是「少一点渐晕」，是把**相对孔径**改掉 ——
+6. **口径绝不许切到轴上满光瞳。** 切了不是「少一点渐晕」，是把**相对孔径**改掉 ——
    F 数直接变大。实测 JP2025052870A：面21/22/23 的玻璃外径比轴上锥需求小 1.0~1.3%，
    等效 F 数从 1.23 变成 **1.247**，用户当场打回。`vignet.py` 现在会算 `zmx.axial_3d`
    （逐面**不加渐晕、不受口径阻挡**的轴上满光瞳需求半径）并逐面体检，`apcap.py` 拿它当硬底线。
@@ -49,6 +57,14 @@ description: "把光学镜头专利 PDF（日本特开 JP-A、中国 CN-A、美�
 
 7. **把口径全部固定以后，必须再跑 `apcap.py`。** 固定住 Zemax 就不再替你查相邻面撞不撞，
    强弯月/强非球面的相邻两面在大半径处会反向弯，**空气间隙的边缘厚度变成负的、前后透镜互相侵入**。
+
+8. **孔径类型一律 Paraxial Working F/#（`FNUM <v> 1`），逐结构 `APER`；CODE V 侧 `FNO` + `ZOO FNO` 写同一组值。**
+   **不许再写 Image Space F/#（`FNUM <v> 0`）。** 它按**该结构自己**的 ∞ 共轭 EFL / 入瞳直径定义，
+   内对焦 / 浮动对焦镜头近距 EFL 大幅缩短时光阑会被跟着缩小 —— 用户 2026-09 打回：
+   JP2021-047297A（RF100 F2.8L 微距）1.00x 结构 ENPD 只剩 15.73、状态栏 **WFNO 9.149**（说明书实效 F5.7）。
+   逐结构的值由 `vignet.py` 的 `aperture_cfg()` 给：**专利印了近距各态 F 数就用它**（`zmx.fno_patent`），
+   否则按**物理光阑固定**反算。旧 `.seq` 把 ∞ 的 F 数原样铺满 `ZOO FNO` 也是错的（CODE V 会反过来把近距入瞳**放大**）。
+   见「孔径：Paraxial Working F/#」一节。
 
 ## 成本模型：要省的是往返次数，不是 CPU
 
@@ -66,26 +82,43 @@ description: "把光学镜头专利 PDF（日本特开 JP-A、中国 CN-A、美�
 | ~4 次 | **脚本 bug 现场调试**（见「已修的坑」，都改掉了） | 每次修完立刻 commit 回本地 |
 | ~4 次 | **猜 .zmx 的字段含义**（Offset 解的偏移量位置猜错，白跑一轮） | 先去用户机器的 `Samples` 里找一个真用了该功能的文件，grep 出来照抄；找不到就**明说是推断**，让用户开文件时核一眼 |
 
-### 脚本的家：skill 自带 `scripts/`，本机 `E:\Download\patent-lens-to-excel_新脚本\` 是编辑副本
+### 脚本的家与文件放哪（2026-09-17 起只有一个开发目录）
 
-**开工先看 skill 目录的 `scripts/` 齐不齐**（应有 **16** 个 .py，见「脚本一览」；2026-09 新增 `aptrace.py` / `apcap.py` / `make_seq.py` / `seq2zmx.py`）。齐就直接用：
+**本机唯一的开发目录：`E:\Download\patent-lens-to-excel\`** —— 同时是 git 仓库
+（`github.com/anvcor/patent-lens-to-excel`），布局与 .skill 包一致：
+`SKILL.md` / `scripts/` / `references/` / `assets/glass/`，另有 `DEVELOPMENT.md`（开发说明）、
+`tools/`（打包、推 GitHub）、`docs/`。以前的 `patent-lens-to-excel_新脚本` / `_repo` 两份已合并进来，不再存在。
+
+**这个目录里只放 skill 本身，不放任何交付物和中间件**（用户 2026-09-17 明确）：
+
+| 东西 | 放哪 |
+|---|---|
+| 交付的 `.zmx` / `.seq` / `.xlsx` | **`E:\Download\`** 根目录 |
+| 各专利的 `spec_*.json` 及 `.matched/.vig/.final` 中间件、一次性辅助脚本 | `E:\Download\patent_specs\` |
+| 临时对照、回归、调试输出 | 会话 scratchpad |
+| 打包出来的 `.skill` | `E:\Download\`（`python tools/build_skill.py` 默认就写这里） |
+
+命令里 `-o` / `--write` 一律给到上面这些位置，别省略成相对路径写进脚本目录。
+
+**开工先看 skill 目录的 `scripts/` 齐不齐**（应有 **18** 个 .py + **1** 个 `zapi_vigfit.ps1` + `p2p_index.json`，见「脚本一览」；2026-09 新增 `aptrace.py` / `apcap.py` / `make_seq.py` / `seq2zmx.py`，2026-09-17 新增 `vigfit_merge.py` / `zapi_vigfit.ps1`，并把 `which_example.py` 收进来）。齐就直接用：
 
 ```bash
 cp "$(dirname "$0")"/../scripts/*.py /tmp/sc     # 或直接用 skill 里的绝对路径
 ```
 
 缺文件时（见下面那条警告）再去 `device_stage_files` 把
-`E:\Download\patent-lens-to-excel_新脚本\` 拿回来补齐。
+`E:\Download\patent-lens-to-excel\scripts\` 拿回来补齐。
 
-**改了脚本要写两个地方**：`device_commit_files` 回本机那个文件夹（下次立刻能用），
-并提醒用户**重新打包 .skill 上传一次**，脚本才会同步到其他设备。
+**改了脚本要写回 `E:\Download\patent-lens-to-excel\`**（本机 Claude Code 直接改；容器里走 `device_commit_files`），
+git 提交后**重新打包 .skill 上传一次**（`python tools/build_skill.py`），脚本才会同步到其他设备。
+开发流程、回归方法、已知问题见仓库里的 `DEVELOPMENT.md`。
 
 > ⚠️ **`propose_skills` 只能带 SKILL.md，带不了脚本文件**，而且用户保存提案时
 > synced 目录会被整个替换 —— **`scripts/` 与 `assets/` 会被冲掉**。
 > 所以顺序必须是：先改 SKILL.md → 把改好的 SKILL.md **一起打进 .skill 包**上传，
 > **不要**再走 propose_skills。真的走了 propose_skills，事后必须再上传一次 .skill 包补回脚本。
-> 打包方法：`zip -r patent-lens-to-excel.skill patent-lens-to-excel/`（顶层要有同名文件夹），
-> 然后在 Claude 的 Skills 设置里替换同名 skill。
+> 打包方法：`python tools/build_skill.py`（顶层同名文件夹、正斜杠路径；**别用 Compress-Archive**，它写反斜杠），
+> 然后在 Claude 的 Skills 设置里 Add → Upload skill 替换同名 skill。
 
 ### 玻璃目录：用用户自己 OpticStudio 的目录，不要用 skill 自带的
 
@@ -94,7 +127,7 @@ cp "$(dirname "$0")"/../scripts/*.py /tmp/sc     # 或直接用 skill 里的绝�
 
 ```bash
 # 挑各厂最新的一本，改名成 <厂家>.AGF 放进 /tmp/gc
-HOYA20260707.agf → HOYA.AGF      OHARA_240131.AGF → OHARA.AGF
+HOYA20260707.agf → HOYA.AGF      OHARA_260701.AGF → OHARA.AGF   ← OHARA 用 260701（2026-07 版）
 CDGM2025011.AGF  → CDGM.AGF      NIKON-HIKARI20220701.agf → HIKARI.AGF
 export PATENT_GLASS_DIR=/tmp/gc
 ```
@@ -110,30 +143,36 @@ export PATENT_GLASS_DIR=/tmp/gc
 同时 **spec 里要写 `zmx.gcat`**，`make_zmx.py` 用它写 GCAT 行：
 
 ```json
-"gcat": {"HOYA":"HOYA20260707","OHARA":"OHARA_240131","CDGM":"CDGM2025011","HIKARI":"NIKON-HIKARI20220701"}
+"gcat": {"HOYA":"HOYA20260707","OHARA":"OHARA_260701","CDGM":"CDGM2025011","HIKARI":"NIKON-HIKARI20220701"}
 ```
 
 ### 标准快路径（目标 13~15 次调用）
 
 ```
-1  device_stage_files  新脚本 *.py + 用户 Glasscat 的四本 AGF        → /tmp/sc, /tmp/gc
+1  device_stage_files  E:\Download\patent-lens-to-excel\scripts\* + 用户 Glasscat 的四本 AGF → /tmp/sc, /tmp/gc
+     （本机 Claude Code：直接用该目录的 scripts\，spec 写 E:\Download\patent_specs\）
 2  device_stage_files  专利 PDF（先在本地找，常已经下好了）
 3  pdfinfo + pdffonts + pdftotext -layout                  # 判断有无文字层
 4  find_tables.py in.pdf --locate "TABLE 1\s*$"            # 直接得到裁图命令
      全图 PDF 时改用「联系表」定位，见 §2
 5  按上一步输出的 convert 命令裁出 1~2 张表格图
 6~7 Read t1.png / t2.png                                   # 录入数值
-8  写 spec.json（Write 工具，含 zmx.gcat；双浮动对焦时含 zmx.focus2）
+8  写 spec.json（Write 工具，含 zmx.gcat；双浮动对焦时含 zmx.focus2；
+     专利印了近距各态 F 数时含 zmx.fno_patent = {结构名: F}）
 9  lensmath.py --vendors <厂家序> --alt-only CDGM --write \
      && covercheck.py --write                              # 串同一个 bash
 10 aptrace.py in.pdf <断面图页> --crop … --rotate 0/90 --dpi 600
                                   # **逐面**沿面型曲线量口径（首选；figmeas 是逐元件的老路）
 10b apcap.py --trim 0                     # **先**按几何干涉收口（相接的空气透镜会让 aptrace 读过头）
-11 vignet.py --write                     # 逐结构解（含有限共轭）+ VCX + 逐面余量
+11 vignet.py --write                     # 开头先印「孔径」表（逐结构工作 F 数与来源），再逐结构解渐晕
+     → 有「★★ 切到轴上光瞳」就 apcap 抬口径后**再跑一次 vignet**（轴上视场不能留 VCY≈0.01 的假渐晕）
 12 clearance.py --write && **apcap.py**  # apcap 必跑：相邻面干涉收口 + 重建 fix_semi_surfaces
 13 layout_check.py 出叠加图 → Read ov.png                  # 交付第三道卡
 14 build_workbook.py && make_zmx.py [&& make_seq.py] && 牌号存在性核查
-15 SendUserFile + device_commit_files（含改过的脚本）
+14b （本机有 OpticStudio 时必做）zapi_vigfit.ps1 -File X_catalog.zmx -Out X.vigfit.json   # 默认先 Set Vignetting 再收
+     → vigfit_merge.py spec.final.json X.vigfit.json → 重出 make_zmx + make_seq
+     → zapi_vigfit.ps1 -CheckOnly：逐结构 PWFN=APER、PMAG、TOTR、Py/Px=±1 四条全过
+15 交付物写到 E:\Download\ → SendUserFile；改过的脚本写回 E:\Download\patent-lens-to-excel\ 并 git 提交
 ```
 
 **先看看用户本地有没有现成的逆向文件。** Bill Claff（PhotonsToPhotos Optical Bench）做过很多
@@ -234,7 +273,7 @@ e 线判定交给 `lensmath.py`。`vendors` 按厂商国别填，顺序即优先
 
 ```json
 "zmx": {"name": "…", "fno": 1.854, "max_y": 21.633,
-        "gcat": {"HOYA":"HOYA20260707","OHARA":"OHARA_240131","CDGM":"CDGM2025011"},
+        "gcat": {"HOYA":"HOYA20260707","OHARA":"OHARA_260701","CDGM":"CDGM2025011"},
         "focus":  {"var_before": 10, "var_after": 15, "sum": 20.0880,
                    "key_before": "D10", "key_after": "D15"},
         "focus2": {"var_before": 16, "var_after": 19, "sum": 24.6554,
@@ -242,6 +281,9 @@ e 线判定交给 `lensmath.py`。`vendors` 按厂商国别填，顺序即优先
 ```
 
 `focus2` 只在**双浮动对焦群**时写，见专门一节。
+**专利的各種データ给了近距各态的 F 数**（佳能 JP 的微距常见：RF100 印 2.92 / 4.49 / 6.64）就写
+`"fno_patent": {"INF": 2.92, "0.50x": 4.49, "MFD(1.40x)": 6.64}`（键 = lensmath 生成的结构名）；
+逐结构硬指定用 `"wfno_override": {"1.00x": 5.7}`。见「孔径：Paraxial Working F/#」。
 光谱、视场、口径、光线瞄准都有固定约定（下几节），**默认不需要写进 spec**；只需给 `max_y`。
 `vignetting` / `semi_3d` / `fix_semi_surfaces` / `semi_diameters` / `ray_aiming` 由 `vignet.py` 或
 `clearance.py --write` 自动填；`有効径` 由 `figmeas.py` 填。
@@ -291,7 +333,7 @@ python3 scripts/build_workbook.py spec.final.json -o "XXX_专利数据整理.xls
 `make_zmx.py` 同时出**目录玻璃版**和**模型玻璃版**，生成后自动反解析自校验，
 EFL 对不上专利 f 就不要交付。
 
-**交付前七道卡，一道都不能省：**
+**交付前八道卡，一道都不能省：**
 ① `vignet.py` 的逐面余量报告里**没有「★ 光束超出口径」**，且**每个结构每个视场都是 `OK`**
 （Py=±1 / Px=±1 四条都过）；多结构文件还要确认 `.zmx` 里真有 `FVCY/FVDY` 行；
 ② `clearance.py` 看到「0 处不合格」（确属设计特征的例外要写进回话，见下）；
@@ -304,11 +346,15 @@ EFL 对不上专利 f 就不要交付。
 Zemax 会据此把上游各面的自动口径撑到造不出来（实测面9~12 被撑到 31.7，真实光束只有 27.7）；
 ⑥ **`apcap.py` 报 0 处不合格，且「按光束收紧」那一段跑过了**（口径全固定时必跑）——
 断面图量到的是玻璃外径，不收紧就会比实际需要大 0.5~2mm；
-⑦ `make_zmx.py` 的自校验 EFL 与专利 f 对得上（**带 Offset 解时要把偏移加回去再算**）。
+⑦ `make_zmx.py` 的自校验 EFL 与专利 f 对得上（**带 Offset 解时要把偏移加回去再算**），
+且打印「孔径类型 Paraxial Working F/#」+「与孔径模型逐结构一致 ✓」；
+⑧ **本机有 OpticStudio 就用 ZOS-API 真加载一遍**（`zapi_vigfit.ps1 -CheckOnly`，无界面、30 秒）：
+逐结构 `PWFN = APER`、`WFNO ≈ PWFN`、`PMAG` = 设计倍率、`TOTR` 各结构相等、**Py/Px=±1 四条实光线全过**。
+vignet.py 自检说 OK 不算数 —— 它瞄近轴入瞳，Zemax 开 Real 瞄真实光阑，前几片上会差出零点几毫米（见「孔径」一节）。
 一个能打开但镜片互相穿插、边缘厚度为负、牌号根本不存在、或者给索尼配了国产玻璃的文件，
 在光学设计师眼里是废品。
 
-然后 `SendUserFile` 交付，并用 `device_commit_files` 写回用户本地文件夹（**含改过的脚本**）。
+然后 `SendUserFile` 交付（文件在 `E:\Download\`），改过的脚本写回 `E:\Download\patent-lens-to-excel\` 并 git 提交。
 
 ## 双浮动对焦群（两组独立移动的对焦组）
 
@@ -334,12 +380,16 @@ MCE 里 `THIC 0/10/16` 各 4 个结构。`key_after` 两个面**不进 MCE**，�
 
 **自检**：两组的守恒和要**分别**验；解出的 β 与专利印的（四舍五入后）一致。
 
-## 传感器盖板 —— 默认就要补，别信球差判据的「别补」
+## 传感器盖板 —— 先看专利有没有，**没有就是没有，不要自己补**
 
-**这是最容易漏的一条，用户点名批评过。**
+用户 2026-09 的原话：「**不一定有 cover glass。专利没有应该就是没有**」。
+所以顺序是：**先判专利自带 → 自带就用专利的 → 不自带就别补**，除非有正面证据
+（同厂同期另一件专利明确带、或产品拆解已知带）。凭「日系可换镜就该有」直接 `--force-add`
+是过去被用户纠正过的做法，不要再当默认。
 
-日系厂商（尤其索尼）把盖板**整块拿掉**再发表，把它的空气换算长折进最后那个 BF。
-**实物是带盖板的，专利故意不出现。**
+早年那条「索尼把盖板整块拿掉、把空气换算长折进 BF」的观察仍然成立，但**只对那几篇索尼专利成立**，
+不能推广到佳能。佳能的专利（US20250028154A1、JP2022-85382A）盖板都是**自己印在面数据表里**的，
+不需要也不该再补。
 
 ```bash
 python3 scripts/covercheck.py spec.matched.json --force-add --write   # 出 .cg.json
@@ -352,7 +402,7 @@ WO2019187633 面25-26 = 2.50mm nd1.51680/νd64.20 + 1.00mm 空气 —— 后者�
 判断要看**倒数第一面和倒数第二面**都是平面 —— 别去看倒数第三面，
 那是盖板前面那片透镜、本来就不该是平面。
 
-不自带时：**可换镜产品对应的日系专利，默认就补**，用 `--force-add`。
+不自带、且有正面证据非补不可时（`--force-add`）：
 保持空气换算长不变（`d_last' = d_last − t/n − air`），近轴焦点不动，ΣD 增加 `t − t/n`。
 物理厚度按画幅惯例：全画幅/APS-C 可换镜 **2.5 mm BSC7/D263 + 1.0 mm 空气**；
 1型/M4/3 1.5~2.0；手机模组（IR-cut）0.21~0.40。
@@ -500,6 +550,7 @@ L11+L12 17.4 / L13+L14 17.0 / L21 13.2 / L31 14.5 / L32 15.7 / 盖板 22.5（机
 只给了 ω 和 f、没给 Y 时：`Ymax ≈ f·tan(ω)` 只能当起点，广角畸变大，
 必须用横像差图上的 Y′ 校正（WO2025253787 Ex1：近轴 22.9，实际 20.40）。
 实在什么都没有，按传感器推（全画幅 21.63 / APS-C 14.2 / M4/3 10.8 / 1″ 8.0），**回话里说明是推的**。
+⚠ **佳能专利是个例外，不许默认 21.63** —— 它印的 ω 是 `arctan(Y′max/f)` 而 Y′max 远小于 21.63，见「佳能专利的三条自家规矩」一节。
 **事后还有一道硬验证**：渐晕解完后印出的 1.0 视场实际半角，应当接近专利印的 ω
 （US20150092100 Ex1 实测 **22.15° vs 印刷 22.15**；JPWO2017138250 Ex2 **23.19° vs 23.19**；
 WO2019187633 Ex1 **9.31° vs 9.38** —— 差 0.7% 属正常，实光线 vs 近轴）。
@@ -650,6 +701,115 @@ python3 scripts/apcap.py spec.final.json -o spec.cap.json \
 本篇最终只收了 3 个面：面1 31.75→31.105、面31/32 19.45·19.55→18.656；
 收完逐段复查 0 处不合格，面31→32 边缘间隙 +0.306mm。
 
+## 孔径：Paraxial Working F/#（逐结构 APER）—— 不许用像方空间 F/#
+
+### 为什么（用户 2026-09 打回）
+
+JP2021-047297A（RF100mm F2.8L Macro）旧文件写 `FNUM 2.92 0` = **Image Space F/#**。OpticStudio 手册 15.20：
+*"ratio of the paraxial effective focal length calculated at infinite conjugates over the paraxial entrance pupil diameter …
+infinite conjugates are used … even if the lens is not used at infinite conjugates"* —— 用的是**该结构自己的** EFL。
+浮动对焦近距 EFL 从 100.8 掉到 46.2（1x）/ 36.0（1.4x），同一个 2.92 就把入瞳缩成 15.7 / 12.3，
+状态栏 **WFNO 9.15 @1x、13.45 @1.4x**。说明书实效 F 只有 5.7 / 6.6。
+
+### .zmx / .seq 的写法（实证，不是猜）
+
+| .zmx 头 | 孔径类型（ZPL `SYSP 10` / MCE `SATP` / ZOS-API 同一编号） |
+|---|---|
+| `ENPD v` | 0 Entrance Pupil Diameter |
+| `FNUM v 0` | 1 Image Space F/# |
+| `OBNA v 0` | 2 Object Space NA |
+| `FLOA` | 3 Float By Stop Size |
+| **`FNUM v 1`** | **4 Paraxial Working F/#** |
+| `OBNA v 1` | 5 Object Cone Angle |
+
+证据：OpticStudio 2024 R2 用 ZOS-API 无界面加载 `FNUM 5.5 0/1`，读回 ImageSpaceFNum / ParaxialWorkingFNum；
+反过来 API 设六种类型存盘，头部逐字就是上表。**文件格式手册里查不到**，只能这么验。
+- **Paraxial Working F/#** = 1/(2 n tan θ)，θ = **所用共轭下**的近轴边缘光线像方角（手册 15.37）。
+- 状态栏 **WFNO** = 1/(2 n sin θ) 的**实光线**工作 F 数，**计入渐晕系数**（所以轴上视场留着 VCY 会把它抬高）。
+- MCE 的 **`APER`** = 当前孔径类型下的值 —— 类型是 Paraxial Working F/# 时，`APER` 就是该结构的工作 F 数。
+
+**CODE V 的 `FNO` 天生就是这个量**（LensSystemSetupRM p.27–29：*"adjusts EPD to keep f_ratio satisfied"*，
+`NAO = n·sin(atan(EPD/2L))`、`NA = NAO/RED`、`FNO = 1/(2NA)`，即所用共轭下的近轴工作 F 数），
+`ZOO FNO` 逐位置给值。所以两条出口写**同一个入瞳**：
+`.zmx` → `FNUM <结构1> 1` + `APER 0 <i> <PWFN_i>`；`.seq` → `FNO <结构1>` + `ZOO FNO <FNO_i>`。
+
+⚠ **有限共轭下两边差一个 sin/tan，不能原样照抄。** CODE V 用物方 `NAO = n·sin(atan(EPD/2L))`
+（宏 `CODEV2026\macro\fct_ABCD.seq`：F/# used = |m|·√(r²+L²)/(n·EPD)），Zemax 的 PWFN 用近轴斜率 tan。
+同一个入瞳下有闭式：**`FNO_CV² = PWFN² + (β/2)²`**（与 EPD、L 无关）。`make_seq.py` 按它写，
+`seq2zmx.py` 反算 `PWFN = √(FNO² − (β/2)²)`（β 由写出的 .zmx 逐结构近轴追迹）。
+RF100 1.4x：PWFN 6.640 ↔ CODE V FNO 6.677（+0.55%）；∞ 结构两者相同。不改的话 CODE V 那份入瞳大 0.55%。
+（本机 CODE V 的 COM 接口没有许可，.seq 是用 seq2zmx 回转后在 OpticStudio 里验的：8 结构 EPD/PWFN/PMAG 与 .zmx 逐位相同。）
+
+### 逐结构的值从哪来：`vignet.aperture_cfg()`（两层）
+
+① **专利印了近距各态的 F 数（`zmx.fno_patent`）→ 以专利为准**，中间结构按 |β| 插值
+（n 点 n−1 次拉格朗日，不单调就分段线性；超出记载 |β| 区间按最近一态的「光阑收缩比」外推）。
+② **否则物理光阑固定**：∞ 结构按专利 F 数（或 `zmx.epd`）定出光阑近轴半径，逐结构追近轴边缘光线 → WFNO。
+∞ 结构两者都恰好等于专利 F 数；整组对焦、内对焦、浮动对焦、光阑前后有无移动组一套式子全覆盖。
+
+守门（自动）：印刷值比「光阑全开不变」还亮 → 不可信丢弃；各态印的都等于 ∞ 值（名义 F 数）→ 整组丢弃。
+`zmx.wfno_override = {结构名: F}` 最高优先。`vignet.py --write` 把结果写进
+`zmx.aperture = {wfno_cfg, stop_semi_cfg, epd_cfg, wfno_fixed_stop, source, configs}`，
+`make_zmx.py` / `make_seq.py` 直接读它（没跑 vignet 就现算）。
+
+**专利近距 F 数到底可不可信 —— 2026-09 专门查过：**
+
+| 专利 | 近距态印的 F | 光阑固定时的工作 F | 结论 |
+|---|---|---|---|
+| **JP2021-047297A Ex1**（RF100 F2.8L 微距） | 0.5x **4.49** / 1.4x **6.64** | 3.46 / 4.80 | **印刷值是真的**：佳能说明书「撮影倍率と実効FNo.」0.5/1.0/1.4x = **4.5/5.7/6.6**；the-digital-picture 实测光损 1x 2 档、1.4x 2⅓ 档；专利図2(B)(C) 的球差曲线只有按缩小光阑（0.770/0.725 倍）才拟合得上（RMS 0.004/0.006mm）。说明书还写「对焦时光圈叶片会动」—— **这支镜头近距主动收光圈** |
+| JP2021-047297A Ex2/Ex3 | 表里 Ex2 印 2.6/1.45、Ex3 照抄 Ex1 | — | 表格有错；图上标签都是 4.5/6.6。**表与图冲突时看图** |
+| US20210072505A1（RF85 F2 微距）/ US20220019061A1（RF24 微距）/ US20190113711A1（RF35 微距） | 只印 ∞；近距像差图照抄 ∞ 的 Fno | — | 没有近距信息 → 走② 光阑固定 |
+| JP2019-144441A（适马 70 微距） | 0.5x 3.86 / 1x 4.99 | 3.83 / 4.78 | 印刷值略暗（+0.8% / +4.5%），走① |
+| JP2021-148808A（适马 105 微距） | 0.5x 4.32 / 1x 5.73 | 3.91 / 4.85 | 暗 11~21%（推断是 G2 后片切轴上光束），走① |
+
+**所有近距印刷值都 ≥ 光阑固定值**，没有反例 —— 守门条件就是按这个定的。
+本篇 ① 插出来的 1.00x = **5.79**，说明书 5.7（+1.6%）；0.3x = 3.89，实测 f/4。
+
+### RF100 交付实测（OpticStudio 2024 R2 真加载，回归基准）
+
+| 结构 | INF | 0.02x | 0.06x | 0.10x | 0.25x | 0.50x | 1.00x | MFD 1.40x |
+|---|---|---|---|---|---|---|---|---|
+| APER = PWFN | 2.920 | 2.988 | 3.123 | 3.256 | 3.739 | 4.490 | 5.792 | 6.640 |
+| WFNO（实光线） | 2.917 | 2.986 | 3.123 | 3.258 | 3.743 | 4.494 | 5.801 | 6.651 |
+| .seq 的 `ZOO FNO`（sin 定义） | 2.920 | 2.988 | 3.123 | 3.256 | 3.741 | 4.497 | 5.813 | 6.677 |
+| 光阑固定时应为 | 2.920 | 2.940 | 2.981 | 3.022 | 3.180 | 3.461 | 4.133 | 4.802 |
+| 旧文件（Image Space F/#） | 2.92 | — | — | — | — | — | **9.149** | 13.45 |
+
+### 三个顺带揪出来的坑（都改了）
+
+- **`vignet.py` 近距结构的几何是错的**：主循环只把 `key_before` 塞进 dmap，`key_after`（= 守恒和 − key_before）
+  回落到 ∞ 态的值 —— RF100 的 MFD 结构镜头平白长了 **49.6mm**（212.0 vs 162.37），近距渐晕全解在错的系统上。
+  新增 `cfg_dmap()` 补齐 key_after / 链式 key_last。**2026-09-17 之前交付的内对焦 / 浮动对焦镜头，近距结构的渐晕都该重出。**
+- **光阑面不再参与挡光**：孔径类型已经定义了光阑大小（Zemax 开 Real 瞄准时 Py=±1 正打在光阑近轴半径上）；
+  瞄近轴入瞳的实光线在光阑上略超专利有効径（本篇近距 15.51 > 15.405），会凭空写出 VCY≈0.017 的轴上假渐晕。
+- **vignet.py 与 Zemax 的瞄准模型不同 → 光瞳坐标改成「光阑参考」**。Zemax RAIM Real 的 Py=±1 是
+  **实光线打在光阑上 主光线高度 ± 光阑近轴半径**，旧脚本用的是入瞳上的 yep±rEP，差的是光瞳像差。
+  现在孔径模型启用时逐视场二分出 Py=±1 对应的入瞳高度当搜索边界，VDY/VCY 折回光阑坐标，
+  VCX 用斜光线在光阑上的 x 折算（追不出来的那侧只许朝目标方向线性外推）。
+  对照 OpticStudio Tools→Set Vignetting（口径全部固定时）：
+
+  | 镜头 | 旧（入瞳坐标） | 新（光阑坐标） |
+  |---|---|---|
+  | RF100 微距，INF~1x 共 26 格 | VDY rms 0.0057 / VCY rms 0.0042 | **0.0025 / 0.0024** |
+  | RF16 超广角（52.9°），INF 视场1/2 | VCY 误差 **−0.197 / −0.250** | **−0.007 / −0.016** |
+  | RF35 F1.46 近距 | 轴上假渐晕 VCY 0.013~0.057 + 9 个假「切轴上光瞳」 | 消失 |
+
+  ⚠ **拿 OpticStudio 对照时 .zmx 的口径必须全部固定**（apcap 之后的 fix_semi_surfaces）——
+  vignet --write 只留渐晕定义面，其余面 Zemax 按自动口径不挡光，对照出来是假的（RF16 一度被这个骗了）。
+- **最终渐晕以 OpticStudio 为准**：`zapi_vigfit.ps1` 默认每个结构先跑 OpticStudio 自己的 **Set Vignetting**
+  （它正好压在边上，±1 光线照样判渐晕），再按「写进文件后的 4 位小数」向内取整、逐步收到 Py/Px=±1 四条都过
+  （本篇每格 0~2 步）；`vigfit_merge.py` 写回 `vignetting_cfg`，两条出口重出，再 `-CheckOnly` 验一遍。
+  没有 OpticStudio 的机器上 vignet.py 的光阑参考解就是交付值。
+
+### ZOS-API 的几个 PowerShell 坑（写 .ps1 时照抄 `zapi_vigfit.ps1`）
+
+- 安装目录 `E:\ANSYS Inc\v242\Zemax OpticStudio`；`ZOSAPI_NetHelper.dll` → `Initialize($zos)` → `ZOSAPI_Interfaces.dll` + `ZOSAPI.dll`
+  → `CreateNewApplication()`（无界面，不碰用户正开着的 OpticStudio）。
+- **PowerShell 变量名不分大小写**：`$F`（Fields）和循环变量 `$f`、`$n`（批量追迹）和 `$N`（方向余弦）会互相覆盖。
+- `ReadNextResult` 全是 out 参数，要 `[ref]`；`$rt.Close()` 有返回值，不 `$null =` 吞掉会混进函数返回值。
+- 含中文注释的 .ps1 **必须存成 UTF-8 带 BOM**，否则 Windows PowerShell 5.1 按 GBK 读、`param()` 直接语法错。
+- `IFields.SetVignetting()` / `ClearVignetting()` 存在；切结构后改字段的 VDY/VCY/VCX 会落到该结构的 MCE 格里。
+
 ## 口径与渐晕 —— 必须解 VCX，只固定整片镜片
 
 工程上**只会固定几个面的口径**（渐晕定义面）。两个极端都是错的：
@@ -679,7 +839,7 @@ python3 scripts/vignet.py spec.fig.json --write
 **VDY 从 +0.13 一路走到 −0.34，整整跨过零点。**拿 ∞ 的那套去套 1:1，
 近距结构的光瞳偏心方向正好反了，Layout 上三条光线里有两条会被口径切掉。
 
-写法：MCE 里加 `APER`（各结构的 F 数）和逐视场的 `FVCY / FVCX / FVDY`
+写法：MCE 里加 `APER`（各结构的**近轴工作 F 数**，孔径类型必须是 Paraxial Working F/#，见「孔径」一节）和逐视场的 `FVCY / FVCX / FVDY`
 （`FVDX` 旋转对称恒为 0，可省）。**第 1 个参数是视场号，不是面号**；第 2 个是结构号：
 
 ```
@@ -779,6 +939,35 @@ WO2025253787 Ex1 = 面 2/14/15/16，1.0 视场实际半角 54.30° vs 专利 54.
 
 **仍存的一条局限要如实告知**：折射率用 d 线目录值而非 e 线。
 
+## 佳能专利的三条自家规矩（US/JP 通用）
+
+1. **玻璃 OHARA 优先**：`--vendors OHARA HOYA CDGM --alt-only CDGM`，见「玻璃匹配」。
+2. **盖板专利自己会印**（末端两个平面），照抄即可，不要 `--force-add`。
+   校验：`d(末透镜→盖板) + t/n + air` 应等于专利印的 BF，`ΣD(到末透镜) + BF` 应等于印的全长。
+   实测 US20250028154A1 Ex3：13.52 + 1.00/1.51633 + 1.00 = **15.18** = 印的 BF；
+   102.99 + 15.18 = **118.17** = 印的 L。对上了就说明盖板和 BF 都录对了。
+3. ⚠ **各種データ里印的「半画角 / Angle of View」不是实半角，也不是 arctan(21.63/f)。**
+   它是 `arctan(Y′max / f)`，其中 **Y′max = 设计视场处的实像高**，而设计视场取在
+   物方角 `arctan(21.63/f)`。佳能 RF 镜头光学桶形畸变极大（−13% ~ −16%），
+   所以实像高远小于 21.63 —— **`zmx.max_y` 要填这个实像高，不能默认 21.63。**
+
+   反推步骤（两分钟）：`Y′max = f · tan(ω印)` → 直接填进 `max_y`；
+   然后 `vignet.py` 解出的 1.0 视场「实际半角」应当回到 `arctan(21.63/f)`，对上就闭环。
+
+   | 专利 | f | ω印 | **max_y = f·tanω** | vignet 实际半角 | arctan(21.63/f) |
+   |---|---|---|---|---|---|
+   | US20250028154A1 Ex3（RF 24/1.4L VCM） | 24.72 | 37.14° | **18.72** | 41.19° | 41.20° ✓ |
+   | JP2022-85382A Ex3（RF 16/2.8 STM） | 16.48 | 47.84° | **18.20** | 52.96° | 52.68° ✓ |
+
+   三条旁证都要顺手验一下：**断面图上像面线的半长**（US20250028154A1 实测 ≈18.7mm）；
+   **像差图畸变曲线端点**（实测 −13.4%，与追迹在 arctan(21.63/f) 处的 −13.45% 吻合）；
+   **光阑后各面画出来的玻璃外径**够不够 21.63 的主光线过（本篇面21~27 差 0.5~1.2mm，过不去）。
+   这三条一致指向小像高，就别再纠结「全画幅怎么可能不是 21.63」—— 18.7mm 的原始像圈
+   经机内强制畸变校正拉伸后才填满全画幅，对应佳能标称的 84° 对角画角。
+
+   附带一个小出入：US20250028154A1 的 FIG.6A 印的是 ω=37.6°，既不等于表里的 37.14
+   也不等于实半角 41.19，当作专利自身的印刷出入，以**各種データ的表值**为准。
+
 ## 折射率列到底是 nd 还是 ne
 
 **日系专利（尤其索尼）常常把 e 线折射率 ne(546.074nm) 印在写着「nd」的列里**，
@@ -804,8 +993,19 @@ WO2019187633：按 nd **0.00000**、按 ne 0.00192 → d 线（表里那个 1.51
 ### 厂家优先级是硬约束 —— 精确命中也不能推翻它
 
 **厂商不会跨国乱用料。日系厂商（索尼、尼康、佳能、腾龙、适马）的专利：
-HOYA 优先，其次 OHARA，CDGM 只当备选列出来、永远不做首选。** 中国厂商反过来，CDGM 放第一。
-命令行：`--vendors HOYA OHARA CDGM --alt-only CDGM`。
+HOYA / OHARA 优先，CDGM 只当备选列出来、永远不做首选。** 中国厂商反过来，CDGM 放第一。
+**按厂商分**（顺序即优先级，用户逐条确认过）：
+
+| 专利厂商 | 命令行 |
+|---|---|
+| 索尼 / 腾龙 / 适马 | `--vendors HOYA OHARA CDGM --alt-only CDGM` |
+| **佳能** | `--vendors OHARA HOYA CDGM --alt-only CDGM` ← **OHARA 第一** |
+| 尼康 | `--vendors HIKARI HOYA OHARA CDGM --alt-only CDGM` |
+| 中国厂商 | `--vendors CDGM HOYA OHARA` |
+
+佳能这条是用户 2026-09 明确的。实证 US20250028154A1 実施例3：OHARA 优先 → 16 面全部
+Δnd=0.00000 精确命中、一个 Offset 解都不用；HOYA 优先 → 面16/19/21 要退成 Offset 解。
+**厂家顺序选对了，匹配结果自己会变干净；要写一堆 Offset 解就是顺序错了的信号。**
 
 **旧的「精确命中优先于厂家顺序」是错的，用户为此打回过。** 反例
 （WO2019187633 面9，印 1.58313/59.38，非球面）：
@@ -841,8 +1041,41 @@ GCAT 只需 `HOYA20260707 OHARA_240131`。
 E-PSKH1↔J-PSKH1、E-SK15↔J-SK15），P- 是模压料的旧名、对应现行的 Q-，
 完全没前缀的（SK15 / LAF9 / PK2）更老。**按 Δ 排序必然挑到 E-**（老款的 νd 常常更贴印刷值，
 如 E-LAK01 60.09 vs J-LAK01 60.19，而专利印 60.1），所以必须显式让老牌号靠后。
-`lensmath.py` 的 `CURRENT = {'HIKARI': re.compile(r'^[JQ]-')}` + `_gen()` 就是干这个的，
-只在**同一家目录内部**排序，不跨厂家。新增厂家有同类问题时往 `CURRENT` 里加一条即可。
+`lensmath.py` 的 `CURRENT` + `_gen()` 就是干这个的，只在**同一家目录内部**排序，不跨厂家。
+新增厂家有同类问题时往 `CURRENT` 里加一条即可。当前两条：
+
+```python
+CURRENT = {'HIKARI': re.compile(r'^[JQ]-'),        # 尼康自家玻璃厂：J-(研磨) / Q-(模压)
+           'OHARA':  re.compile(r'^(S-|L-)')}      # OHARA：S-(无铅) / L-(无铅低Tg模压)
+```
+
+### OHARA 的含铅老系列 —— 2000 年以后的镜头一律不许用（用户 2026-09 打回）
+
+OHARA 目录 433 支里有 **210 支不以 `S-`/`L-` 开头**，全是 2000 年环保化之前的**含铅**老系列：
+`PBM / PBH / PBL / BPH / BPM / BAL / BAM / BSL / BSM / TIM / TIH / LAL / LAH / NSL / FSL …`。
+`S-` 是无铅无砷的环保款，`L-` 是无铅低 Tg 模压款。含铅款只有 EF 时代的老镜头才会出现。
+
+**只靠 AGF 的 Obsolete 位挡不住** —— NM 行第 8 个数是 status
+（`0=Standard 1=Preferred 2=Obsolete 3=Special 4=Melt`），而 OHARA 留了 15 支非 `S-/L-` 的
+**仍标 Preferred** 的含铅款，几乎都是 `-Y` 后缀：
+`PBM2Y / PBM8Y / PBM18Y / PBL1Y / PBL6Y / PBL25Y / PBL26Y / PBL35Y / BSL7Y / BSM51Y / BAL15Y / BAL35Y / PBM2R`
+（外加 `SK-1300 / SK-1310` 两支 i 线光刻玻璃，也不是相机料）。所以**名字规则与 status 位两条都要有**。
+
+`lensmath.py` 默认开 eco 过滤：`legacy(g) = (status==2) or (_gen(g)!=0)` 的牌号**完全不参与**
+（首选和备选都不进）；某一面无铅池里一个候选都没有时，会自动回退全目录并打印
+`★ 面X 无铅目录里没有候选，回退到…`，绝不静默。**2000 年前的老专利**（EF 85/1.2 那种）
+才加 `--allow-legacy` 关掉它。
+
+实测 US20250028154A1 実施例3 换掉的三面（都是 Δnd 0.00000 的等价替换，处方一个字没改）：
+
+| 面 | 含铅老款 | 换成 | 说明 |
+|---|---|---|---|
+| 面10 | OHARA PBM2Y 1.62004/36.2693 [Preferred] | **OHARA S-TIM2** 1.62004/36.2634 | 同一支的无铅版 |
+| 面26 | OHARA BPH5 1.65412/39.6876 [Obsolete] | **OHARA S-NBH5** 1.65412/39.6828 | 同一支的无铅版 |
+| 面23 | OHARA PBH21 1.92286/20.8842 [Obsolete] | **HOYA E-FDS1-W** 1.92286/20.88 | OHARA 的无铅 S-NPH2 νd 只有 18.90，差 2.0 ⇒ 按厂家硬约束让给 HOYA |
+
+**HOYA 目录不用管这件事**：HOYA20260707 里含铅的老款（F2 / FEL1 / FDS1 / ADF50 …）已经整体下架，
+留下的就是 `E-` 开头的环保款和本来就无铅的 TAF/NBFD/FCD/PCD 系列。
 
 ### 无等效牌号的面：**贴合实物的基准玻璃 + Zemax 官方 Offset 玻璃解**
 
@@ -991,7 +1224,7 @@ RAIM 0 2 1 1 0 0 0 0 0 1
 第 2 位 = Ray Aiming（0/1/2 = Off/Paraxial/Real），默认写 **2**。
 
 ```
-GCAT HOYA20260707 OHARA_240131
+GCAT HOYA20260707 OHARA_260701
 ```
 **写用户机器上真实存在的目录文件名**，不要写 `HOYA OHARA`（那是好几年前的自带版本，
 新牌号不在里面，文件打不开）。由 spec 的 `zmx.gcat` 映射得到。
@@ -1023,7 +1256,8 @@ SURF 26
 ```
 
 - 模型玻璃：`GLAS ___BLANK 1 0 <nd> <vd> <dPgF> 0 0 0 0 0`。**两个版本都出，dPgF 都要填。**
-- `FNUM <F值> 0` 定 F 数；`FTYP 3 0 <场数> <波长数> 0 0 0` 首位 3 = 实际像高场。
+- **`FNUM <结构1的工作F数> 1`** = Paraxial Working F/#（`0` 是 Image Space F/#，**不许用**，见「孔径」一节）；
+  `FTYP 3 0 <场数> <波长数> 0 0 0` 首位 3 = 实际像高场。
 - 渐晕：`VDXN` / `VDYN` / `VCXN` / `VCYN` 每行按视场号排，长度补齐到 12。**VCXN 不许全 0。**
 - 物面 `DISZ INFINITY`；像面单独一个 SURF，`DISZ 0`。专利的有効径列是**直径**，要除 2。
 
@@ -1109,7 +1343,7 @@ CONF 1
 渐晕操作数跟在 THIC 后面（见「逐结构渐晕」）：
 
 ```
-APER   0   1 2.9 0 0 0 1 1 1 0 0
+APER   0   1 2.9 0 0 0 1 1 1 0 0          ← Paraxial Working F/# 下 = 该结构的工作 F 数，逐结构不同
 FVCY   1   1 0.4846 0 0 0 1 1 1 0 0
 FVCX   1   1 0.0271 0 0 0 1 1 1 0 0
 FVDY   1   1 0.1263 0 0 0 1 1 1 0 0
@@ -1170,6 +1404,22 @@ FVDY   1   1 0.1263 0 0 0 1 1 1 0 0
 | 口径 | **相接的空气透镜**（两面弧在边缘正好碰上）会让 `aptrace.py` 顺着邻片轮廓一路跑过头，口径读大 1~2mm，解出来的渐晕偏松 | 先 `apcap.py --trim 0` 收口到干涉极限，**再**跑 `vignet.py`；`--trim` 的按光束收紧仍放在最后（顺序见下） |
 | **`make_zmx.py`** | **链式三段浮动（`key_last`）根本进不了 `make_zmx.py`**：`kb, ka = fc['key_before'], fc['key_after']` 硬取键，链式 spec 没有 `key_after` → 直接 KeyError，`.zmx` 写出个 0 字节文件（实测 JP2021-148808A 実施例1 = 适马 105 微距，G2 与开口絞り各自移动） | `fc.get('key_after')` + 新增 `kl = fc.get('key_last')` 分支：该面 DISZ = `sum − kb − kb2`（随后被位置解 `TOLE` 覆盖）。`make_seq.py` 本来就支持，两条出口现在一致 |
 | **口径** | **`aptrace.py` 只有 `--clip`（截底边）、没有截顶边**。上下半平面**都有**标注时（上：群括号+引出线；下：CL 括号+focus 箭头）两侧都会被污染，单跑一侧必错 | **两侧各跑一遍 `--side lower` / `--side upper`，逐面取较小者**（污染只会往外加、不会往内减，与 figmeas 取小的逻辑同源）。实测该篇两侧大多差 <0.3mm，只有面9/10 下半被 CL1 括号顶到 19.50（真值 17.35/17.10） |
+| **`make_seq.py`** | **双浮动对焦群只写了一条 `THI OAL` 位置解**：第二组的 key_after（如 d22）既没有解、也不进 `ZOO THI`，四个结构里被钉死在 ∞ 态的值上，像面跟着跑掉（zmx 侧本来就是两条 `TOLE`，不受影响） | 对 `focus` 与 `focus2` **各写一条 OAL**，`solved` 从标量改成列表 |
+| **`make_zmx.py`** | **孔径写 Image Space F/#（`FNUM v 0`）**：按各结构自己的 ∞ 共轭 EFL 定入瞳，浮动对焦近距 EFL 变短 → 光阑被缩，RF100 1.00x WFNO 9.15（实效 5.7） | `FNUM <v> 1` = Paraxial Working F/# + 逐结构 `APER`（`vignet.aperture_cfg`：专利近距 F 数优先，否则物理光阑固定）；自校验由各结构 APER 反推光阑近轴半径，与孔径模型逐结构比对 |
+| **`make_seq.py`** | **把 ∞ 的 F 数原样铺满 `ZOO FNO`**。CODE V 的 FNO 是所用共轭下的工作 F 数，近距结构会把入瞳**放大**去凑（JP2021-148808A 1:1 结构 EPD 35.7 → 146.7） | `FNO` + `ZOO FNO` 写与 zmx `APER` 同一组逐结构工作 F 数 |
+| `seq2zmx.py` | `FNO` 写成 `FNUM v 0`、`ZOO FNO` 丢掉不转（当时误以为铺 APER 会「二次缩小光瞳」） | 两边定义相同：`FNUM v 1` + `ZOO FNO` 逐结构原样铺 `APER` |
+| **`vignet.py`** | **近距结构只覆盖了 key_before，key_after 回落到 ∞ 态** → 镜头变长、像面跑掉（RF100 MFD 结构总长 212.0，真值 162.37），近距渐晕全解在错的系统上 | `cfg_dmap()` 补齐 key_after（= 守恒和 − key_before）与链式 key_last |
+| `vignet.py` | 近距入瞳按 `rEP=(1/2F)/|u_A|` 逐结构算 = 像方空间 F/# 的定义，内对焦时光阑被缩 | `aperture_cfg()` 给逐结构入瞳（与 zmx APER 同一模型），光阑面本身不再参与挡光 |
+| **`lensmath.py`** | **`solve_obj` 的求根括号从 `1.001·|f_∞|` 起扫**，高倍率微距近距 EFL 变短（100.8→36.0）、物距 92.3 < f_∞ → 真根被跳过，MFD 态 d0 解成 nan | 括号起点取 `min(|该结构 EFL|, |f_∞|)`（双浮动与单组两处） |
+| `lensmath.py` | 双浮动分支只把 `sts[-1]` 收进 configs，专利记载的中间态（RF100 的 0.5 倍）被丢 | `sts[1:]` 全收 |
+| **渐晕** | 脚本自检 Py/Px±1 全 OK，OpticStudio（RAIM Real）里 INF~0.25x 视场1~4 仍被面1/2/3 切 —— 近轴入瞳瞄准 vs 真实光阑瞄准的光瞳像差；超广角 RF16 的 VCY 差到 0.25 | `vignet.py` 光瞳改成**光阑参考坐标**（逐视场二分 Py=±1 的入瞳高度）；`zapi_vigfit.ps1`（Set Vignetting 起步 + 取整后收到 ±1 全过）+ `vigfit_merge.py` 写回；交付第八道卡 |
+| `vignet.py` | 实光线瞄准缩放的括号收缩 `while hi > rEP: hi=(hi+rEP)/2` 在 rEP 尾数为奇时浮点卡死（>2 万次追迹） | 改成 40 次有界循环 |
+| `vignet.py` | 光阑参考坐标的边界搜索追不出光线时**不看方向**就线性外推，RF16 有 24 处外推到反方向，轴上视场写出假渐晕、7 个视场报 ★被挡 | 只许朝目标方向外推；`ye_find` 按目标在主光线哪一侧决定先扫哪边 |
+| `vignet.py` | `fno_patent` 没写 INF 键时，比最小记载 \|β\| 还小的结构（含 ∞）按收缩比外推，∞ 的 F 数被改成 3.79；光阑按 `cfgs[0]` 定而不是按 ∞ 结构；名义 F 数判定排在逐点丢弃之后永远不触发；`cfg_dmap` 丢字符串数值 | ∞ 锚点自动补；光阑按 ∞ 结构定；名义判定先做；键对不上结构名时告警；数值字符串照收 |
+| **`make_zmx.py`** | `wfno_cfg` 读 `zmx.aperture` 缓存：改了结构名直接 UnboundLocalError；vignet 之后改 `wfno_override` / `fno_patent` 不生效 | 每次现算（纯近轴毫秒级），缓存只拿来比对，过期就告警「要重跑 vignet」 |
+| `make_zmx.py` | 孔径自校验的近轴追迹漏了衍射面 `2·C2·y` 项，DOE 镜头（RF600/800 F11）报假的「光阑半径不一致 21%」 | 抽成 `cfg_paraxial()`，与 EFL 自校验同一套（含 BINARY_2） |
+| `seq2zmx.py` | 只有头部 `FNO` 没有 `ZOO FNO` 时不铺 APER，近距结构没法做 sin/tan 换算；头部是 `EPD` 的 .seq 直接 KeyError | 没有 ZOO FNO 也逐结构铺；`EPD`/`ZOO EPD` → `ENPD` + APER |
+| **`lensmath.py`** | **给 2023 年的佳能镜头配了含铅玻璃**（OHARA PBM2Y / PBH21 / BPH5）。只看 AGF 的 Obsolete 位挡不住 —— `-Y` 后缀的含铅款仍标 Preferred | `load()` 读 NM 行 status 位；`CURRENT` 加 `'OHARA': ^(S-|L-)`；`best(eco=True)` 把 `status==2` 或 `_gen!=0` 的牌号**完全排除**，空池自动回退并告警；老专利用 `--allow-legacy` |
 
 ## 出口三（反向）：CODE V `.seq` → Zemax `.zmx`（`seq2zmx.py`）
 
@@ -1191,9 +1441,11 @@ python3 scripts/seq2zmx.py A2628.seq -o A2628.zmx \
 - **渐晕要反算，符号别弄反**：`VCY=(VUY+VLY)/2`、**`VDY=(VLY−VUY)/2`**、`VCX=VUX(=VLX)`、`VDX=0`。
   物理上：CODE V 的 VUY 是**上光瞳被切掉的比例**，切得多 ⇒ 剩下的光瞳中心偏下 ⇒ **VDY 为负**。
   实测 A2628 最大视场 VUY 0.7623 / VLY 0.1612 → VCY 0.4617 / **VDY −0.3006**。
-- **`ZOO FNO` 那一串绝不能铺成逐结构 `APER`。** A2628 的 2.9→3.45 是**有限共轭下的工作 F 数**
-  （物距 170mm 时 β≈−0.2，2.9×1.2≈3.45），入瞳始终是 EFL/2.9=10mm 恒定。
-  zmx 只写一行 `FNUM`，Zemax 自己会按共轭算出工作 F 数；再逐结构改 APER 等于把光瞳二次缩小。
+- **`FNO` → `FNUM <v> 1`（Paraxial Working F/#），`ZOO FNO` → 逐结构 `APER` 原样搬。**
+  CODE V 的 FNO 与 Zemax 的 Paraxial Working F/# 是**同一个量**（所用共轭下的近轴工作 F 数），
+  CODE V 在每个位置算出的入瞳 Zemax 会原样复现。（旧写法 `FNUM v 0` + 丢掉 ZOO FNO 是错的：
+  那是 Image Space F/#，按 ∞ 共轭定义。）顺带：A2628 手填的 2.94/3.0/3.1/3.45 是按 2.9·(1+|β|) 估的，
+  没算光瞳放大率，CODE V 据此在 Z5 把入瞳缩到 9.68（设计意图 10.0）—— 那是文件本身的值，转换照抄，要改在 CODE V 里改。
 - **`CIR` 是挡光的实口径**（不是 Zemax 那个只用来画图的 semi-diameter）→ 写
   `DIAM <v> 1 0 0 1 ""` + `CLAP 0 <v> 0`；`.seq` 里没写 CIR 的面留自动（`DIAM 0 0 0 0 1 ""`）。
 - **玻璃名反查**：`DQK3L_CDGM` → 拆掉厂家后缀，按「去掉所有非字母数字」和目录牌号比对 → `D-QK3L`；
@@ -1222,14 +1474,17 @@ python3 scripts/seq2zmx.py A2628.seq -o A2628.zmx \
 | **`aptrace.py`** | **断面图：逐面沿各自面型曲线扫墨迹 → 每个面自己的净口径（首选）**；`--clip` 分区截底边、`--thr` 灰度阈值、`--dpi 600` 必须 |
 | `figmeas.py` | 断面图逐**元件**量口径（顶点最小二乘标定 + 连通域）；小幅图上会串位，留作对照 |
 | **`apcap.py`** | **固定口径的相邻面干涉体检与收口**（空气边缘间隙 / 玻璃边缘厚度，含非球面 sag）＋**按实际光束收紧 `--trim`**＋重建 `fix_semi_surfaces`；口径全固定时**必跑**，且要排在 vignet 之后 |
-| **`vignet.py`** | **轴上满光瞳需求体检（写 `zmx.axial_3d`）**；**逐结构**（含有限共轭）3D 斜光线追迹 → VDY/VCY/**VCX** → `vignetting_cfg`；渐晕定义面（整片扩展）+ 逐面余量报告（取全结构最大光束）+ 实际半角（验 ω）+ 写 `semi_3d`；`--margin` / `--first-only` / `--fit-ellipse` |
+| **`vignet.py`** | **孔径模型 `aperture_cfg()`：逐结构近轴工作 F 数（专利近距 F 数优先 / 物理光阑固定）→ `zmx.aperture`**；`cfg_dmap()` 补齐 key_after/key_last；**轴上满光瞳需求体检（写 `zmx.axial_3d`）**；**逐结构**（含有限共轭）3D 斜光线追迹 → VDY/VCY/**VCX** → `vignetting_cfg`；渐晕定义面（整片扩展）+ 逐面余量报告（取全结构最大光束）+ 实际半角（验 ω）+ 写 `semi_3d`；`--margin` / `--first-only` / `--fit-ellipse` |
 | `clearance.py` | 边缘厚度/间隙/薄厚比体检；`--compare-aim`；`--solve` 反解渐晕；优先采用 `semi_3d` |
 | `layout_check.py` | 叠加图（交付第三道卡）；`--pxmm`/`--x0` 手动标定；`--grid N` 毫米刻度线 |
-| `make_zmx.py` | spec → 目录版/模型玻璃版 .zmx，含全部约定与自校验（**Offset 解的偏移会加回去再算 EFL**；自校验会报每个非球面的面型与 XDAT 行数）；**`glass_offset` → `GLAS <基准> 4 …`**；**有 A18/A20 的面自动写成 Extended Asphere `XASPHERE`+XDAT**（`--asph-type auto\|extended\|even`）；MCE 铺 THIC + **APER/FVCY/FVCX/FVDY** |
+| `make_zmx.py` | spec → 目录版/模型玻璃版 .zmx，含全部约定与自校验（**Offset 解的偏移会加回去再算 EFL**；自校验会报每个非球面的面型与 XDAT 行数）；**`glass_offset` → `GLAS <基准> 4 …`**；**有 A18/A20 的面自动写成 Extended Asphere `XASPHERE`+XDAT**（`--asph-type auto\|extended\|even`）；**孔径 `FNUM <v> 1` + 逐结构 APER**（自校验反推各结构光阑半径）；MCE 铺 THIC + **APER/FVCY/FVCX/FVDY** |
 | **`make_seq.py`** | **spec → CODE V 序列文件 `.seq`**（另一条出口，省掉 Zemax→CODE V 的往返）；波长/视场（**倒序**）/渐晕（**要换算**）/口径/非球面（**A..J 到 r²⁰，精确**）/位置解/多重结构全套对应；`--glass catalog\|exact`、`--no-oal` |
 | **`seq2zmx.py`** | **反方向：CODE V `.seq` → Zemax `.zmx`**（用户自己在 CODE V 里做的设计要拿进 Zemax 时用；不经过 spec.json）；玻璃名反查目录牌号、渐晕反算、CIR→DIAM+CLAP、多重结构；`--reverse-fields` / `--raim` / `--gcat` |
+| **`zapi_vigfit.ps1`** | **本机 OpticStudio（ZOS-API 无界面）当判官**：报孔径类型、逐结构 PWFN/WFNO/EPD/PMAG/TOTR；每个结构先 OpticStudio 自己的 Set Vignetting（`-NoSetVig` 关掉），再按 4 位小数向内取整、逐视场追 Py/Px=±1 收到全过，`-Out` 写 JSON；`-CheckOnly` 只验不改；每进一个结构先按快照复位（没有 MCE 行的视场是全局量，否则会漏到后面的结构） |
+| **`vigfit_merge.py`** | 把 `zapi_vigfit.ps1` 的 JSON 写回 `zmx.vignetting_cfg`（打印逐项变化），然后重出 zmx/seq |
 | `build_workbook.py` | spec → Excel 工作簿 |
 | `glasslib.py` / `hikari_xlsx_to_csv.py` | 旧的 nd 速查器 / HIKARI 目录转 CSV |
+| `which_example.py` + `p2p_index.json` | **开工第一步**：查 PhotonsToPhotos Optical Bench 索引，「这篇专利哪个実施例是实物」一条命令出答案（缓存 1280 条，`--refresh` 重抓） |
 
 追迹与拟合全是纯标准库（自带二分法求根、MGS 最小二乘、2D/3D 实光线追迹）。
 外部依赖：`poppler-utils`（渲染断面图）、**`Pillow`**（裁切/旋转/画叠加图，2026-09 起取代 ImageMagick）、
@@ -1255,6 +1510,8 @@ python3 scripts/make_seq.py spec.final.json -o Z3512.seq \
 - **渐晕要换算，不是照抄**：`VUY = VCY − VDY`、`VLY = VCY + VDY`、`VUX = VLX = VCX`
   （实证 Zemax 最大视场 −0.1670 / 0.4315 → CODE V 0.5985 / 0.2645）。
 - **波长要按降序重排**，`REF` 是主波长在重排后的序号，`WTW` 跟着一起排。
+- **孔径：`FNO <结构1>` + `ZOO FNO <逐结构工作 F 数>`**，与 zmx 的 `APER` 同一组值。CODE V 的 FNO 是
+  **所用共轭下**的近轴工作 F 数，不是 EFL/EPD；铺满同一个 ∞ 值会让近距入瞳被放大。
 - **CODE V 没有 Offset 玻璃解**：那些面会退化成基准目录玻璃、偏移量丢掉
   （实测 EFL 34.4045 → 34.4369）。要 EFL 对得上就 `--glass exact` 走模型玻璃。
   脚本默认 `catalog`（＝复刻 CODE V 自己导入的结果）并把丢掉的偏移量逐面打印出来。

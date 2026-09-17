@@ -17,7 +17,20 @@ BF 数字。近轴上完全等效，看不出来；但盖板会在会聚光束�
 平板在最后一段空气里的轴向位置不影响球差（光束角度不变），所以只需扫厚度。
 纯标准库。单色（按各面 nd），只看子午轴上光线。
 """
+import re
 import json, math, argparse
+
+# --- 非球面系数：支持奇数次项（佳能 A3..A15 等）-------------------------------
+# 返回 [(指数, 系数), ...]，指数为任意正整数。偶数次专利仍然原样工作。
+def acoef(a):
+    out = []
+    for k, v in (a or {}).items():
+        m = re.fullmatch(r'[Aa]\s*(\d+)', str(k))
+        if m and v:
+            out.append((int(m.group(1)), float(v)))
+    return sorted(out)
+# -----------------------------------------------------------------------------
+
 
 NG_DEFAULT = 1.51680      # BSC7 / D263 / 一般盖板玻璃
 VD_DEFAULT = 64.20
@@ -34,7 +47,9 @@ class Surf:
         r = 1 - (1 + s.k) * s.c * s.c * y2
         if r < 0: return None
         z = s.c * y2 / (1 + math.sqrt(r))
-        for i, a in enumerate(s.A): z += a * y ** (4 + 2 * i)
+        ay = abs(y)
+        # 系数表已是 [(指数, 系数)]，奇数次项必须用 |y| —— 面型只依赖 r=|y|。
+        for e, cc in s.A: z += cc * ay ** e
         return z
     def dsag(s, y):
         h = 1e-7
@@ -58,9 +73,9 @@ def build(emb, state, extra_tail=None):
     S, z = [], 0.0
     for s, D in zip(rows, ds):
         a = asph.get(str(s['i']))
-        A = [a.get(k) or 0.0 for k in ('A4','A6','A8','A10','A12','A14','A16','A18','A20')] if a else []
+        A = acoef(a) if a else []
         S.append(Surf(0.0 if s['R'] in (None, 0) else 1.0 / float(s['R']),
-                      (a or {}).get('k', 0.0) or 0.0, A, z, s.get('nd') or 1.0))
+                      (a or {}).get('k', (a or {}).get('K', 0.0)) or 0.0, A, z, s.get('nd') or 1.0))
         z += D
     for t, n in tail:
         S.append(Surf(0.0, 0.0, [], z, n)); z += t

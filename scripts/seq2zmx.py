@@ -11,8 +11,10 @@ seq2zmx.py —— CODE V 序列文件 .seq  →  Zemax .zmx（与 make_seq.py �
 
 * 渐晕要反算，不是照抄：VCY=(VUY+VLY)/2、**VDY=(VLY−VUY)/2（带负号）**、VCX=VUX(=VLX)。
   CODE V 自带的「导出 Zemax」把 VDY 写成了 +(VUY−VLY)/2，符号是反的。
-* `ZOO FNO` 那一串（2.9→3.45）是**有限共轭下的工作 F 数**，入瞳其实恒定。
-  zmx 只写一行 `FNUM`，**绝不能**逐结构铺 APER —— 那会把光瞳二次缩小。
+* CODE V 的 `FNO` = **所用共轭下的近轴工作 F 数**（LensSystemSetupRM p.27-29），
+  正好就是 Zemax 的 **Paraxial Working F/#**（`FNUM <v> 1`）。所以头部写 `FNUM <FNO> 1`，
+  `ZOO FNO` 逐结构原样铺成 `APER` —— 两边定义完全相同，CODE V 在每个结构算出的入瞳 Zemax 会原样复现。
+  （旧版写 `FNUM <v> 0` = Image Space F/#，那是按 ∞ 共轭 EFL/EPD 定义的，内对焦镜头近距会把光阑缩掉，错。）
 * CODE V 的 `CIR` 是**挡光的实口径** → `DIAM <v> 1`（固定）+ `CLAP 0 <v> 0`；没写 CIR 的面留自动。
 * 玻璃名反查：`DQK3L_CDGM` → 去掉厂家后缀，按「去掉所有非字母数字」与目录牌号比对 → `D-QK3L`。
   查不到就报错退出，**不要**默默退化成模型玻璃（CODE V 自带导出就是全退成 nd=1.5/vd=0 的废文件）。
@@ -116,7 +118,7 @@ def parse(lines):
                 if t.split()[0] not in ('UID', 'DER', 'RDM;LEN', 'GO', 'INI'): extras.append(t)
                 continue
             k = t.split()[0]
-            if k in ('FNO','DIM','WL','REF','WTW','XRI','YRI','WTF','VUX','VLX','VUY','VLY','TITLE','DOR'):
+            if k in ('FNO','EPD','DIM','WL','REF','WTW','XRI','YRI','WTF','VUX','VLX','VUY','VLY','TITLE','DOR'):
                 hdr[k] = t[len(k):].strip()
             continue
         if cur is None: continue                          # 面属性
@@ -176,7 +178,13 @@ def build(seq, args):
     a('NOTE 0 Converted from CODE V sequence file %s by seq2zmx.py' % os.path.basename(seq))
     a('NOTE 1 ""')
     a('PFIL 0 0 0'); a('LANG 0'); a('UNIT MM X W X CM MR CPMM')
-    a('FNUM %s 0' % num(float(hdr['FNO'])))
+    # FNO（CODE V）= 近轴工作 F 数 = Zemax Paraxial Working F/#（FNUM 第 2 字段 1）；EPD → ENPD
+    if 'FNO' in hdr:
+        a('FNUM %s 1' % num(float(hdr['FNO'])))
+    elif 'EPD' in hdr:
+        a('ENPD %s' % num(float(hdr['EPD'])))
+    else:
+        sys.exit('!! .seq 里既没有 FNO 也没有 EPD（NA/NAO 口径暂不支持），请先在 CODE V 里换成 FNO 或 EPD')
     a('ENVD 20 1 0'); a('GFAC 0 0')
     for s in S:
         if s['glass']: zglass(s)
@@ -265,13 +273,41 @@ def build(seq, args):
                 vals = [vg(c, j)[ix] for c in range(1, nz+1)]
                 if all(abs(x) < 1e-12 for x in vals): continue
                 for c in range(1, nz+1): a(ml(op, n_, c, vals[c-1]))
-        if 'FNO' in zoo:
-            notes.append('ZOO FNO %s 未写成 APER：那是有限共轭的工作 F 数，入瞳恒定，逐结构改 APER 会二次缩小光瞳'
-                         % ' '.join(zoo['FNO']))
+        if 'FNO' in hdr:
+            # 两边都是「所用共轭下的近轴工作 F 数」，逐结构搬（下面再做 sin/tan 换算）。
+            # 没有 ZOO FNO = 每个位置工作 F 数都等于头部 FNO，也要逐结构铺 —— 否则近距结构没法单独换算
+            fz = zoo.get('FNO') or [hdr['FNO']]*nz
+            for c in range(1, nz+1):
+                a(ml('APER', 0, c, float(fz[c-1])))
+        elif 'EPD' in hdr and 'EPD' in zoo:
+            for c in range(1, nz+1):
+                a(ml('APER', 0, c, float(zoo['EPD'][c-1])))
         a('CONF 1')
 
     out = args.out or os.path.splitext(seq)[0] + '.zmx'
     open(out, 'w', newline='\r\n', encoding='latin-1').write('\n'.join(L) + '\n')
+    # ★ CODE V 的 FNO 在有限共轭下用物方 sin（NAO = sin(atan(EPD/2L))），Zemax 的 Paraxial Working F/# 用 tan。
+    #   同一个入瞳：PWFN = √(FNO_CV² − (β/2)²)。β 由写出来的 .zmx 逐结构近轴追迹得到，再把 FNUM/APER 改回去。
+    try:
+        from make_zmx import cfg_paraxial
+        rows = cfg_paraxial(out)
+        txt = open(out, encoding='latin-1', newline='').read()   # newline='' 保住 CRLF
+        def fix(fno, b):
+            return (max(fno*fno - (b/2.0)**2, 1e-12)) ** 0.5
+        def aper_sub(m):
+            ci = int(m.group(1)); v = float(m.group(2))
+            b = rows[ci-1]['beta'] if ci-1 < len(rows) else 0.0
+            return 'APER %3d %3d %.12E' % (0, ci, fix(v, b))
+        txt2 = re.sub(r'APER +0 +(\d+) +([-+0-9.Ee]+)', aper_sub, txt) if 'FNO' in hdr else txt
+        if rows and rows[0]['beta'] > 0 and 'FNO' in hdr:
+            txt2 = re.sub(r'^FNUM ([-+0-9.Ee]+) 1', lambda m: 'FNUM %s 1' % num(fix(float(m.group(1)), rows[0]['beta'])),
+                          txt2, count=1, flags=re.M)
+        if txt2 != txt:
+            open(out, 'w', encoding='latin-1', newline='').write(txt2)
+            notes.append('CODE V FNO → Zemax Paraxial Working F/#：按 √(FNO²−(β/2)²) 换算（β 逐结构近轴追迹：%s）'
+                         % ', '.join('%.4f' % r['beta'] for r in rows))
+    except Exception as e:      # 换算失败不影响主流程，但要说出来
+        notes.append('★ FNO→PWFN 的 sin/tan 换算没做成（%s），APER 仍是 CODE V 原值，高倍率微距会差 ~0.5%%' % e)
     print('写出 %s：%d 面, %d 结构, %d 视场, %d 波长, GCAT %s'
           % (out, len(S)-2, nz, nf, len(wl), ' '.join(gcat)))
     for cv, (k, nd, vd) in used.items():

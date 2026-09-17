@@ -11,6 +11,7 @@ spec 需要的 zmx 块:
           "configs":[{"name":"INF","d0":"INFINITY","D13":6.43}, ...]}
 面上可选 "glass"（"HOYA FCD1"）、"extra"["有効径 φi"]（直径，脚本取一半写 DIAM）。
 """
+import re
 import json, argparse, math
 
 ASPKEYS = ['A4','A6','A8','A10','A12','A14','A16']
@@ -39,6 +40,28 @@ ASPKEYS_HIGH = ['A18', 'A20']          # EVENASPH 装不下的那两项
 # 所以 CURV / CONI 原样照写，只是多项式搬到 Extra Data 里、能一直到 r²⁰。
 XDAT_FMT = '  XDAT %d %.12E 0 0 1.000000000000E+00 0.000000000000E+00 0 ""'
 XDAT_NTERMS = 10
+
+# Extended Odd Asphere（.zmx 里 TYPE 是 XOSPHERE）—— 佳能这类「A3..A15 含奇数次」的
+# 非球面，Even Asphere / Extended Asphere 都装不下（它们只有偶数次），Odd Asphere
+# (ODDASPHE) 又只到 r^8（PARM 1..8，实证见 Documents/Zemax/.../老蛙视频_1.ZMX）。
+# Extra Data 排布来自 OpticStudio 2024R2 用户手册 §2.3.1.2.28 的参数表
+# （E:/ANSYS Inc/v242/Zemax OpticStudio/OpticStudio_UserManual_en.pdf，第 235 页）：
+#   参数 13/14/15/16/17/18.. → XDAT 1/2/3/4/5/6..（偏移恒为 12）
+#   XDAT 1 = 最大项号 N
+#   XDAT 2 = 归一化半径 Rn（取 1.0，系数就是专利印的 A_n，不用换算）
+#   XDAT 3 = ρ^1、XDAT 4 = ρ^2、…、XDAT k = ρ^(k-2)
+# 同一张表在 Extended Asphere 那节给出的 13/14/15(ρ²)/16(ρ⁴) 与本机 5 个真 .zmx 文件
+# 的 XDAT 1/2/3/4 完全对应，所以这个偏移是验证过的、不是猜的。
+# 面型式子：z = cr²/(1+√(1-(1+k)c²r²)) + Σ αi·(r/Rn)^i —— CURV / CONI 原样照写。
+XO_BASE = 2                 # XDAT (i + XO_BASE) = ρ^i 的系数
+
+def _apow(A):
+    """把非球面字典里的 A<n> 取成 {次数: 系数}，支持奇数次。"""
+    out = {}
+    for k, v in (A or {}).items():
+        m = re.fullmatch(r'[Aa]\s*(\d+)', str(k))
+        if m and v: out[int(m.group(1))] = float(v)
+    return out
 
 
 def _wls(cols, f, w):
@@ -137,6 +160,35 @@ def ascii_(t):
             return 'Example' + (('_' + base) if base else '')
         return base
 
+def wfno_cfg(spec, emb, with_stop=False, with_beta=False):
+    """逐结构近轴工作 F 数（Paraxial Working F/#）—— **每次都现算**（纯近轴，毫秒级）。
+
+    `zmx.aperture`（vignet.py --write 写的）只拿来对照：vignet 之后又改了 fno / fno_patent /
+    wfno_override / 结构名，缓存就过期了（回归审查：改 wfno_override 不生效、改结构名直接崩）。
+    过期时以现算为准并告警 —— 渐晕是按旧孔径解的，要重跑 vignet。
+    """
+    from vignet import aperture_cfg
+    zx = spec['zmx']
+    cfgs = zx.get('configs') or [{'name': 'INF', 'd0': 'INFINITY'}]
+    _s0, rows = aperture_cfg(spec, emb, emb['states'][0], cfgs)
+    wf = [r['wfno'] for r in rows]
+    ss = [r['stop_semi'] for r in rows]
+    bt = [r['beta'] for r in rows]
+    for t in getattr(aperture_cfg, 'notes', []):
+        print('  ⚠ 孔径: ' + t)
+    ap = zx.get('aperture') or {}
+    if ap.get('wfno_cfg'):
+        same = (ap.get('configs') == [c.get('name') for c in cfgs]
+                and len(ap['wfno_cfg']) == len(wf)
+                and all(abs(float(a) - b) < 1e-3 for a, b in zip(ap['wfno_cfg'], wf)))
+        if not same:
+            print('  ★ zmx.aperture 已过期（vignet 之后改过 fno / fno_patent / wfno_override / 结构）：'
+                  '以现算 %s 为准；渐晕是按旧孔径解的，要重跑 vignet.py' % [round(v, 4) for v in wf])
+    if with_beta:
+        return wf, ss, bt
+    return (wf, ss) if with_stop else wf
+
+
 def build(spec, emb, catalog, asph_mode='auto'):
     zx = spec['zmx']; fc = zx['focus']
     kb, ka = fc['key_before'], fc.get('key_after')
@@ -160,10 +212,20 @@ def build(spec, emb, catalog, asph_mode='auto'):
     # ---- 非球面面型选择：EVENASPH 只到 r^16，有 A18/A20 就换 XASPHERE ----
     # 与用户的 CODE V 宏 cv2zmx 同一套策略（^opt_asp）：逐面判断，
     # H(r^18)/J(r^20) 一旦非零就换 Extended Asphere，其余仍用 Even Asphere。
-    atype, refit, rf_notes, xa_notes = {}, {}, [], []
+    atype, refit, rf_notes, xa_notes, xo_notes = {}, {}, [], [], []
+    xo_nterms = XDAT_NTERMS
     for s in surfs:
         key = str(s['i']); A = asp.get(key)
         if not A: continue
+        pw = _apow(A)
+        odd = sorted(n for n in pw if n % 2)
+        if odd:
+            # 奇数次项存在 → 只有 Extended Odd Asphere 能精确表达。
+            # 不许丢项、不许拟合：这类面的各阶在边缘是巨额相消。
+            atype[key] = 'XOSPHERE'
+            xo_notes.append(key)
+            xo_nterms = max(xo_nterms, max(pw))
+            continue
         hi = any(abs(float(A.get(k) or 0.0)) > 0.0 for k in ASPKEYS_HIGH)
         if asph_mode == 'extended' or (asph_mode == 'auto' and hi):
             atype[key] = 'XASPHERE'
@@ -203,6 +265,23 @@ def build(spec, emb, catalog, asph_mode='auto'):
             '  Norm radius must stay 1.0 - change it and every coefficient must be rescaled'))
         a('NOTE 0 %s' % ascii_(
             '  by Rn^(2i); term 3 must stay 0 or the paraxial curvature changes.'))
+    if xo_notes:
+        a('NOTE 0 %s' % ascii_(
+            'Aspheres: surfaces %s use ODD as well as even powers of r (the patent prints'
+            % ', '.join(xo_notes)))
+        a('NOTE 0 %s' % ascii_(
+            '  A3..A%d). Even Asphere and Extended Asphere hold even powers only, and Odd' % xo_nterms))
+        a('NOTE 0 %s' % ascii_(
+            '  Asphere stops at r^8, so these are Extended Odd Asphere (TYPE XOSPHERE).'))
+        a('NOTE 0 %s' % ascii_(
+            '  Extra Data: 1=max term number (%d), 2=norm radius (1.0), 3..%d = r^1..r^%d.'
+            % (xo_nterms, xo_nterms + 2, xo_nterms)))
+        a('NOTE 0 %s' % ascii_(
+            '  Terms r^1 and r^2 are kept 0 (the patent series starts at A3); curvature and'))
+        a('NOTE 0 %s' % ascii_(
+            '  conic are unchanged, so the surfaces are bit-exact against the patent table.'))
+        a('NOTE 0 %s' % ascii_(
+            '  Norm radius must stay 1.0 - change it and every coefficient needs Rn^i.'))
     if rf_notes:
         a('NOTE 0 %s' % ascii_(
             'Aspheres: --asph-type even was forced, so surfaces with r^18/r^20 were REFITTED'))
@@ -214,7 +293,13 @@ def build(spec, emb, catalog, asph_mode='auto'):
                 % (key, rr, err * 1e6, a18)))
     a('NOTE 1 ""')
     a('PFIL 0 0 0'); a('LANG 0'); a('UNIT MM X W X CM MR CPMM')
-    a('FNUM %s 0' % num(zx['fno']))
+    # 孔径类型固定写 **Paraxial Working F/#**（FNUM <值> 1；0 = Image Space F/#）。
+    # ★ 不写 Image Space F/#：它按「该结构自己的 ∞ 共轭 EFL / 入瞳直径」定义，内对焦/浮动对焦镜头
+    #   近距 EFL 大幅缩短时光阑会被跟着缩小 —— 用户实测 JP2021-047297A 1.00x 结构 ENPD 15.73、
+    #   状态栏 WFNO 9.149（真值 ≈4.13）。也不再写 ENPD：用户要求统一走近轴工作 F 数。
+    # 逐结构的值由「物理光阑固定」算出（见 vignet.aperture_cfg），∞ 结构恰好等于专利 F 数。
+    wf = wfno_cfg(spec, emb)
+    a('FNUM %s 1' % num(round(wf[0], 6)))
     a('ENVD 20 1 0'); a('GFAC 0 0')
     if catalog and vendors: a('GCAT ' + ' '.join(vendors) + ' ')
     # RAIM 第 2 位 = Ray Aiming：0=Off / 1=Paraxial / 2=Real（官方样例实证，见 SKILL）。
@@ -267,12 +352,31 @@ def build(spec, emb, catalog, asph_mode='auto'):
         A = asp.get(key)
         a('SURF %d' % k)
         ty = atype.get(key, 'STANDARD') if A else 'STANDARD'
+        doe = s.get('doe')
+        if doe:
+            # 衍射面 → Binary 2（实证：Samples/Sequential/Diffractive components/Achromatic singlet.zmx）
+            #   PARM 0 = 衍射级次 M；PARM 1..8 = 偶次非球面（这里 0）
+            #   XDAT 1 = 最大项号 N；XDAT 2 = 归一化半径 Rn；XDAT 2+i = ρ^(2i) 的相位系数（rad）
+            # 专利 ψ = 2π/λ0·Σ C_2i h^2i ⇒ A_i = 2π/λ0[mm]·C_2i·Rn^(2i)，取 Rn=1 不用换算。
+            # Zemax 按每条光线自己的 λ 算偏折（λ/2π·∇Φ），色散自动正确。
+            if A: raise SystemExit('面%s 同时有非球面与 DOE，Binary 2 的 PARM 需另行处理' % key)
+            ty = 'BINARY_2'
         a('  TYPE %s' % ty)
         c = 0.0 if s['R'] in (None, 0, 'inf') else 1.0/float(s['R'])
         a('  CURV %s 0 0 0 0 ""' % num(c, '%.12G'))
         a('  HIDE 0 0 0 0 0 0 0 0 0 0'); a('  MIRR 2 0')
         if s.get('stop') or s['i'] == 'STO': a('  STOP')
-        if ty == 'EVENASPH':
+        if ty == 'BINARY_2':
+            a('  PARM 0 1')
+            for j in range(1, 9): a('  PARM %d 0' % j)
+            lam = float(doe.get('wl_nm', 587.56)) * 1e-6
+            CC = doe['C']
+            a('  XDAT 1 %.12E 0 0 0.000000000000E+00 0.000000000000E+00 0 ""' % float(len(CC)))
+            a('  XDAT 2 %.12E 0 0 0.000000000000E+00 0.000000000000E+00 0 ""' % 1.0)
+            for j, cval in enumerate(CC, 1):
+                a('  XDAT %d %.12E 0 0 0.000000000000E+00 0.000000000000E+00 0 ""'
+                  % (j + 2, 2 * math.pi / lam * float(cval)))
+        elif ty == 'EVENASPH':
             a('  PARM 1 0')                      # PARM1 = r^2 项，专利没有，恒 0
             rc = refit.get(key)
             for j, kk in enumerate(ASPKEYS, 2):
@@ -284,6 +388,12 @@ def build(spec, emb, catalog, asph_mode='auto'):
             a(XDAT_FMT % (3, 0.0))                  # r^2 项，必须 0
             for j, kk in enumerate(ASPKEYS_FULL, 4):
                 a(XDAT_FMT % (j, float(A.get(kk) or 0.0)))
+        elif ty == 'XOSPHERE':
+            pw = _apow(A)
+            a(XDAT_FMT % (1, float(xo_nterms)))     # 最大项号 N
+            a(XDAT_FMT % (2, 1.0))                  # 归一化半径 Rn = 1
+            for n in range(1, xo_nterms + 1):       # XDAT n+2 = ρ^n 的系数
+                a(XDAT_FMT % (n + XO_BASE, pw.get(n, 0.0)))
         D = s['D']
         if isinstance(D, str):
             if D == kb:
@@ -306,7 +416,7 @@ def build(spec, emb, catalog, asph_mode='auto'):
             a('  TOLE %d %s' % (fc['var_before'], num(poslen, '%.6G')))
         elif fc2 and i == fc2['var_after']:
             a('  TOLE %d %s' % (fc2['var_before'], num(poslen2, '%.6G')))
-        a('  CONI %s' % num((A or {}).get('k', 0.0)))
+        a('  CONI %s' % num((A or {}).get('k', (A or {}).get('K', 0.0))))
         if s.get('nd'):
             # Offset 玻璃解（solve code 4）：基准目录玻璃 + Nd/Vd 偏移。
             # 用来给「无等效牌号」的面保住真实色散曲线，又精确还原专利印刷的 nd/vd
@@ -377,10 +487,12 @@ def build(spec, emb, catalog, asph_mode='auto'):
     # 对焦镜头每个结构的渐晕差得很远（适马70微距 视场1 的 VDY 从 ∞ 的 +0.12 走到
     # 1:1 的 −0.34），不进多重结构的话近距结构的光瞳会整片被口径切掉 —— 用户实测打回过。
     # 操作数第 1 个参数是**视场号**（不是面号），第 2 个是结构号。
+    # APER 在 Paraxial Working F/# 下就是该结构的近轴工作 F 数 —— 逐结构不同，与渐晕无关，总是要写。
+    if len(cfgs) > 1:
+        for i, v in enumerate(wf, 1):
+            a('APER   0   %d %s 0 0 0 1 1 1 0 0' % (i, num(round(v, 6), '%.6G')))
     vcfg = zx.get('vignetting_cfg')
     if vcfg and len(vcfg) == len(cfgs):
-        for i, _c in enumerate(cfgs, 1):
-            a('APER   0   %d %s 0 0 0 1 1 1 0 0' % (i, num(float(zx['fno']), '%.6G')))
         for op, ix in (('FVCY', 3), ('FVCX', 2), ('FVDY', 1), ('FVDX', 0)):
             for f in range(len(vcfg[0])):
                 vals = [vcfg[ci][f][ix] for ci in range(len(cfgs))]
@@ -407,15 +519,19 @@ def _read_zmx(path):
     if raw[:2] in (b'\xff\xfe', b'\xfe\xff'): return raw.decode('utf-16')
     return raw.decode('latin-1')
 
-def verify(path, patent_f):
+def verify(path, patent_f, expect_stop=None):
     txt = _read_zmx(path).splitlines()
-    S=[]; cur=None; mce={}; names=[]
+    S=[]; cur=None; mce={}; names=[]; aper={}; fnum=None
     for ln in txt:
         t = ln.strip()
         if t.startswith('SURF '): cur={'c':0.,'d':0.,'nd':None,'stop':False,'tole':None}; S.append(cur)
         elif cur is not None:
             if t.startswith('TYPE '): cur['type']=t.split()[1]
-            elif t.startswith('XDAT '): cur['xdat']=cur.get('xdat',0)+1
+            elif t.startswith('XDAT '):
+                cur['xdat']=cur.get('xdat',0)+1
+                q=t.split()
+                cur.setdefault('xv',{})[int(q[1])]=float(q[2])
+                if q[1]=='1': cur['nterm']=int(float(q[2]))   # XDAT 1 = 项数/最大项号
             elif t.startswith('CURV '): cur['c']=float(t.split()[1])
             elif t.startswith('DISZ '):
                 v=t.split()[1]; cur['d']=float('inf') if v.upper()=='INFINITY' else float(v)
@@ -432,17 +548,33 @@ def verify(path, patent_f):
             import re; names.append(re.search(r'"([^"]*)"', t).group(1))
         if t.startswith('THIC'):
             q=t.split(); mce.setdefault(int(q[1]),{})[int(q[2])]=float(q[3])
+        if t.startswith('APER'):
+            q=t.split(); aper[int(q[2])]=float(q[3])
+        if t.startswith('FNUM '):
+            q=t.split(); fnum=(float(q[1]), int(q[2]) if len(q)>2 else 0)
     body=S[1:-1]
     n=1.; y=1.; u=0.
     for k,s in enumerate(body):
         n2=s['nd'] or 1.
-        u=(n*u-y*s['c']*(n2-n))/n2
+        c2=0.0
+        if s.get('type')=='BINARY_2':
+            xv=s.get('xv',{}); rn=xv.get(2,1.0)
+            c2=xv.get(3,0.0)/(2*math.pi/(587.56e-6))/rn**2   # 注意：假定基准波长 587.56nm
+        u=(n*u-y*s['c']*(n2-n)+2*c2*y)/n2
         if k<len(body)-1: y+=u*s['d']
         n=n2
     print('  自校验: 面数=%d 玻璃面=%d 光阑=面%s 位置解=%s' %
           (len(body), sum(1 for s in body if s['nd']),
            [i+1 for i,s in enumerate(body) if s['stop']],
            [(i+1,s['tole']) for i,s in enumerate(body) if s['tole']]))
+    xo = [(i+1, s.get('xdat', 0)) for i, s in enumerate(body) if s.get('type') == 'XOSPHERE']
+    if xo:
+        nt = max(body[i-1].get('nterm', 0) for i, _ in xo)
+        bad = [i for i, n in xo if n != nt + 2 or body[i-1].get('nterm') != nt]
+        print('  自校验: Extended Odd Asphere(XOSPHERE) 面%s  XDAT 行数 %s%s'
+              % ([i for i, _ in xo], sorted({n for _, n in xo}),
+                 '  ★ XDAT 条数不对：面%s' % bad if bad else
+                 '  (= 2 + %d 项 r^1..r^%d，正确)' % (nt, nt)))
     xa = [(i+1, s.get('xdat', 0)) for i, s in enumerate(body) if s.get('type') == 'XASPHERE']
     ev = [i+1 for i, s in enumerate(body) if s.get('type') == 'EVENASPH']
     if ev: print('  自校验: Even Asphere 面%s' % ev)
@@ -452,6 +584,98 @@ def verify(path, patent_f):
               % ([i for i, _ in xa], sorted({n for _, n in xa}),
                  '  ★ 面%s 的 XDAT 条数不对' % bad if bad else '  (= 2 + 10 项，正确)'))
     print('  自校验: 反解析 EFL=%.4f (专利 %.2f)  结构=%s' % (-1/u, patent_f, names))
+    # ---- 孔径：逐结构由 APER（近轴工作 F 数）反推光阑近轴半径，与孔径模型逐结构比对 ----
+    if fnum:
+        print('  自校验: 孔径类型 %s  值 %.4f' % ({0: 'Image Space F/#', 1: 'Paraxial Working F/#'}
+                                                .get(fnum[1], '?%d' % fnum[1]), fnum[0]))
+    if fnum and fnum[1] == 1:
+        rows = cfg_paraxial(path)
+        semis = []
+        for ci, r in enumerate(rows, 1):
+            F = aper.get(ci, fnum[0]) if len(rows) > 1 else fnum[0]
+            semis.append(abs(r['ystop']) / (abs(r['u_img']) * 2 * F))   # 光阑半径 = |y_stop|·(1/2F)/|u'|
+        spread = (max(semis) - min(semis)) / max(semis)
+        if expect_stop and len(expect_stop) == len(semis):
+            dev = max(abs(x - y) / y for x, y in zip(semis, expect_stop))
+            if dev < 5e-4:
+                verdict = '(与孔径模型逐结构一致 ✓，最大偏差 %.3f%%)' % (100*dev)
+            else:
+                verdict = '★ 与孔径模型不一致（最大偏差 %.2f%%）—— APER 写错了或结构间隔没对上' % (100*dev)
+        elif spread < 1e-4:
+            verdict = '(各结构一致，物理光阑固定)'
+        else:
+            verdict = ('(各结构不同，最大差 %.2f%% —— 专利近距 F 数表明镜头会收光圈时属正常；'
+                       '没有孔径模型可对照)' % (100*spread))
+        print('  自校验: 各结构 APER=%s → 光阑近轴半径 %s  %s'
+              % ([round(aper.get(i, fnum[0]), 3) for i in range(1, len(rows)+1)],
+                 [round(v, 4) for v in semis], verdict))
+
+
+def cfg_paraxial(path):
+    """反解析 .zmx，逐结构做近轴追迹（含 MCE THIC、位置解 TOLE、BINARY_2 衍射面）。
+
+    返回每个结构 {'obj', 'ystop', 'u_img', 'beta', 'efl_inf'}：
+      轴上物点出发的近轴边缘光线（物在 ∞ 时为 y=1 的平行光），ystop = 该光线在光阑面的高度，
+      u_img = 像方斜率，beta = |u_物/u_像|（∞ 时 0）。
+    ★ 衍射面的 2·C2·y 项不能漏 —— 漏了 DOE 镜头（RF600/800 F11）的光阑半径会反推错 20%。
+    """
+    txt = _read_zmx(path).splitlines()
+    S = []; cur = None; mce = {}; names = []
+    for ln in txt:
+        t = ln.strip()
+        if t.startswith('SURF '): cur = {'c': 0., 'd': 0., 'nd': None, 'stop': False, 'tole': None}; S.append(cur)
+        elif cur is not None:
+            if t.startswith('TYPE '): cur['type'] = t.split()[1]
+            elif t.startswith('XDAT '):
+                q = t.split(); cur.setdefault('xv', {})[int(q[1])] = float(q[2])
+            elif t.startswith('CURV '): cur['c'] = float(t.split()[1])
+            elif t.startswith('DISZ '):
+                v = t.split()[1]; cur['d'] = float('inf') if v.upper() == 'INFINITY' else float(v)
+            elif t.startswith('GLAS '):
+                q = t.split()
+                cur['nd'] = float(q[4]) + (float(q[10]) if len(q) > 10 and q[2] == '4' else 0.0)
+            elif t.startswith('STOP'): cur['stop'] = True
+            elif t.startswith('TOLE '): q = t.split(); cur['tole'] = (int(q[1]), float(q[2]))
+        if t.startswith('LTTL'): names.append(t)
+        if t.startswith('THIC'):
+            q = t.split(); mce.setdefault(int(q[1]), {})[int(q[2])] = float(q[3])
+    body = S[1:-1]
+    ks = [i for i, s in enumerate(body) if s['stop']][0]
+    def c2_of(s):
+        if s.get('type') != 'BINARY_2': return 0.0
+        xv = s.get('xv', {}); rn = xv.get(2, 1.0)
+        return xv.get(3, 0.0) / (2*math.pi/(587.56e-6)) / rn**2      # 假定基准波长 587.56nm（与 EFL 自校验同）
+    def trace(ds, y, u):
+        n = 1.; ys = []
+        for k, s in enumerate(body):
+            n2 = s['nd'] or 1.
+            u = (n*u - y*s['c']*(n2-n) + 2*c2_of(s)*y) / n2
+            ys.append(y)
+            if k < len(body)-1: y += u*ds[k]
+            n = n2
+        return ys, u
+    ncfg = max([len(names)] + [len(v) for v in mce.values()] + [1])
+    out = []
+    for ci in range(1, ncfg+1):
+        ds = [s['d'] for s in body]
+        for row, v in mce.items():
+            if row >= 1 and ci in v: ds[row-1] = v[ci]
+        for j, s in enumerate(body):          # 位置解：d_j = L − Σ d(a..j-1)
+            if s['tole']:
+                a0, L0 = s['tole']; ds[j] = L0 - sum(ds[a0-1:j])
+        o = mce.get(0, {}).get(ci, S[0]['d'])
+        fin = o is not None and o < 1e9
+        _ya, ua = trace(ds, 1.0, 0.0)
+        if fin:
+            ys, u = trace(ds, o, 1.0)
+            beta = abs(1.0/u)
+        else:
+            ys, u = _ya, ua
+            beta = 0.0
+        out.append({'obj': o if fin else None, 'ystop': ys[ks], 'u_img': u, 'beta': beta,
+                    'efl_inf': -1.0/ua})
+    return out
+
 
 def main():
     ap=argparse.ArgumentParser(); ap.add_argument('spec'); ap.add_argument('-o',required=True)
@@ -470,7 +694,7 @@ def main():
     for cat,tag in ((True,'catalog'),(False,'modelglass')):
         p='%s_%s.zmx'%(a.o,tag)
         open(p,'wb').write(build(spec,emb,cat,a.asph_type))
-        print(p); verify(p, pf)
+        print(p); verify(p, pf, wfno_cfg(spec, emb, with_stop=True)[1])
 
 if __name__=='__main__':
     main()

@@ -2,3 +2,12 @@ __pycache__/
 *.pyc
 build/
 *.skill
+*.bak
+*.bak_*
+# 交付物与中间件不进仓库：zmx/seq/xlsx 写 E:\Download\，spec 中间件写 E:\Download\patent_specs\
+*.zmx
+*.seq
+*.xlsx
+spec_*.json
+!scripts/spec_示例_WO2025253787_Ex01.json
+out/

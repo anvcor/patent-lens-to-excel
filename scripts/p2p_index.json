@@ -1,0 +1,7682 @@
+[
+{
+"patent": "CN216526482",
+"example": "Example01P",
+"tale": "",
+"product": "7Artisans APS-C 25mm F0.95"
+},
+{
+"patent": "CN216526483",
+"example": "Example01P",
+"tale": "",
+"product": "7Artisans APS-C 50mm F0.95"
+},
+{
+"patent": "US002819651",
+"example": "Example01P",
+"tale": "",
+"product": "Agfa Color Telinear 90mm F4"
+},
+{
+"patent": "GB0775944",
+"example": "Example01P",
+"tale": "",
+"product": "Agfa Color-Magnolar II 100mm F4.5"
+},
+{
+"patent": "US002745315",
+"example": "Example01P",
+"tale": "",
+"product": "Agfa Solagon 50mm F2"
+},
+{
+"patent": "GB0720808",
+"example": "Example01P",
+"tale": "",
+"product": "Angenieux 28mm f3.5 R11"
+},
+{
+"patent": "GB0673358",
+"example": "Example01P",
+"tale": "",
+"product": "Angenieux 35mm f2.5 R1"
+},
+{
+"patent": "US004726669",
+"example": "Example01P",
+"tale": "",
+"product": "Angenieux DEM 180mm F2.3 APO"
+},
+{
+"patent": "US20070236805",
+"example": "Example04P",
+"tale": "",
+"product": "Arri Zeiss Master Prime T1.3 100mm"
+},
+{
+"patent": "DE102005025204",
+"example": "Example01P",
+"tale": "",
+"product": "Arri Zeiss Master Prime T1.3 50mm"
+},
+{
+"patent": "US004089591",
+"example": "Example05P",
+"tale": "",
+"product": "Arriflex Distagon 35mm f1.2 T1.3"
+},
+{
+"patent": "CN221175107",
+"example": "Example01P",
+"tale": "",
+"product": "AstrHori 40mm F5.6 Full Frame"
+},
+{
+"patent": "US20150219882",
+"example": "Example02P",
+"tale": "",
+"product": "Canon 12.5-62.5mm f2.0-3.9 IS [PowerShot G1X2]"
+},
+{
+"patent": "US20130176385",
+"example": "Example04P",
+"tale": "",
+"product": "Canon 15.1-60.4mm f2.8-5.8 [PowerShot G1X]"
+},
+{
+"patent": "JP2018-106021",
+"example": "Example01P",
+"tale": "",
+"product": "Canon 15-45mm f2.8-5.6 (PowerShot G1 X Mark III)"
+},
+{
+"patent": "JP1995-318801",
+"example": "Example01",
+"tale": "",
+"product": "Canon 250D (52mm)"
+},
+{
+"patent": "JP1995-318801",
+"example": "Example02",
+"tale": "",
+"product": "Canon 250D (58mm)"
+},
+{
+"patent": "JP1995-318801",
+"example": "Example03",
+"tale": "",
+"product": "Canon 250D (72mm)"
+},
+{
+"patent": "JP1995-318801",
+"example": "Example04",
+"tale": "",
+"product": "Canon 250D (77mm)"
+},
+{
+"patent": "US002779239",
+"example": "Example01P",
+"tale": "",
+"product": "Canon 28mm f2.8"
+},
+{
+"patent": "US002854890",
+"example": "Example01P",
+"tale": "",
+"product": "Canon 35mm f1.8"
+},
+{
+"patent": "JP1995-318802",
+"example": "Example01",
+"tale": "",
+"product": "Canon 500D (52mm)"
+},
+{
+"patent": "JP1995-318802",
+"example": "Example02",
+"tale": "",
+"product": "Canon 500D (58mm)"
+},
+{
+"patent": "JP1995-318802",
+"example": "Example03",
+"tale": "",
+"product": "Canon 500D (72mm)"
+},
+{
+"patent": "JP1995-318802",
+"example": "Example04",
+"tale": "",
+"product": "Canon 500D (77mm)"
+},
+{
+"patent": "US002836102",
+"example": "Example02P",
+"tale": "",
+"product": "Canon 50mm f1.2"
+},
+{
+"patent": "US002838978",
+"example": "Example01P",
+"tale": "",
+"product": "Canon 50mm f2.8"
+},
+{
+"patent": "US20160062096",
+"example": "Example01P",
+"tale": "",
+"product": "Canon 8.8-36.8mm f1.8-2.8[PowerShot G7X]"
+},
+{
+"patent": "JP2016-148731",
+"example": "Example06P",
+"tale": "",
+"product": "Canon 8.8-220mm f2.8-5.6{PowerShot G3X]"
+},
+{
+"patent": "JP1952-005233",
+"example": "Example01P",
+"tale": "",
+"product": "Canon 85mm f1.5"
+},
+{
+"patent": "US007158320",
+"example": "Example03P",
+"tale": "",
+"product": "Canon EF100-300mm f4.5-5.6 USM"
+},
+{
+"patent": "JP1986-077818",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF100-300mm f5.6"
+},
+{
+"patent": "US20150146044",
+"example": "Example02P",
+"tale": "",
+"product": "Canon EF100-400mm f4.5-5.6L IS II USM"
+},
+{
+"patent": "JP2000-047107",
+"example": "Example02P",
+"tale": "",
+"product": "Canon EF100-400mm f4.5-5.6L IS USM"
+},
+{
+"patent": "JP1991-141313",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF100mm f2.8 Macro"
+},
+{
+"patent": "US007864451",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF100mm f2.8L Macro IS USM"
+},
+{
+"patent": "US20150146085",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF11-24mm f4L USM"
+},
+{
+"patent": "US004826301",
+"example": "Example04P",
+"tale": "",
+"product": "Canon EF135mm f2.8 Soft Focus"
+},
+{
+"patent": "JP2018-049102",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF135mm f2L USM"
+},
+{
+"patent": "JP1993-034592",
+"example": "Example02P",
+"tale": "",
+"product": "Canon EF14mm f2.8L USM"
+},
+{
+"patent": "JP1988-017421",
+"example": "Example03P",
+"tale": "",
+"product": "Canon EF15mm f2.8 Fisheye"
+},
+{
+"patent": "JP2014-041222",
+"example": "Example02P",
+"tale": "",
+"product": "Canon EF16-35mm f2.8L II USM"
+},
+{
+"patent": "JP2018-013685",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF16-35mm f2.8L III USM"
+},
+{
+"patent": "JP2002-287031",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF16-35mm f2.8L USM"
+},
+{
+"patent": "US010247926",
+"example": "Example06P",
+"tale": "",
+"product": "Canon EF16-35mm f4L IS USM"
+},
+{
+"patent": "US005710669",
+"example": "Example11P",
+"tale": "",
+"product": "Canon EF17-35mm f2.8L USM"
+},
+{
+"patent": "JP2020-190696",
+"example": "Example01MLP",
+"tale": "",
+"product": "Canon EF17-40mm f4L USM"
+},
+{
+"patent": "JP1997-211319",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF180mm f3.5L Macro USM"
+},
+{
+"patent": "EP2664955",
+"example": "Example01BP",
+"tale": "",
+"product": "Canon EF200-400mm f4L IS USM Extender 1.4x"
+},
+{
+"patent": "EP2664955",
+"example": "Example01AP",
+"tale": "",
+"product": "Canon EF200-400mm f4L IS USM Extender 1x"
+},
+{
+"patent": "JP1989-102413",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF200mm f1.8L USM"
+},
+{
+"patent": "JP1993-027163",
+"example": "Example02P",
+"tale": "",
+"product": "Canon EF200mm f2.8L II USM"
+},
+{
+"patent": "JP2008-145584",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF200mm f2L IS USM"
+},
+{
+"patent": "US005000550",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF20-35mm f2.8L"
+},
+{
+"patent": "JP1994-230281",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF20-35mm f3.5-4.5 USM"
+},
+{
+"patent": "JP1996-110467",
+"example": "Example02P",
+"tale": "",
+"product": "Canon EF20mm f2.8 USM"
+},
+{
+"patent": "US20170374291",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF24-105mm f4L IS II USM"
+},
+{
+"patent": "JP2020-118775",
+"example": "ExampleMLP",
+"tale": "",
+"product": "Canon EF24-105mm F4L IS USM"
+},
+{
+"patent": "US008736971",
+"example": "Example03P",
+"tale": "",
+"product": "Canon EF24-70mm f2.8L II USM"
+},
+{
+"patent": "JP2014-041222",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF24-70mm f2.8L USM"
+},
+{
+"patent": "JP1997-304697",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF24-85mm f3.5-4.5 USM"
+},
+{
+"patent": "US20100033848",
+"example": "Example03P",
+"tale": "",
+"product": "Canon EF24mm f1.4L II USM"
+},
+{
+"patent": "JP1999-030743",
+"example": "Example06P",
+"tale": "",
+"product": "Canon EF24mm f1.4L USM"
+},
+{
+"patent": "JP2020-190696",
+"example": "Example03MLP",
+"tale": "",
+"product": "Canon EF24mm f2.8 IS USM"
+},
+{
+"patent": "JP2002-365547",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF28-105mm f3.5-4.5 II USM"
+},
+{
+"patent": "JP1994-230285",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF28-105mm f3.5-4.5 USM"
+},
+{
+"patent": "US20040223070",
+"example": "Example04P",
+"tale": "",
+"product": "Canon EF28-105mm f4-5.6"
+},
+{
+"patent": "US006061180",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF28-135mm f3.5-5.6 IS USM"
+},
+{
+"patent": "JP2001-350095",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF28-200mm f3.5-5.6 USM"
+},
+{
+"patent": "JP1989-189622",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF28-70mm f3.5-4.5 II"
+},
+{
+"patent": "US005899585",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF28-80mm f3.5-5.6 II"
+},
+{
+"patent": "JP2009-282554",
+"example": "Example06P",
+"tale": "",
+"product": "Canon EF28-90mm f4-5.6 II USM"
+},
+{
+"patent": "JP1987-078520",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF28mm f2.8"
+},
+{
+"patent": "JP2013-054269",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF28mm f2.8 IS USM"
+},
+{
+"patent": "US006288845",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF300mm f2.8L USM"
+},
+{
+"patent": "US006115188",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF300mm f2.8L IS USM"
+},
+{
+"patent": "US006618197",
+"example": "Example02P",
+"tale": "",
+"product": "Canon EF300mm f4L IS USM"
+},
+{
+"patent": "US004690513",
+"example": "Example04P",
+"tale": "",
+"product": "Canon EF35-135mm f3.5-4.5"
+},
+{
+"patent": "US005144488",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF35-135mm f4-5.6 USM"
+},
+{
+"patent": "US005189557",
+"example": "Example07P",
+"tale": "",
+"product": "Canon EF35-350mm f3.5-5.6L USM"
+},
+{
+"patent": "JP1987-124516",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF35-70mm f3.5-4.5"
+},
+{
+"patent": "JP1992-019706",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF35-80mm f4-5.6 III"
+},
+{
+"patent": "JP1999-211978",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF35mm f1.4L USM"
+},
+{
+"patent": "JP1992-015611",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF35mm f2"
+},
+{
+"patent": "US20150205081",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF35mm f2 IS USM"
+},
+{
+"patent": "US20180095255",
+"example": "MLP",
+"tale": "",
+"product": "Canon EF400mm f2.8L IS II USM"
+},
+{
+"patent": "US006115188",
+"example": "Example25P",
+"tale": "",
+"product": "Canon EF400mm f2.8L IS USM"
+},
+{
+"patent": "JP2018-180209",
+"example": "Example01AP",
+"tale": "",
+"product": "Canon EF400mm f5.6L USM"
+},
+{
+"patent": "US008970966",
+"example": "Example02P",
+"tale": "",
+"product": "Canon EF40mm f2.8 STM"
+},
+{
+"patent": "US006115188",
+"example": "Example24P",
+"tale": "",
+"product": "Canon EF500mm f4L IS USM"
+},
+{
+"patent": "US004717245",
+"example": "Example02P",
+"tale": "",
+"product": "Canon EF50mm f/1.0L USM"
+},
+{
+"patent": "JP1994-242370",
+"example": "Example02P",
+"tale": "",
+"product": "Canon EF50mm F1.4 USM"
+},
+{
+"patent": "JP1987-087922",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF50mm f1.8"
+},
+{
+"patent": "JP1988-179308",
+"example": "Example02P",
+"tale": "",
+"product": "Canon EF50mm f2.5 Compact Macro"
+},
+{
+"patent": "JP1999-133304",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF55-200mm f4.5-5.6 USM"
+},
+{
+"patent": "US006115188",
+"example": "Example22P",
+"tale": "",
+"product": "Canon EF600mm f4L IS USM"
+},
+{
+"patent": "US20090296231",
+"example": "Example02P",
+"tale": "",
+"product": "Canon EF70-200mm f2.8L IS II USM"
+},
+{
+"patent": "US005537259",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF70-200mm f2.8L USM"
+},
+{
+"patent": "JP2008-070450",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF70-200mm f4L IS USM"
+},
+{
+"patent": "JP2000-284174",
+"example": "Example02P",
+"tale": "",
+"product": "Canon EF70-200mm f4L USM"
+},
+{
+"patent": "US20170003486",
+"example": "Example05P",
+"tale": "",
+"product": "Canon EF70-300mm f4-5.6 IS II USM"
+},
+{
+"patent": "JP2007-003600",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF70-300mm f4-5.6 IS USM"
+},
+{
+"patent": "JP2013-140404",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF70-300mm f4-5.6L IS USM"
+},
+{
+"patent": "US20120013996",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF8-15mm f4L Fisheye USM"
+},
+{
+"patent": "JP1993-157964",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF85mm f1.8 USM"
+},
+{
+"patent": "US20140098253",
+"example": "Example03P",
+"tale": "",
+"product": "Canon EF-M11-22mm f4-5.6 IS STM"
+},
+{
+"patent": "JP2016-118658",
+"example": "Example08P",
+"tale": "",
+"product": "Canon EF-M15-45mm f3.5-6.3 IS STM"
+},
+{
+"patent": "US20180074300",
+"example": "Example02P",
+"tale": "",
+"product": "Canon EF-M18-150mm f3.5-6.3 IS STM"
+},
+{
+"patent": "US20130335830",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF-M18-55mm f3.5-5.6 IS STM"
+},
+{
+"patent": "US008854747",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF-M22mm f2 STM"
+},
+{
+"patent": "US20160313535",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF-M28mm f3.5 Macro IS STM"
+},
+{
+"patent": "JP2018-180366",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF-M32mm f1.4 STM"
+},
+{
+"patent": "JP2017-161933",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF-M55-200mm f4.5-6.3 IS STM"
+},
+{
+"patent": "JP2015-031869",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF-S10-18mm f4.5-5.6 IS STM"
+},
+{
+"patent": "US20050286139",
+"example": "Example05P",
+"tale": "",
+"product": "Canon EF-S10-22mm f3.5-4.5 USM"
+},
+{
+"patent": "US20100302648",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF-S15-85mm f3.5-5.6 IS USM"
+},
+{
+"patent": "JP2007-108398",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF-S17-55mm f2.8 IS USM"
+},
+{
+"patent": "US20060023317",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF-S17-85mm f4-5.6 IS USM"
+},
+{
+"patent": "JP2010-237453",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF-S18-135mm f3.5-5.6 IS"
+},
+{
+"patent": "US20130088622",
+"example": "Example04P",
+"tale": "",
+"product": "Canon EF-S18-135mm f3.5-5.6 IS STM"
+},
+{
+"patent": "US20070058265",
+"example": "Example02P",
+"tale": "",
+"product": "Canon EF-S18-55mm f3.5-5.6"
+},
+{
+"patent": "JP2009-175324",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF-S18-200mm f3.5-5.6 IS"
+},
+{
+"patent": "JP2015-111192",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF-S24mm f2.8 STM"
+},
+{
+"patent": "US20180074300",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF-S35mm f2.8 Macro IS STM"
+},
+{
+"patent": "US007471462",
+"example": "Example02P",
+"tale": "",
+"product": "Canon EF-S55-250mm f4-5.6 IS"
+},
+{
+"patent": "US20140211029",
+"example": "Example03P",
+"tale": "",
+"product": "Canon EF-S55-250mm f4-5.6 IS STM"
+},
+{
+"patent": "JP2006-153942",
+"example": "Example01P",
+"tale": "",
+"product": "Canon EF-S60mm f2.8 Macro USM"
+},
+{
+"patent": "JP1988-147127",
+"example": "Example01P",
+"tale": "",
+"product": "Canon Extender EF1.4X"
+},
+{
+"patent": "US20180095255",
+"example": "Example02P",
+"tale": "",
+"product": "Canon Extender EF1.4X III"
+},
+{
+"patent": "JP1988-106715",
+"example": "Example02P",
+"tale": "",
+"product": "Canon Extender EF2X"
+},
+{
+"patent": "US20180095255",
+"example": "Example05P",
+"tale": "",
+"product": "Canon Extender EF2X III"
+},
+{
+"patent": "JP1986-014492",
+"example": "Example01P",
+"tale": "",
+"product": "Canon Extender FD 1.4X-A"
+},
+{
+"patent": "US004129359",
+"example": "Example01P",
+"tale": "",
+"product": "Canon Extender FD 2X-A"
+},
+{
+"patent": "US004340279",
+"example": "Example01P",
+"tale": "",
+"product": "Canon Extender FD 2X-B"
+},
+{
+"patent": "US20200271904",
+"example": "Example03P",
+"tale": "",
+"product": "Canon Extender RF1.4X"
+},
+{
+"patent": "US20200271904",
+"example": "Example06P",
+"tale": "",
+"product": "Canon Extender RF2X"
+},
+{
+"patent": "US004110006",
+"example": "Example04P",
+"tale": "",
+"product": "Canon FD150-600mm f5.6L"
+},
+{
+"patent": "US003748021",
+"example": "Example01P",
+"tale": "",
+"product": "Canon FD17mm f4"
+},
+{
+"patent": "US004477153",
+"example": "Example01P",
+"tale": "",
+"product": "Canon FD20-35mm f3.5L Aspherical"
+},
+{
+"patent": "US003992085",
+"example": "Example01P",
+"tale": "",
+"product": "Canon FD24mm f1.4 SSC Aspherical"
+},
+{
+"patent": "US003748021",
+"example": "Example02P",
+"tale": "",
+"product": "Canon FD24mm f2.8"
+},
+{
+"patent": "US004046459",
+"example": "Example02P",
+"tale": "",
+"product": "Canon FD28mm f2.8 SC"
+},
+{
+"patent": "US003868174",
+"example": "Example01P",
+"tale": "",
+"product": "Canon FD300mm f2.8 SSC Fluorite"
+},
+{
+"patent": "US004251133",
+"example": "Example03P",
+"tale": "",
+"product": "Canon FD300mm f4L"
+},
+{
+"patent": "JP1972-008749",
+"example": "Example03P",
+"tale": "",
+"product": "Canon FD300mm f5.6"
+},
+{
+"patent": "US004324458",
+"example": "Example03P",
+"tale": "",
+"product": "Canon FD300mm f5.6 SSC"
+},
+{
+"patent": "US003848969",
+"example": "Example01P",
+"tale": "",
+"product": "Canon FD35-70mm f2.8-3.5 SSC"
+},
+{
+"patent": "US003748022",
+"example": "Example01P",
+"tale": "",
+"product": "Canon FD35mm f2"
+},
+{
+"patent": "US004045128",
+"example": "Example01P",
+"tale": "",
+"product": "Canon FD400mm f4.5 SSC"
+},
+{
+"patent": "US004241983",
+"example": "Example01P",
+"tale": "",
+"product": "Canon FD500mm f4.5L"
+},
+{
+"patent": "US004364644",
+"example": "Example01P",
+"tale": "",
+"product": "Canon FD50mm f/1.2L"
+},
+{
+"patent": "JP1988-081312",
+"example": "ExampleMLP",
+"tale": "",
+"product": "Canon FD50mm f1.8 SC"
+},
+{
+"patent": "GB1418386",
+"example": "Example01P",
+"tale": "",
+"product": "Canon FD85-300mm f4.5 SSC"
+},
+{
+"patent": "JP1954-005476",
+"example": "Example01P",
+"tale": "",
+"product": "Canon FL100mm F3.5"
+},
+{
+"patent": "JP1952-005234",
+"example": "Example01P",
+"tale": "",
+"product": "Canon FL200mm F3.5"
+},
+{
+"patent": "JP1972-008749",
+"example": "Example02P",
+"tale": "",
+"product": "Canon FL300mm f5.6 Fluorite"
+},
+{
+"patent": "JP1972-008109",
+"example": "Example01P",
+"tale": "",
+"product": "Canon FL500mm f5.6 Fluorite"
+},
+{
+"patent": "JP1999-281892",
+"example": "Example06P",
+"tale": "",
+"product": "Canon MP-E65mm f2.8 1-5X Macro Photo"
+},
+{
+"patent": "JP1978-133028",
+"example": "Example01P",
+"tale": "",
+"product": "Canon New FD100mm f2"
+},
+{
+"patent": "JP1982-064716",
+"example": "Example01P",
+"tale": "",
+"product": "Canon New FD14mm f2.8L"
+},
+{
+"patent": "US004176914",
+"example": "Example01P",
+"tale": "",
+"product": "Canon New FD28mm f2.8"
+},
+{
+"patent": "JP1981-159613",
+"example": "Example01P",
+"tale": "",
+"product": "Canon New FD300mm f2.8L"
+},
+{
+"patent": "JP1986-212814",
+"example": "Example03P",
+"tale": "",
+"product": "Canon New FD35-105mm f3.5-4.5"
+},
+{
+"patent": "JP1986-014492",
+"example": "ExampleMLP",
+"tale": "",
+"product": "Canon New FD 400mm f2.8L"
+},
+{
+"patent": "US004165151",
+"example": "Example01P",
+"tale": "",
+"product": "Canon New FD 500mm f8 Mirror"
+},
+{
+"patent": "JP1980-121418",
+"example": "Example01P",
+"tale": "",
+"product": "Canon New FD50-135mm f3.5"
+},
+{
+"patent": "US004398808",
+"example": "Example02P",
+"tale": "",
+"product": "Canon New FD50-300mm f4.5L"
+},
+{
+"patent": "US004364643",
+"example": "Example03P",
+"tale": "",
+"product": "Canon New FD50mm F1.2"
+},
+{
+"patent": "JP1995-151965",
+"example": "ExampleMLP",
+"tale": "",
+"product": "Canon New FD50mm f1.4"
+},
+{
+"patent": "US004380377",
+"example": "Example01P",
+"tale": "",
+"product": "Canon New FD70-210mm f4"
+},
+{
+"patent": "JP1985-088917",
+"example": "Example01P",
+"tale": "",
+"product": "Canon New FD75-200mm f4.5"
+},
+{
+"patent": "JP1980-100519",
+"example": "Example01P",
+"tale": "",
+"product": "Canon New FD800mm f5.6L"
+},
+{
+"patent": "US20260009984",
+"example": "Example04P",
+"tale": "",
+"product": "Canon RF100-300mm F2.8L IS USM"
+},
+{
+"patent": "US20220214530",
+"example": "Example01P",
+"tale": "",
+"product": "Canon RF100-400mm F5.6-8 IS USM"
+},
+{
+"patent": "US20210003832",
+"example": "Example02P",
+"tale": "",
+"product": "Canon RF100-500mm F4.5-7.1 L IS USM"
+},
+{
+"patent": "JP2021-047297",
+"example": "Example01P",
+"tale": "",
+"product": "Canon RF100mm F2.8 L Macro IS USM"
+},
+{
+"patent": "US20240045184",
+"example": "Example01P",
+"tale": "",
+"product": "Canon RF10-20mm F4 L IS STM"
+},
+{
+"patent": "US20230213745",
+"example": "Example04P",
+"tale": "",
+"product": "Canon RF135mm F1.8L IS USM"
+},
+{
+"patent": "US20220171174",
+"example": "Example03P",
+"tale": "",
+"product": "Canon RF14-35mm F4 L IS USM"
+},
+{
+"patent": "EP4174551",
+"example": "Example02P",
+"tale": "",
+"product": "Canon RF15-30mm F4.5-6.3 IS STM"
+},
+{
+"patent": "US20200257181",
+"example": "Example01P",
+"tale": "",
+"product": "Canon RF15-35mm F2.8 L IS USM"
+},
+{
+"patent": "JP2022-085382",
+"example": "Example03P",
+"tale": "",
+"product": "Canon RF16mm F2.8 STM"
+},
+{
+"patent": "US20240134166",
+"example": "Example01P",
+"tale": "",
+"product": "Canon RF200-800mm F6.3-9 IS USM"
+},
+{
+"patent": "US20260029629",
+"example": "Example06P",
+"tale": "",
+"product": "Canon RF20-50mm F4.0 L IS USM PZ"
+},
+{
+"patent": "US20250389929",
+"example": "Example02P",
+"tale": "",
+"product": "Canon RF20mm F1.4L VCM"
+},
+{
+"patent": "US20240192474",
+"example": "Example04P",
+"tale": "",
+"product": "Canon RF24-105mm F2.8 L IS USM Z"
+},
+{
+"patent": "US20190278068",
+"example": "Example02P",
+"tale": "",
+"product": "Canon RF24-105mm F4 L IS USM"
+},
+{
+"patent": "US20210003831",
+"example": "Example01P",
+"tale": "",
+"product": "Canon RF24-105mm F4-7.1 IS STM"
+},
+{
+"patent": "US20200142167",
+"example": "Example01P",
+"tale": "",
+"product": "Canon RF24-240mm F4-6.3 IS USM"
+},
+{
+"patent": "US20230213739",
+"example": "Example01P",
+"tale": "",
+"product": "Canon RF24-50mm F4.5-6.3 IS STM"
+},
+{
+"patent": "US20190278068",
+"example": "Example05P",
+"tale": "",
+"product": "Canon RF24-70mm F2.8 L IS USM"
+},
+{
+"patent": "US20220019061",
+"example": "Example03P",
+"tale": "",
+"product": "Canon RF24mm F1.8 Macro IS STM"
+},
+{
+"patent": "JP2020-118807",
+"example": "ExampleMLAP",
+"tale": "",
+"product": "Canon RF28-70mm F2 L USM"
+},
+{
+"patent": "US20240329367",
+"example": "Example01P",
+"tale": "",
+"product": "Canon RF28-70mm F2.8 IS STM"
+},
+{
+"patent": "US20190113711",
+"example": "Example01P",
+"tale": "",
+"product": "Canon RF35mm F1.8 Macro IS STM"
+},
+{
+"patent": "US20260194735",
+"example": "Example01P",
+"tale": "",
+"product": "Canon RF45mm F1.2 STM"
+},
+{
+"patent": "US20220221688",
+"example": "Example02P",
+"tale": "",
+"product": "Canon RF5.2mm F2.8 L Dual Fisheye"
+},
+{
+"patent": "US20190265441",
+"example": "Example02P",
+"tale": "",
+"product": "Canon RF50mm F1.2 L USM"
+},
+{
+"patent": "US20250251576",
+"example": "Example01P",
+"tale": "",
+"product": "Canon RF50mm F1.4L VCM"
+},
+{
+"patent": "US20210263286",
+"example": "Example01P",
+"tale": "",
+"product": "Canon RF50mm F1.8 STM"
+},
+{
+"patent": "JP2021-056407",
+"example": "Example03P",
+"tale": "",
+"product": "Canon RF70-200mm F2.8 L IS USM"
+},
+{
+"patent": "US20250155694",
+"example": "Example01P",
+"tale": "",
+"product": "Canon RF70-200mm F2.8 L IS USM Z"
+},
+{
+"patent": "US20210033835",
+"example": "Example01P",
+"tale": "",
+"product": "Canon RF70-200mm F4 L IS USM"
+},
+{
+"patent": "EP4215968",
+"example": "Example04P",
+"tale": "",
+"product": "Canon RF800mm F5.6 L IS USM"
+},
+{
+"patent": "US20200012073",
+"example": "Example01P",
+"tale": "",
+"product": "Canon RF85mm F1.2 L USM (DS)"
+},
+{
+"patent": "US20210072505",
+"example": "Example01P",
+"tale": "",
+"product": "Canon RF85mm F2 Macro IS STM"
+},
+{
+"patent": "JP2024-007656",
+"example": "Example01P",
+"tale": "",
+"product": "Canon RF-S10-18mm F4.5-6.3 IS STM"
+},
+{
+"patent": "JP2025-050505",
+"example": "Example05P",
+"tale": "",
+"product": "Canon RF-S14-30mm F4-6.3 IS STM PZ"
+},
+{
+"patent": "US20240241345",
+"example": "Example02P",
+"tale": "",
+"product": "Canon RF-S3.9mm F3.5 STM Dual Fisheye"
+},
+{
+"patent": "DE102023104719",
+"example": "Example01P",
+"tale": "",
+"product": "Canon RF-S55-210mm F5.0-7.1 IS STM"
+},
+{
+"patent": "US20250093761",
+"example": "Example02P",
+"tale": "",
+"product": "Canon RF-S7.8mm F4 STM Dual Fisheye"
+},
+{
+"patent": "DE01022027",
+"example": "Example01P",
+"tale": "",
+"product": "Canon Serenar 100mm f3.5"
+},
+{
+"patent": "US002645974",
+"example": "Example01P",
+"tale": "",
+"product": "Canon Serenar 28mm f3.5"
+},
+{
+"patent": "US002645975",
+"example": "Example01P",
+"tale": "",
+"product": "Canon Serenar 35mm f3.2"
+},
+{
+"patent": "US002681594",
+"example": "Example01P",
+"tale": "",
+"product": "Canon Serenar 50mm f1.8"
+},
+{
+"patent": "US002645973",
+"example": "Example01P",
+"tale": "",
+"product": "Canon Serenar 85mm f1.5"
+},
+{
+"patent": "JP2018-132674",
+"example": "Example01P",
+"tale": "",
+"product": "Canon TS-E135mm f4L Macro"
+},
+{
+"patent": "US010571651",
+"example": "Example01P",
+"tale": "",
+"product": "Canon TS-E50mm f2.8L Macro"
+},
+{
+"patent": "JP2018-205474",
+"example": "Example01P",
+"tale": "",
+"product": "Canon TS-E90mm f2.8L Macro"
+},
+{
+"patent": "JP2026-121744",
+"example": "Example03P",
+"tale": "",
+"product": "Cosina Color Skopar 35mm F3.5 Aspherical"
+},
+{
+"patent": "JP2025-058577",
+"example": "Example01P",
+"tale": "",
+"product": "Cosina Nokton 50mm F1.2"
+},
+{
+"patent": "JP1999-326756",
+"example": "Example03P",
+"tale": "",
+"product": "Cosina Super Wide-Heliar 15mm F4.5 Aspherical SL"
+},
+{
+"patent": "DE00444150",
+"example": "Example02P",
+"tale": "",
+"product": "Cosina Voigtlander Cine-Tele-Anastigmat 100mm F4.5"
+},
+{
+"patent": "US000765006",
+"example": "Example01P",
+"tale": "",
+"product": "Cosina Voigtlander Dynar 100mm F6"
+},
+{
+"patent": "GB190213441",
+"example": "Example01P",
+"tale": "",
+"product": "Cosina Voigtlander Heliar 100mm F4.5"
+},
+{
+"patent": "US002645154",
+"example": "Example01P",
+"tale": "",
+"product": "Cosina Voigtlander Heliar 210mm F4.5"
+},
+{
+"patent": "JP2026-120386",
+"example": "Example01P",
+"tale": "",
+"product": "Cosina Voigtlander Heliar 50mm F2"
+},
+{
+"patent": "JP2026-120386",
+"example": "Example02P",
+"tale": "",
+"product": "Cosina Voigtlander Heliar 75mm F1.8 VM"
+},
+{
+"patent": "JP2004-101880",
+"example": "Example02P",
+"tale": "",
+"product": "Cosina Voigtlander Nokton 35mm F1.2 Aspherical"
+},
+{
+"patent": "JP2023-063766",
+"example": "Example01P",
+"tale": "",
+"product": "Cosina Voigtlander Nokton 50mm F1.0 Aspherical"
+},
+{
+"patent": "US002927506",
+"example": "Example01P",
+"tale": "",
+"product": "Cosina Voigtlander Skoparex 35mm f3.4 (Bessamatic)"
+},
+{
+"patent": "DE00444150",
+"example": "Example01P",
+"tale": "",
+"product": "Cosina Voigtlander Tele-Dynar 100mm f6.3"
+},
+{
+"patent": "FR1045076",
+"example": "Example01P",
+"tale": "",
+"product": "Cosina Voigtlander Telomar 180mm f5.5"
+},
+{
+"patent": "US002627204",
+"example": "Example02P",
+"tale": "",
+"product": "Cosina Voigtlander Ultron 50mm f2"
+},
+{
+"patent": "JP2022-100641",
+"example": "Example01P",
+"tale": "",
+"product": "Cosina Voigtlander Ultron Vintage Line 28mm F2 Aspherical"
+},
+{
+"patent": "CN105807400",
+"example": "Example01P",
+"tale": "",
+"product": "DZOptics Kerlee 35mm F1.2 SLR"
+},
+{
+"patent": "DE01228820",
+"example": "Example01P",
+"tale": "",
+"product": "Enna Munchen Lithagon 24mm F4"
+},
+{
+"patent": "US002821112",
+"example": "Example01P",
+"tale": "",
+"product": "Enna Munchen Lithagon 35mm F3.5 C"
+},
+{
+"patent": "US002907248",
+"example": "Example01P",
+"tale": "",
+"product": "Enna Munchen Tele-Ennalyt 135mm F2.8"
+},
+{
+"patent": "US002959100",
+"example": "Example01P",
+"tale": "",
+"product": "Enna Munchen Ultra-Lithagon 28mm F3.5"
+},
+{
+"patent": "US002846923",
+"example": "Example02P",
+"tale": "",
+"product": "Farrand Super-Farron 76mm f0.87"
+},
+{
+"patent": "US20150226942",
+"example": "Example01FCLP",
+"tale": "",
+"product": "Fujifilm TCL-X100"
+},
+{
+"patent": "US20150226942",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm TCL-X100 with Fujifilm Fujinon 23mm F2"
+},
+{
+"patent": "JP1954-002685",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinar 210mm f4.5"
+},
+{
+"patent": "US20170075089",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinon 18.5mm F2.8 (X70)"
+},
+{
+"patent": "US20200333569",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinon 23mm F2.0 II Super EBC (X100V)"
+},
+{
+"patent": "US20120069456",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinon 23mm F2.0 Super EBC (X100F)"
+},
+{
+"patent": "US20250362482",
+"example": "Example05P",
+"tale": "",
+"product": "Fujifilm Fujinon 35mm F4 Super EBC Aspherical(GFX100RF)"
+},
+{
+"patent": "US005621575",
+"example": "Example06P",
+"tale": "",
+"product": "Fujifilm Fujinon 45mm F4 Super EBC (GA645 Wide Professional)"
+},
+{
+"patent": "US005548447",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinon 60mm F4 Super EBC (GA645 Professional)"
+},
+{
+"patent": "US005548447",
+"example": "Example06P",
+"tale": "",
+"product": "Fujifilm Fujinon 60mm F4 Super EBC (GS645S Professional)"
+},
+{
+"patent": "US20140133036",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinon 7.1-28.4mm F2.0-2.8 Super EBC (X10)"
+},
+{
+"patent": "JP1980-000560",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinon 85mm F4.0 SF EBC"
+},
+{
+"patent": "US20190086645",
+"example": "Example01TCP",
+"tale": "",
+"product": "Fujifilm Fujinon GF1.4X TC WR"
+},
+{
+"patent": "US20190361195",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinon GF100-200mm F5.6 R LM OIS WR"
+},
+{
+"patent": "US20180100988",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinon GF110mm F2 R LM WR"
+},
+{
+"patent": "US20180059384",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinon GF120mm F4 R LM OIS WR Macro"
+},
+{
+"patent": "US20220236544",
+"example": "Example10P",
+"tale": "",
+"product": "Fujifilm Fujinon GF20-35mm F4 R WR"
+},
+{
+"patent": "US20180210178",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinon GF23mm F4 R LM WR"
+},
+{
+"patent": "US20190094496",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinon GF250mm F4 R LM OIS WR"
+},
+{
+"patent": "US20190086645",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinon GF250mm F4 R LM OIS WR with Fujifilm Fujinon GF1.4X TC WR"
+},
+{
+"patent": "US20210231930",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinon GF30mm F3.5 R WR"
+},
+{
+"patent": "WO2024-195273",
+"example": "Example04P",
+"tale": "",
+"product": "Fujifilm Fujinon GF30mm F5.6 T&S"
+},
+{
+"patent": "US010191246",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinon GF32-64mm F4 R LM WR"
+},
+{
+"patent": "US20260147192",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinon GF32-90mm T3.5 PZ OIS WR"
+},
+{
+"patent": "US20220236544",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinon GF35-70mm F4.5-5.6 WR"
+},
+{
+"patent": "US20200379223",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinon GF45-100mm F4 R LM OIS WR"
+},
+{
+"patent": "US20200174231",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinon GF45mm F2.8 R WR"
+},
+{
+"patent": "WO2025-013477",
+"example": "Example07P",
+"tale": "",
+"product": "Fujifilm Fujinon GF500mm F5.6 R LM OIS WR"
+},
+{
+"patent": "US20200166730",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinon GF50mm F3.5 R LM WR"
+},
+{
+"patent": "US20230341664",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinon GF55mm F1.7 R WR"
+},
+{
+"patent": "US20170242219",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinon GF63mm F2.8 R WR"
+},
+{
+"patent": "US20210294073",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinon GF80mm F1.7 R WR"
+},
+{
+"patent": "US20260202648",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinon XC13-33mm F3.5-6.3 OIS"
+},
+{
+"patent": "JP2021-015312",
+"example": "Example03P",
+"tale": "",
+"product": "Fujifilm Fujinon XC15-45mm F3.5-5.6 OIS PZ"
+},
+{
+"patent": "US20140368925",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinon XC16-50mm F3.5-5.6 OIS II"
+},
+{
+"patent": "US20200018936",
+"example": "Example01TCP",
+"tale": "",
+"product": "Fujifilm Fujinon XF1.4X TC F2 WR"
+},
+{
+"patent": "US20170090163",
+"example": "Example01TCP",
+"tale": "",
+"product": "Fujifilm Fujinon XF1.4X TC WR"
+},
+{
+"patent": "US20170090170",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinon XF100-400mm F4.5-5.6 R LM OIS WR"
+},
+{
+"patent": "US20150131163",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinon XF10-24mm F4 R OIS"
+},
+{
+"patent": "US20150168694",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinon XF14mm F2.8 R"
+},
+{
+"patent": "DE102022118285",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinon XF150-600mm F5.6-8 R LM OIS WR"
+},
+{
+"patent": "WO2024-057734",
+"example": "Example17P",
+"tale": "",
+"product": "Fujifilm Fujinon XF16-50mm F2.8-4.8 R LM WR"
+},
+{
+"patent": "US20160154221",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinon XF16-55mm F2.8 R LM WR"
+},
+{
+"patent": "US20250234079",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinon XF16-55mm F2.8 R LM WR II"
+},
+{
+"patent": "US20200166735",
+"example": "Example11P",
+"tale": "",
+"product": "Fujifilm Fujinon XF16-80mm F4 R OIS WR"
+},
+{
+"patent": "US20160282590",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinon XF16mm F1.4 R WR"
+},
+{
+"patent": "US20200073096",
+"example": "Example03P",
+"tale": "",
+"product": "Fujifilm Fujinon XF16mm F2.8 R WR"
+},
+{
+"patent": "JP2023-033114",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinon XF18-120mm F4.0 LM PZ WR"
+},
+{
+"patent": "US009651761",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinon XF18-135mm F3.5-5.6 R LM OIS WR"
+},
+{
+"patent": "US20150177500",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinon XF18-55mm F2.8-4 R LM OIS"
+},
+{
+"patent": "US20220011542",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinon XF18mm F1.4 R LM WR"
+},
+{
+"patent": "US20140240851",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinon XF18mm F2 R"
+},
+{
+"patent": "US20190265504",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinon XF200mm F2 R LM OIS WR"
+},
+{
+"patent": "US20200018936",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinon XF200mm F2 R LM OIS WR with Fujifilm Fujinon XF1.4X TC F2 WR"
+},
+{
+"patent": "US20140368926",
+"example": "Example04P",
+"tale": "",
+"product": "Fujifilm Fujinon XF23mm F1.4 R"
+},
+{
+"patent": "US20220276464",
+"example": "Example07P",
+"tale": "",
+"product": "Fujifilm Fujinon XF23mm F1.4 R LM WR"
+},
+{
+"patent": "US20170351051",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinon XF23mm F2 R WR"
+},
+{
+"patent": "US20260118637",
+"example": "Example04P",
+"tale": "",
+"product": "Fujifilm Fujinon XF23mm F2.8 R WR"
+},
+{
+"patent": "US20160011404",
+"example": "Example05P",
+"tale": "",
+"product": "Fujifilm Fujinon XF27mm F2.8"
+},
+{
+"patent": "US010197893",
+"example": "Example01TCP",
+"tale": "",
+"product": "Fujifilm Fujinon XF2X TC WR"
+},
+{
+"patent": "CN116500768",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinon XF30mm F2.8 R LM WR Macro"
+},
+{
+"patent": "US20220276464",
+"example": "Example03P",
+"tale": "",
+"product": "Fujifilm Fujinon XF33 F1.4 R LM WR"
+},
+{
+"patent": "US20140285903",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinon XF35mm F1.4 R"
+},
+{
+"patent": "US20170010441",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinon XF35mm F2 R WR"
+},
+{
+"patent": "US20170090163",
+"example": "Example01MLP",
+"tale": "",
+"product": "Fujifilm Fujinon XF50-140mm F2.8 R LM OIS WR"
+},
+{
+"patent": "US20170090163",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinon XF50-140mm F2.8 R LM OIS WR with Fujifilm Fujinon XF1.4X TC WR"
+},
+{
+"patent": "US010197893",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinon XF50-140mm F2.8 R LM OIS WR with Fujifilm Fujinon XF2X TC WR"
+},
+{
+"patent": "US20210231927",
+"example": "Example03P",
+"tale": "",
+"product": "Fujifilm Fujinon XF50mm F1.0 R WR"
+},
+{
+"patent": "US010168507",
+"example": "Example04P",
+"tale": "",
+"product": "Fujifilm Fujinon XF50mm F2 R WR"
+},
+{
+"patent": "DE112013006887",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinon XF55-200mm F3.5-4.8 R LM OIS"
+},
+{
+"patent": "US20150212302",
+"example": "Example03P",
+"tale": "",
+"product": "Fujifilm Fujinon XF56mm F1.2 R"
+},
+{
+"patent": "JP2023-029039",
+"example": "Example02P",
+"tale": "",
+"product": "Fujifilm Fujinon XF56mm F1.2 R WR"
+},
+{
+"patent": "US20140247506",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinon XF60mm F2.4 R Macro"
+},
+{
+"patent": "US20210286156",
+"example": "Example06P",
+"tale": "",
+"product": "Fujifilm Fujinon XF70-300mm F4-5.6 R LM OIS WR"
+},
+{
+"patent": "US20180246292",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinon XF80mm F2.8 R LM OIS WR Macro"
+},
+{
+"patent": "US20190302431",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinon XF8-16mm F2.8 R LM WR"
+},
+{
+"patent": "JP2023-001878",
+"example": "Example07P",
+"tale": "",
+"product": "Fujifilm Fujinon XF8mm F3.5 R WR"
+},
+{
+"patent": "US20160274335",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinon XF90mm F2 R LM WR"
+},
+{
+"patent": "JP1981-140311",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinon-SW 65mm F5.6"
+},
+{
+"patent": "US004018512",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm Fujinon-W 35mm f1.9 EBC"
+},
+{
+"patent": "US004195912",
+"example": "Example02P",
+"tale": "",
+"product": "Fujifilm Fujinon-Z 43-75mm F3.5-4.5"
+},
+{
+"patent": "US004158482",
+"example": "Example01P",
+"tale": "",
+"product": "Fujifilm X-Fujinon-SW 24mm f2.8 DM EBC"
+},
+{
+"patent": "DE00074437",
+"example": "Example01P",
+"tale": "",
+"product": "Goerz Dagor Anastigmat 240mm F6.8"
+},
+{
+"patent": "US20010050819",
+"example": "Example03P",
+"tale": "",
+"product": "Hasselblad HC 2.8 80 (Fujinon)"
+},
+{
+"patent": "US20020075570",
+"example": "Example01P",
+"tale": "",
+"product": "Hasselblad HC 3.2 150 (Fujinon)"
+},
+{
+"patent": "US20040136095",
+"example": "Example01P",
+"tale": "",
+"product": "Hasselblad HC 3.5 35 (Fujinon)"
+},
+{
+"patent": "US20030011895",
+"example": "Example04P",
+"tale": "",
+"product": "Hasselblad HC 3.5 50 (Fujinon)"
+},
+{
+"patent": "US20120063011",
+"example": "Example01P",
+"tale": "",
+"product": "Hasselblad HC 3.5 50-II"
+},
+{
+"patent": "JP2004-302170",
+"example": "Example04P",
+"tale": "",
+"product": "Hasselblad HC 4 120 Macro (Fujinon)"
+},
+{
+"patent": "US006445511",
+"example": "Example03P",
+"tale": "",
+"product": "Hasselblad HC 4 210 (Fujinon)"
+},
+{
+"patent": "US20060209426",
+"example": "Example01P",
+"tale": "",
+"product": "Hasselblad HC 4.5 300 (Fujinon)"
+},
+{
+"patent": "US20020191303",
+"example": "Example01P",
+"tale": "",
+"product": "Hasselblad HC TC 1.7x (Fujinon)"
+},
+{
+"patent": "JP2022-099402",
+"example": "Example01P",
+"tale": "",
+"product": "Hasselblad XCD 2.5 90V"
+},
+{
+"patent": "US20200319427",
+"example": "Example01P",
+"tale": "",
+"product": "Hasselblad XCD 2.8 65"
+},
+{
+"patent": "US20200192060",
+"example": "Example02P",
+"tale": "",
+"product": "Hasselblad XCD 3.5 120 Macro"
+},
+{
+"patent": "WO2018-052113",
+"example": "Example01P",
+"tale": "",
+"product": "Hasselblad XCD 3.5 30"
+},
+{
+"patent": "WO2017-221949",
+"example": "Example01P",
+"tale": "",
+"product": "Hasselblad XCD 3.5 45"
+},
+{
+"patent": "GB0870189",
+"example": "Example02P",
+"tale": "",
+"product": "Isco 135mm F2.8"
+},
+{
+"patent": "CH352160",
+"example": "Example01P",
+"tale": "",
+"product": "Isco Westrogon 24mm F4"
+},
+{
+"patent": "FR1218166",
+"example": "Example01P",
+"tale": "",
+"product": "Isco-Gottingen Tele-Westanar 135mm F3.5"
+},
+{
+"patent": "US002012822",
+"example": "Example01P",
+"tale": "",
+"product": "Kapella 100mm F1"
+},
+{
+"patent": "JP1986-067815",
+"example": "Example01P",
+"tale": "",
+"product": "Kino Precision Kiron 105mm F2.8 MC Macro"
+},
+{
+"patent": "US003037426",
+"example": "Example03P",
+"tale": "",
+"product": "Kinoptik Super-Tegea 1.9mm f/1.9 Fisheye"
+},
+{
+"patent": "US003037426",
+"example": "Example01P",
+"tale": "",
+"product": "Kinoptik Tegea 5.7mm f/1.8"
+},
+{
+"patent": "US003037426",
+"example": "Example02P",
+"tale": "",
+"product": "Kinoptik Tegea 9.8mm f/1.8"
+},
+{
+"patent": "US002983193",
+"example": "Example01P",
+"tale": "",
+"product": "Kodak Aero Ektar 153mm F3.5"
+},
+{
+"patent": "US002279384",
+"example": "Example06P",
+"tale": "",
+"product": "Kodak Ektar 100mm F4.5"
+},
+{
+"patent": "US002518719",
+"example": "Example02P",
+"tale": "",
+"product": "Kodak Ektar 100mm F6.3"
+},
+{
+"patent": "US002165328",
+"example": "Example02P",
+"tale": "",
+"product": "Kodak Ektar 50mm F3.5"
+},
+{
+"patent": "US002397565",
+"example": "Example01P",
+"tale": "",
+"product": "Kodak Ektar 52mm F1.5"
+},
+{
+"patent": "JP1963-011590",
+"example": "Example02P",
+"tale": "",
+"product": "Konica Minolta 100mm F2 Auto Tele Rokkor"
+},
+{
+"patent": "US004214816",
+"example": "Example01P",
+"tale": "",
+"product": "Konica Minolta 135mm F2.8 MD"
+},
+{
+"patent": "JP1976-062037",
+"example": "Example01P",
+"tale": "",
+"product": "Konica Minolta 135mm F2.8 MD Tele Rokkor"
+},
+{
+"patent": "JP1999-231209",
+"example": "Example01P",
+"tale": "",
+"product": "Konica Minolta 135mm F2.8 T4.5 STF"
+},
+{
+"patent": "JP1981-158314",
+"example": "Example01P",
+"tale": "",
+"product": "Konica Minolta 24-35mm F3.5 MD Zoom"
+},
+{
+"patent": "US004147410",
+"example": "Example01P",
+"tale": "",
+"product": "Konica Minolta 24-50mm F4 MD Zoom"
+},
+{
+"patent": "US004264136",
+"example": "Example02P",
+"tale": "",
+"product": "Konica Minolta 250mm F5.6 RF"
+},
+{
+"patent": "JP1989-193709",
+"example": "Example01P",
+"tale": "",
+"product": "Konica Minolta 28-85mm F3.5-4.5 MD Zoom"
+},
+{
+"patent": "US003973832",
+"example": "Example02P",
+"tale": "",
+"product": "Konica Minolta 28mm F2.8 MD"
+},
+{
+"patent": "US004493536",
+"example": "Example01P",
+"tale": "",
+"product": "Konica Minolta 28mm F2.8 MD v2"
+},
+{
+"patent": "JP1969-025743",
+"example": "Example02P",
+"tale": "",
+"product": "Konica Minolta 28mm F3.5 MC W Rokkor v2"
+},
+{
+"patent": "US005249079",
+"example": "Example01P",
+"tale": "",
+"product": "Konica Minolta 35-135mm F3.5-4.5 MD Zoom"
+},
+{
+"patent": "US003936153",
+"example": "Example01P",
+"tale": "",
+"product": "Konica Minolta 35mm F2.8 MD"
+},
+{
+"patent": "US004277149",
+"example": "Example07P",
+"tale": "",
+"product": "Konica Minolta 45mm F2 MD Rokkor"
+},
+{
+"patent": "US004192577",
+"example": "Example01P",
+"tale": "",
+"product": "Konica Minolta 50-135mm F3.5 MD Zoom"
+},
+{
+"patent": "US004182550",
+"example": "Example02P",
+"tale": "",
+"product": "Konica Minolta 50mm F1.4 MD"
+},
+{
+"patent": "JP1985-111215",
+"example": "ExampleMLP",
+"tale": "",
+"product": "Konica Minolta 50mm F1.7 MD"
+},
+{
+"patent": "US004444473",
+"example": "Example05P",
+"tale": "",
+"product": "Konica Minolta 50mm F2.0 MD"
+},
+{
+"patent": "US004126378",
+"example": "Example03P",
+"tale": "",
+"product": "Konica Minolta 600mm F6.3 MD Apo-Tele"
+},
+{
+"patent": "JP1981-150717",
+"example": "Example01P",
+"tale": "",
+"product": "Konica Minolta 75-150mm F4.0 MD Zoom"
+},
+{
+"patent": "US004124276",
+"example": "Example03P",
+"tale": "",
+"product": "Konica Minolta 85mm F2.8 VariSoft"
+},
+{
+"patent": "US004673258",
+"example": "Example01P",
+"tale": "",
+"product": "Konica Minolta AF 100-200mm F4.5"
+},
+{
+"patent": "US005633759",
+"example": "Example02P",
+"tale": "",
+"product": "Konica Minolta AF 100-400mm F4.5-6.7 APO"
+},
+{
+"patent": "JP1987-244010",
+"example": "Example02P",
+"tale": "",
+"product": "Konica Minolta AF 100mm F2"
+},
+{
+"patent": "US004764000",
+"example": "Example08P",
+"tale": "",
+"product": "Konica Minolta AF 100mm F2.8 Macro"
+},
+{
+"patent": "US003589798",
+"example": "Example02P",
+"tale": "",
+"product": "Konica Minolta AF 16mm F2.8 FishEye"
+},
+{
+"patent": "US004786152",
+"example": "Example03P",
+"tale": "",
+"product": "Konica Minolta AF 200mm F2.8 APO"
+},
+{
+"patent": "JP1987-249119",
+"example": "Example04P",
+"tale": "",
+"product": "Konica Minolta AF 20mm F2.8"
+},
+{
+"patent": "JP2000-187161",
+"example": "Example03P",
+"tale": "",
+"product": "Konica Minolta AF 24-105mm F3.5-4.5 D"
+},
+{
+"patent": "US005528423",
+"example": "Example02P",
+"tale": "",
+"product": "Konica Minolta AF 24-85mm F3.5-4.5 RS"
+},
+{
+"patent": "JP1985-039613",
+"example": "Example01P",
+"tale": "",
+"product": "Konica Minolta AF 28-135mm F4-4.5"
+},
+{
+"patent": "JP1994-082698",
+"example": "Example01P",
+"tale": "",
+"product": "Konica Minolta AF 28-70mm F2.8 G"
+},
+{
+"patent": "JP2004-101739",
+"example": "Example01P",
+"tale": "",
+"product": "Konica Minolta AF 28-75mm F2.8 D"
+},
+{
+"patent": "US004258985",
+"example": "Example04P",
+"tale": "",
+"product": "Konica Minolta AF 28mm F2"
+},
+{
+"patent": "US004518229",
+"example": "Example08P",
+"tale": "",
+"product": "Konica Minolta AF 300mm F2.8 APO"
+},
+{
+"patent": "US004871239",
+"example": "Example03P",
+"tale": "",
+"product": "Konica Minolta AF 35-105mm F3.5-4.5 v2"
+},
+{
+"patent": "US004560253",
+"example": "Example02P",
+"tale": "",
+"product": "Konica Minolta AF 35-70mm F4"
+},
+{
+"patent": "JP1989-284819",
+"example": "Example04P",
+"tale": "",
+"product": "Konica Minolta AF 35-80mm F4-5.6"
+},
+{
+"patent": "US004806003",
+"example": "Example02P",
+"tale": "",
+"product": "Konica Minolta AF 35mm F1.4"
+},
+{
+"patent": "JP1988-201614",
+"example": "Example04P",
+"tale": "",
+"product": "Konica Minolta AF 35mm F2"
+},
+{
+"patent": "JP1988-070818",
+"example": "Example01P",
+"tale": "",
+"product": "Konica Minolta AF 3x-1x 1.7-2.8 Macro"
+},
+{
+"patent": "JP1996-327896",
+"example": "Example01P",
+"tale": "",
+"product": "Konica Minolta AF 400mm F4.5 HS APO G"
+},
+{
+"patent": "JP1984-228220",
+"example": "Example03P",
+"tale": "",
+"product": "Konica Minolta AF 50mm F2.8 Macro"
+},
+{
+"patent": "JP2004-109559",
+"example": "Example01P",
+"tale": "",
+"product": "Konica Minolta AF 70-200mm F2.8 APO G D SSM"
+},
+{
+"patent": "JP1989-223409",
+"example": "Example07P",
+"tale": "",
+"product": "Konica Minolta AF 70-210mm F3.5-4.5"
+},
+{
+"patent": "JP1983-001118",
+"example": "Example01P",
+"tale": "",
+"product": "Konica Minolta AF 70-210mm F4"
+},
+{
+"patent": "JP1986-133916",
+"example": "Example04P",
+"tale": "",
+"product": "Konica Minolta AF 75-300mm F4.5-5.6"
+},
+{
+"patent": "US005633759",
+"example": "Example06P",
+"tale": "",
+"product": "Konica Minolta AF 75-300mm F4.5-5.6 D"
+},
+{
+"patent": "JP1989-039542",
+"example": "Example01P",
+"tale": "",
+"product": "Konica Minolta AF 80-200mm F2.8 APO"
+},
+{
+"patent": "JP1989-223410",
+"example": "Example05P",
+"tale": "",
+"product": "Konica Minolta AF 80-200mm F4.5-5.6"
+},
+{
+"patent": "JP1987-244010",
+"example": "Example01P",
+"tale": "",
+"product": "Konica Minolta AF 85mm F1.4"
+},
+{
+"patent": "US004951078",
+"example": "Example01P",
+"tale": "",
+"product": "Konica Minolta AF Reflex 500mm F8"
+},
+{
+"patent": "JP1988-200113",
+"example": "Example02P",
+"tale": "",
+"product": "Konica Minolta APO Tele Converter 1.4x"
+},
+{
+"patent": "JP1974-023892",
+"example": "Example01P",
+"tale": "",
+"product": "Konica Minolta FL-Hexanon AR 300mm F6.3"
+},
+{
+"patent": "JP1979-055424",
+"example": "Example01P",
+"tale": "",
+"product": "Konica Minolta Hexanon 200mm F4"
+},
+{
+"patent": "JP1980-017129",
+"example": "Example01P",
+"tale": "",
+"product": "Konica Minolta Hexanon 21mm F2.8"
+},
+{
+"patent": "JP1980-087117",
+"example": "Example01P",
+"tale": "",
+"product": "Konica Minolta Hexanon 24mm F2.8"
+},
+{
+"patent": "US004170403",
+"example": "Example01P",
+"tale": "",
+"product": "Konica Minolta Hexanon 35mm F2.8"
+},
+{
+"patent": "JP1979-030821",
+"example": "Example01P",
+"tale": "",
+"product": "Konica Minolta Hexanon 40mm F1.8"
+},
+{
+"patent": "JP1982-108817",
+"example": "Example01P",
+"tale": "",
+"product": "Konica Minolta Hexanon 50mm F1.8"
+},
+{
+"patent": "JP1999-160615",
+"example": "Example01P",
+"tale": "",
+"product": "Konica Minolta Hexanon 60mm F1.2 (1999)"
+},
+{
+"patent": "JP1979-055423",
+"example": "Example01P",
+"tale": "",
+"product": "Konica Minolta Hexanon AR 135mm F3.5"
+},
+{
+"patent": "JP1955-009472",
+"example": "Example01P",
+"tale": "",
+"product": "Konica Minolta Hexanon AR 135mm F3.5 (1955)"
+},
+{
+"patent": "JP1993-164961",
+"example": "Example01P",
+"tale": "",
+"product": "Konica Minolta Hexar 35mm F2.0"
+},
+{
+"patent": "US003615126",
+"example": "Example01P",
+"tale": "",
+"product": "Konica Minolta Hexar 38mm F2.8"
+},
+{
+"patent": "JP1976-026535",
+"example": "Example01P",
+"tale": "",
+"product": "Konica Minolta UC Hexanon AR 28mm F1.8"
+},
+{
+"patent": "JP1976-037247",
+"example": "Example01P",
+"tale": "",
+"product": "Konica Minolta UC Hexanon AR 80-200mm F4"
+},
+{
+"patent": "JP1976-034741",
+"example": "Example01P",
+"tale": "",
+"product": "Konica Minolta UC Zoom-Hexanon AR 45-100mm F3.5"
+},
+{
+"patent": "US003584935",
+"example": "Example01P",
+"tale": "",
+"product": "Konica Minolta Varifocal Hexanon AR 35-100mm F2.8"
+},
+{
+"patent": "JP1980-021005",
+"example": "Example01P",
+"tale": "",
+"product": "Konica Minolta Zoom-Hexanon AR 35-70mm F3.5"
+},
+{
+"patent": "JP1982-019708",
+"example": "Example01P",
+"tale": "",
+"product": "Konica Minolta Zoom-Hexanon AR 35-70mm F4"
+},
+{
+"patent": "JP1983-149014",
+"example": "Example03P",
+"tale": "",
+"product": "Konica Minolta Zoom-Hexanon AR 65-135mm F4"
+},
+{
+"patent": "JP1983-137812",
+"example": "Example01P",
+"tale": "",
+"product": "Konica Minolta Zoom-Hexanon AR 70-150mm F4"
+},
+{
+"patent": "US004231636",
+"example": "Example01P",
+"tale": "",
+"product": "Konica Minolta Zoom-Rokkor 40-80mm f2.8 MC"
+},
+{
+"patent": "JP2016-090725",
+"example": "Example09P",
+"tale": "",
+"product": "Leica APO-Macro-Elmarit-TL 60mm F2.8"
+},
+{
+"patent": "US20240241349",
+"example": "Example01P",
+"tale": "",
+"product": "Leica APO-Summicron 43mm F2.0 Asph (Q3 43)"
+},
+{
+"patent": "US20220066176",
+"example": "Example01P",
+"tale": "",
+"product": "Leica APO-Summicron-M 35mm f/2 Asph"
+},
+{
+"patent": "US005388006",
+"example": "ExampleFR1F01P",
+"tale": "",
+"product": "Leica APO-Telyt-R 280mm F2.8"
+},
+{
+"patent": "JP2016-139125",
+"example": "Example01P",
+"tale": "",
+"product": "Leica APO-Vario-Elmarit-SL 90-280mm f/2.8-4"
+},
+{
+"patent": "US003076383",
+"example": "Example01P",
+"tale": "",
+"product": "Leica Colorplan 90mm F2.5"
+},
+{
+"patent": "US20150103211",
+"example": "Example01P",
+"tale": "",
+"product": "Leica DC Vario-Elmarit 4.5-108mm F2.8 (Panasonic FZ300)"
+},
+{
+"patent": "US20180081156",
+"example": "Example01P",
+"tale": "",
+"product": "Leica DC Vario-Elmarit 8.8-176mm F2.8-4.5 ASPH (Panasonic FZ2500,FZ2000,FZH1)"
+},
+{
+"patent": "US20160054550",
+"example": "Example01P",
+"tale": "",
+"product": "Leica DC Vario-Summilux 10.9-34mm F1.7-2.8 ASPH (Panasonic LX100M2)"
+},
+{
+"patent": "US20150124127",
+"example": "Example01P",
+"tale": "",
+"product": "Leica DC Vario-Summilux 4.7-17.7mm F1.4-2.3 (Panasonic LX7)"
+},
+{
+"patent": "US003649104",
+"example": "Example03P",
+"tale": "",
+"product": "Leica Elcan 50mm F2"
+},
+{
+"patent": "US003591257",
+"example": "Example03P",
+"tale": "",
+"product": "Leica Elmarit 28mm f2.8"
+},
+{
+"patent": "US002995980",
+"example": "Example01P",
+"tale": "",
+"product": "Leica Elmarit 90mm F2.8"
+},
+{
+"patent": "US003108152",
+"example": "Example02P",
+"tale": "",
+"product": "Leica Elmarit-M 135mm F2.8"
+},
+{
+"patent": "US003740120",
+"example": "Example03P",
+"tale": "",
+"product": "Leica Elmarit-R 28mm F2.8"
+},
+{
+"patent": "FR1471493",
+"example": "Example01P",
+"tale": "",
+"product": "Leica Elmarit-R 35mm F2.8"
+},
+{
+"patent": "US20200341238",
+"example": "Example03P",
+"tale": "",
+"product": "Leica Elmarit-TL 18mm F2.8 Asph"
+},
+{
+"patent": "DE01183707",
+"example": "Example01P",
+"tale": "",
+"product": "Leica Elmar-M 135mm F4"
+},
+{
+"patent": "US003552833",
+"example": "Example01P",
+"tale": "",
+"product": "Leica Macro-Elmarit-R 60mm F2.8"
+},
+{
+"patent": "DE02246966",
+"example": "Example01P",
+"tale": "",
+"product": "Leica Macro-Elmar-M 90mm F4"
+},
+{
+"patent": "US003410632",
+"example": "Example02P",
+"tale": "",
+"product": "Leica PA-Curtagon-R 35mm F4"
+},
+{
+"patent": "US004123144",
+"example": "Example08P",
+"tale": "",
+"product": "Leica Summicron R 50mm f/2"
+},
+{
+"patent": "DE02222892",
+"example": "Example03P",
+"tale": "",
+"product": "Leica Summicron-C 40mm F2"
+},
+{
+"patent": "US002975673",
+"example": "Example01P",
+"tale": "",
+"product": "Leica Summicron-M 35mm F1.4"
+},
+{
+"patent": "US004123144",
+"example": "Example09P",
+"tale": "",
+"product": "Leica Summicron-M 50mm F2 v5"
+},
+{
+"patent": "US20160266350",
+"example": "Example01P",
+"tale": "",
+"product": "Leica Summilux 28mm f1.7 Asph (Leica Q2)"
+},
+{
+"patent": "FR1233449",
+"example": "Example01P",
+"tale": "",
+"product": "Leica Summilux 35mm F1.4"
+},
+{
+"patent": "US003291553",
+"example": "Example01P",
+"tale": "",
+"product": "Leica Summilux 50mm F1.4"
+},
+{
+"patent": "US008508864",
+"example": "Example03P",
+"tale": "",
+"product": "Leica Summilux C 100mm T1.4"
+},
+{
+"patent": "US008508864",
+"example": "Example02P",
+"tale": "",
+"product": "Leica Summilux C 40mm T1.4"
+},
+{
+"patent": "US20160070086",
+"example": "Example01P",
+"tale": "",
+"product": "Leica Summilux-M 28mm F1.4 Asph"
+},
+{
+"patent": "US005161060",
+"example": "Example01P",
+"tale": "",
+"product": "Leica Summilux-M 35mm F1.4 Asph v1"
+},
+{
+"patent": "DE01045120",
+"example": "Example01P",
+"tale": "",
+"product": "Leica Summilux-M 50mm F1.4"
+},
+{
+"patent": "EP3136147",
+"example": "Example01P",
+"tale": "",
+"product": "Leica Summilux-SL 50 f/1.4 ASPH"
+},
+{
+"patent": "EP3029504",
+"example": "Example04P",
+"tale": "",
+"product": "Leica Summilux-TL 35mm F1.4 Asph"
+},
+{
+"patent": "US003512874",
+"example": "Example03P",
+"tale": "",
+"product": "Leica Super-Angulon-R 21mm F4"
+},
+{
+"patent": "JP2018-087903",
+"example": "Example01P",
+"tale": "",
+"product": "Leica Super-Vario-Elmar-SL 16-35mm f/3.5-4.5 Asph"
+},
+{
+"patent": "JP2016-133764",
+"example": "Example06P",
+"tale": "",
+"product": "Leica Super-Vario-Elmar-TL 11-23mm F3.5-4.5 Asph"
+},
+{
+"patent": "DE01096057",
+"example": "Example01P",
+"tale": "",
+"product": "Leica Telyt 200mm F4"
+},
+{
+"patent": "DE01018236",
+"example": "Example01P",
+"tale": "",
+"product": "Leica Telyt 400mm F5 (Wetzlar 1957)"
+},
+{
+"patent": "US003536379",
+"example": "Example01P",
+"tale": "",
+"product": "Leica Telyt-S 800mm f/6.3"
+},
+{
+"patent": "JP1977-141223",
+"example": "Example01P",
+"tale": "",
+"product": "Mamiya 150mm f/4 Soft"
+},
+{
+"patent": "JP2000-028919",
+"example": "Example01P",
+"tale": "",
+"product": "Mamiya 210mm f8"
+},
+{
+"patent": "JP1979-107336",
+"example": "Example01P",
+"tale": "",
+"product": "Mamiya 55mm f2.8N"
+},
+{
+"patent": "JP1998-206729",
+"example": "Example01P",
+"tale": "",
+"product": "Mamiya AF APO 300mm f4.5 IF"
+},
+{
+"patent": "JP1999-052234",
+"example": "ExampleMLP",
+"tale": "",
+"product": "Mamiya RZ67 250mm f4.5 APO"
+},
+{
+"patent": "JP2001-183581",
+"example": "Example01P",
+"tale": "",
+"product": "Mamiya Sekor D AF 150mm f2.8"
+},
+{
+"patent": "JP1978-066222",
+"example": "Example01P",
+"tale": "",
+"product": "Mamiya-Sekor CS 35mm f2.8"
+},
+{
+"patent": "JP1978-087728",
+"example": "Example01P",
+"tale": "",
+"product": "Mamiya-Sekor Macro C 80mm f4"
+},
+{
+"patent": "JP1981-119109",
+"example": "Example01P",
+"tale": "",
+"product": "Mamiya-Sekor Zoom E 28-50mm f3.5-4.5"
+},
+{
+"patent": "CN216748240",
+"example": "Example01P",
+"tale": "",
+"product": "Meike Auto Focus 0.71x Speedbooster[MK-EFTR-071XL]"
+},
+{
+"patent": "US008879901",
+"example": "Example03P",
+"tale": "",
+"product": "Metabones Canon EF Lens to Sony E Mount T Speed Booster Ultra 0.71x"
+},
+{
+"patent": "US008879901",
+"example": "Example04P",
+"tale": "",
+"product": "Metabones M43 Speed Booster 0.71x"
+},
+{
+"patent": "US008903232",
+"example": "Example11P",
+"tale": "",
+"product": "Metabones Speed Booster Ultra-m43 0.71x"
+},
+{
+"patent": "DE00401630",
+"example": "Example03P",
+"tale": "",
+"product": "Meyer Optik Gorlitz 100mm F2 Kino Plasmat"
+},
+{
+"patent": "DE01282311",
+"example": "Example01P",
+"tale": "",
+"product": "Meyer Optik Gorlitz 135mm F2.8 Orestor"
+},
+{
+"patent": "GB0135853",
+"example": "Example02P",
+"tale": "",
+"product": "Meyer Optik Gorlitz 135mm f4.5 Double Plasmat"
+},
+{
+"patent": "DE01794971",
+"example": "Example01P",
+"tale": "",
+"product": "Meyer Optik Gorlitz 30mm F3.5 Lydith"
+},
+{
+"patent": "DE01749770",
+"example": "Example01P",
+"tale": "",
+"product": "Meyer Optik Gorlitz 35mm F4.5 Primagon"
+},
+{
+"patent": "DE01980417",
+"example": "Example01P",
+"tale": "",
+"product": "Meyer Optik Gorlitz 500mm F5.6 Orestegor"
+},
+{
+"patent": "US003634001",
+"example": "Example01P",
+"tale": "",
+"product": "Miranda Auto E 50mm F1.4"
+},
+{
+"patent": "JP1976-074627",
+"example": "Example01P",
+"tale": "",
+"product": "Miranda Auto EC 135mm F2.8"
+},
+{
+"patent": "JP1976-114926",
+"example": "Example01P",
+"tale": "",
+"product": "Miranda Auto EC 200mm F3.5"
+},
+{
+"patent": "JP1976-053823",
+"example": "Example01P",
+"tale": "",
+"product": "Miranda Auto EC 35mm F2.8"
+},
+{
+"patent": "US004457596",
+"example": "Example01",
+"tale": "Tale33",
+"product": "Nikon \"Pikaichi\" L35AF 35mm f/2.8"
+},
+{
+"patent": "JP2011-248340",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon 1 Nikkor 10mm f/2.8"
+},
+{
+"patent": "US20150153549",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon 1 Nikkor 11-27.5mm f/3.5-5.6"
+},
+{
+"patent": "WO2014-061226",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon 1 Nikkor 32mm f/1.2"
+},
+{
+"patent": "US20200348497",
+"example": "Example08P",
+"tale": "",
+"product": "Nikon 1 Nikkor VR 10-100mm f4-5.6"
+},
+{
+"patent": "US20120019926",
+"example": "Example04P",
+"tale": "",
+"product": "Nikon 1 Nikkor VR 10-30mm f/3.5-5.6"
+},
+{
+"patent": "US20180196240",
+"example": "Example11P",
+"tale": "",
+"product": "Nikon 1 Nikkor VR 10-30mm f/3.5-5.6 PD-Zoom"
+},
+{
+"patent": "US005764425",
+"example": "Example04",
+"tale": "Tale52",
+"product": "Nikon 120mm f/4.5 Gugutto Macro"
+},
+{
+"patent": "US005949588",
+"example": "Example08",
+"tale": "Tale54",
+"product": "Nikon 20mm f/8 Gyogyotto Fisheye"
+},
+{
+"patent": "JP1994-235857",
+"example": "Example02",
+"tale": "Tale94",
+"product": "Nikon 28mm f/3.5 Macro(AF600QD)"
+},
+{
+"patent": "JP1997-105860",
+"example": "Example01",
+"tale": "Tale54",
+"product": "Nikon 400mm f/8 Dodotto Tele"
+},
+{
+"patent": "US005796530",
+"example": "Example04SF2",
+"tale": "Tale52",
+"product": "Nikon 90mm f/4.8 Fuwatto Soft"
+},
+{
+"patent": "US007161746",
+"example": "Example09P",
+"tale": "",
+"product": "Nikon AF Fisheye-Nikkor 10.5mm f/2.8G ED"
+},
+{
+"patent": "US005751485",
+"example": "Example09P",
+"tale": "",
+"product": "Nikon AF Micro-Nikkor 200mm f4D IF-ED"
+},
+{
+"patent": "US005751485",
+"example": "Example01",
+"tale": "Tale74",
+"product": "Nikon AF Micro-Nikkor 60mm f/2.8D"
+},
+{
+"patent": "WO2021-039813",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon AF Nikkor 18mm f/2.8D"
+},
+{
+"patent": "US005666230",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon AF Nikkor 20-35mm F/2.8D IF"
+},
+{
+"patent": "US004690517",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon AF Nikkor 20mm f/2.8D"
+},
+{
+"patent": "US005557473",
+"example": "Example03P",
+"tale": "",
+"product": "Nikon AF Nikkor 28mm f/2.8D"
+},
+{
+"patent": "JP2021-036283",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon AF Nikkor 35mm f/2D"
+},
+{
+"patent": "US005438455",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon AF Nikkor 400mm f/2.8D IF-ED"
+},
+{
+"patent": "US005640277",
+"example": "Example01",
+"tale": "Tale41",
+"product": "Nikon AF Nikkor 85mm f/1.4D IF"
+},
+{
+"patent": "JP1995-209571",
+"example": "Example02P",
+"tale": "",
+"product": "Nikon AF Nikkor 85mm f/1.8D"
+},
+{
+"patent": "US005717527",
+"example": "Example05",
+"tale": "Tale18",
+"product": "Nikon AF Zoom-Micro-Nikkor 70-180mm f/4.5-5.6D ED"
+},
+{
+"patent": "US20010030812",
+"example": "Example02P",
+"tale": "",
+"product": "Nikon AF Zoom-Nikkor 18-35mm f/3.5-4.5D IF-ED"
+},
+{
+"patent": "JP2000-321497",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon AF Zoom-Nikkor 24-85mm f/2.8-4D IF"
+},
+{
+"patent": "JP1999-142740",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon AF Zoom-Nikkor 28-105mm f/3.5-4.5D IF"
+},
+{
+"patent": "US006621643",
+"example": "Example01",
+"tale": "Tale65",
+"product": "Nikon AF Zoom-Nikkor 28-200mm f/3.5-5.6G IF-ED"
+},
+{
+"patent": "US005485314",
+"example": "Example04",
+"tale": "Tale63",
+"product": "Nikon AF Zoom-Nikkor 28-80mm f/3.3-5.6G"
+},
+{
+"patent": "JP1999-030748",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon AF Zoom-Nikkor 28-80mm f3.5-5.6D"
+},
+{
+"patent": "US004806000",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon AF Zoom-Nikkor 28-85mm f/3.5-4.5"
+},
+{
+"patent": "JP1992-293008",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon AF Zoom-Nikkor 35-105mm f/3.5-4.5D"
+},
+{
+"patent": "US006320698",
+"example": "Example03P",
+"tale": "",
+"product": "Nikon AF Zoom-Nikkor 35-70mm f/2.8D"
+},
+{
+"patent": "US004770509",
+"example": "Example04P",
+"tale": "",
+"product": "Nikon AF Zoom-Nikkor 35-70mm f/3.3-4.5"
+},
+{
+"patent": "JP1996-005914",
+"example": "Example03P",
+"tale": "",
+"product": "Nikon AF Zoom-Nikkor 35-80mm f/4.0-5.6D II"
+},
+{
+"patent": "JP1988-118116",
+"example": "Example03P",
+"tale": "",
+"product": "Nikon AF Zoom-Nikkor 70-210mm f/4-5.6"
+},
+{
+"patent": "JP1987-108218",
+"example": "Example03P",
+"tale": "",
+"product": "Nikon AF Zoom-Nikkor 80-200mm f/2.8D ED"
+},
+{
+"patent": "US005323270",
+"example": "Example08P",
+"tale": "",
+"product": "Nikon AF-I Nikkor 300mm f/2.8D ED-IF"
+},
+{
+"patent": "JP1992-238311",
+"example": "Example05P",
+"tale": "",
+"product": "Nikon AF-I Nikkor 600mm f/4D IF-ED"
+},
+{
+"patent": "US005253112",
+"example": "RCL01P",
+"tale": "",
+"product": "Nikon AF-I Teleconverter TC-20E"
+},
+{
+"patent": "WO2021-039813",
+"example": "Example02",
+"tale": "Tale90",
+"product": "Nikon AF-P DX Nikkor 10-20mm f/4.5-5.6G VR"
+},
+{
+"patent": "US010690896",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon AF-P DX Nikkor 18-55mm f/3.5-5.6G VR"
+},
+{
+"patent": "US20210026133",
+"example": "Example04P",
+"tale": "",
+"product": "Nikon AF-P DX Nikkor 70-300mm f4.5-6.3G ED (VR)"
+},
+{
+"patent": "US20190353880",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon AF-P Nikkor 70-300mm f/4.5-5.6E ED VR"
+},
+{
+"patent": "US20110176215",
+"example": "Example01",
+"tale": "Tale88",
+"product": "Nikon AF-S DX Micro Nikkor 40mm f/2.8G"
+},
+{
+"patent": "US20090190220",
+"example": "Example05P",
+"tale": "",
+"product": "Nikon AF-S DX Micro Nikkor 85mm f/3.5G ED VR"
+},
+{
+"patent": "US008169718",
+"example": "Example04P",
+"tale": "",
+"product": "Nikon AF-S DX Nikkor 10-24mm f/3.5-4.5G ED"
+},
+{
+"patent": "US20180252903",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon AF-S DX Nikkor 16-80mm f/2.8-4E ED VR"
+},
+{
+"patent": "US20080019018",
+"example": "Example07P",
+"tale": "",
+"product": "Nikon AF-S DX Nikkor 16-85mm f3.5-5.6G ED VR"
+},
+{
+"patent": "WO2021-039812",
+"example": "Example08P",
+"tale": "",
+"product": "Nikon AF-S DX Nikkor 18-105mm f/3.5-5.6G ED VR"
+},
+{
+"patent": "US20100220400",
+"example": "Example04",
+"tale": "Tale82",
+"product": "Nikon AF-S DX Nikkor 18-200mm f/3.5-5.6G ED VR II"
+},
+{
+"patent": "US20210103133",
+"example": "Example07P",
+"tale": "",
+"product": "Nikon AF-S DX Nikkor 18-300mm f/3.5-5.6G ED VR"
+},
+{
+"patent": "US20090034100",
+"example": "Example04P",
+"tale": "",
+"product": "Nikon AF-S DX Nikkor 18-55mm f/3.5-5.6G VR"
+},
+{
+"patent": "US20150185495",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon AF-S DX Nikkor 18-55mm f/3.5-5.6G VR II"
+},
+{
+"patent": "WO2015-141574",
+"example": "Example02P",
+"tale": "",
+"product": "Nikon AF-S DX Nikkor 55-200mm f/4-5.6G ED VR II"
+},
+{
+"patent": "US20110102905",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon AF-S DX Nikkor 55-300mm f/4.5-5.6G ED VR"
+},
+{
+"patent": "US006940655",
+"example": "Example01",
+"tale": "Tale68",
+"product": "Nikon AF-S DX Zoom-Nikkor 12-24mm f/4G IF-ED"
+},
+{
+"patent": "US20050013015",
+"example": "Example05P",
+"tale": "",
+"product": "Nikon AF-S DX Zoom-Nikkor 17-55mm f/2.8G IF-ED"
+},
+{
+"patent": "US20070070521",
+"example": "Example06P",
+"tale": "",
+"product": "Nikon AF-S DX Zoom-Nikkor 18-135mm f/3.5-5.6G IF-ED"
+},
+{
+"patent": "US20060007559",
+"example": "Example04P",
+"tale": "",
+"product": "Nikon AF-S DX Zoom-Nikkor 18-55mm f/3.5-5.6G ED"
+},
+{
+"patent": "US20050068636",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon AF-S DX Zoom-Nikkor 18-70mm f/3.5-4.5G IF-ED"
+},
+{
+"patent": "US20060245079",
+"example": "Example05P",
+"tale": "",
+"product": "Nikon AF-S DX Zoom-Nikkor 55-200mm f/4-5.6G ED"
+},
+{
+"patent": "US20070183042",
+"example": "Example02P",
+"tale": "",
+"product": "Nikon AF-S DX Zoom-Nikkor 55-200mm f/4-5.6G IF-ED VR"
+},
+{
+"patent": "US007218457",
+"example": "Example03P",
+"tale": "",
+"product": "Nikon AF-S Micro-Nikkor 105mm f/2.8G VR"
+},
+{
+"patent": "US007898744",
+"example": "Example02P",
+"tale": "",
+"product": "Nikon AF-S Micro-Nikkor 60mm f/2.8G ED"
+},
+{
+"patent": "WO2019-116563",
+"example": "Example03P",
+"tale": "",
+"product": "Nikon AF-S Nikkor 105mm f/1.4E ED"
+},
+{
+"patent": "JP2020-177057",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon AF-S Nikkor 120-300mm f/2.8E FL ED SR VR"
+},
+{
+"patent": "US007359125",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon AF-S Nikkor 14-24mm f/2.8G ED"
+},
+{
+"patent": "US20100238560",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon AF-S Nikkor 16-35mm f4G ED VR"
+},
+{
+"patent": "US009256059",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon AF-S Nikkor 18-35mm f/3.5-4.5G ED"
+},
+{
+"patent": "JP2014-209144",
+"example": "Example02P",
+"tale": "",
+"product": "Nikon AF-S Nikkor 200-500mm f/5.6E ED VR"
+},
+{
+"patent": "JP2016-021011",
+"example": "Example04P",
+"tale": "",
+"product": "Nikon AF-S Nikkor 20mm f/1.8G ED"
+},
+{
+"patent": "US20100220400",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon AF-S Nikkor 24-120mm f/4G ED VR"
+},
+{
+"patent": "US20200142168",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon AF-S Nikkor 24-70mm f/2.8E ED VR"
+},
+{
+"patent": "US007508592",
+"example": "Example02P",
+"tale": "",
+"product": "Nikon AF-S Nikkor 24-70mm f/2.8G ED"
+},
+{
+"patent": "JP2011-221421",
+"example": "Example04P",
+"tale": "",
+"product": "Nikon AF-S Nikkor 24-85mm f/3.5-4.5G ED VR"
+},
+{
+"patent": "US008416512",
+"example": "Example03P",
+"tale": "",
+"product": "Nikon AF-S Nikkor 24mm f/1.4G ED"
+},
+{
+"patent": "JP2017-003807",
+"example": "Example04P",
+"tale": "",
+"product": "Nikon AF-S Nikkor 24mm f/1.8G ED"
+},
+{
+"patent": "US20100220400",
+"example": "Example02P",
+"tale": "",
+"product": "Nikon AF-S Nikkor 28-300mm f/3.5-5.6G ED VR"
+},
+{
+"patent": "JP2017-227799",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon AF-S Nikkor 28mm f/1.4E ED"
+},
+{
+"patent": "US005745306",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon AF-S Nikkor 300mm f/2.8D IF-ED II"
+},
+{
+"patent": "JP2019-152887",
+"example": "Example03P",
+"tale": "",
+"product": "Nikon AF-S Nikkor 400mm f/2.8 E FL ED VR"
+},
+{
+"patent": "US006239919",
+"example": "Example04P",
+"tale": "",
+"product": "Nikon AF-S Nikkor 400mm f/2.8D IF-ED II"
+},
+{
+"patent": "US20080158694",
+"example": "Example05P",
+"tale": "",
+"product": "Nikon AF-S Nikkor 400mm f/2.8G ED VR"
+},
+{
+"patent": "US005745306",
+"example": "Example02P",
+"tale": "",
+"product": "Nikon AF-S Nikkor 500mm f/4D IF-ED II"
+},
+{
+"patent": "JP2015-215560",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon AF-S Nikkor 500mm f/4E FL ED VR"
+},
+{
+"patent": "US20090190239",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon AF-S Nikkor 500mm f/4G ED VR"
+},
+{
+"patent": "JP2015-041003",
+"example": "Example01MLP",
+"tale": "",
+"product": "Nikon AF-S Nikkor 50mm f/1.4G"
+},
+{
+"patent": "US005745306",
+"example": "Example03P",
+"tale": "",
+"product": "Nikon AF-S Nikkor 600mm f/4D IF-ED II"
+},
+{
+"patent": "US20180031811",
+"example": "Example04P",
+"tale": "",
+"product": "Nikon AF-S Nikkor 600mm f/4E FL ED VR"
+},
+{
+"patent": "WO2019-097669",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon AF-S Nikkor 70-200mm f/2.8 E FL ED VR"
+},
+{
+"patent": "US008416506",
+"example": "Example06P",
+"tale": "",
+"product": "Nikon AF-S Nikkor 70-200mm f/2.8G ED VR II"
+},
+{
+"patent": "US20170315337",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon AF-S Nikkor 70-200mm f/4G ED VR"
+},
+{
+"patent": "JP2013-250293",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon AF-S Nikkor 800mm f/5.6E FL ED VR"
+},
+{
+"patent": "US20200049962",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon AF-S Nikkor 80-400mm f/4.5-5.6G ED VR"
+},
+{
+"patent": "US008767319",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon AF-S Nikkor 85mm f/1.4G"
+},
+{
+"patent": "JP2015-102734",
+"example": "Example01TCP",
+"tale": "",
+"product": "Nikon AF-S Teleconverter TC-14E III"
+},
+{
+"patent": "JP2005-107261",
+"example": "Example05P",
+"tale": "",
+"product": "Nikon AF-S Teleconverter TC-17E II"
+},
+{
+"patent": "JP2010-191211",
+"example": "Example02TCP",
+"tale": "",
+"product": "Nikon AF-S Teleconverter TC-20E III Aspherical"
+},
+{
+"patent": "JP2013-250290",
+"example": "Example01TCP",
+"tale": "",
+"product": "Nikon AF-S Teleconverter TC800-1.25E ED"
+},
+{
+"patent": "JP2001-083421",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon AF-S Zoom-Nikkor 17-35mm f/2.8D IF-ED"
+},
+{
+"patent": "WO2019-131992",
+"example": "Example01TCP",
+"tale": "",
+"product": "Nikon AF-S Zoom-Nikkor 180-400mm f/4E TC1.4 FL ED VR with TC"
+},
+{
+"patent": "WO2019-131992",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon AF-S Zoom-Nikkor 180-400mm f/4E TC1.4 FL ED VR without TC"
+},
+{
+"patent": "US20050157403",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon AF-S Zoom-Nikkor 200-400mm f4G IF-ED VR"
+},
+{
+"patent": "US20040218274",
+"example": "Example03P",
+"tale": "",
+"product": "Nikon AF-S Zoom-Nikkor 24-120mm f/3.5-5.6G IF-ED VR"
+},
+{
+"patent": "JP2003-241093",
+"example": "Example02P",
+"tale": "",
+"product": "Nikon AF-S Zoom-Nikkor 24-85mm f/3.5-4.5G IF-ED"
+},
+{
+"patent": "JP2000-221399",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon AF-S Zoom-Nikkor 28-70mm f/2.8D IF-ED"
+},
+{
+"patent": "US006693750",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon AF-S Zoom-Nikkor 70-200mm f/2.8G IF-ED VR"
+},
+{
+"patent": "US20050219708",
+"example": "Example04P",
+"tale": "",
+"product": "Nikon AF-S Zoom-Nikkor 70-300mm f/4.5-5.6G IF-ED VR"
+},
+{
+"patent": "US004908639",
+"example": "Example02",
+"tale": "Tale32",
+"product": "Nikon AI AF DC Nikkor 135mm F2S"
+},
+{
+"patent": "US005434713",
+"example": "Example02",
+"tale": "Tale53",
+"product": "Nikon AI AF Fisheye-Nikkor 16mm f/2.8D"
+},
+{
+"patent": "US004986643",
+"example": "Example05",
+"tale": "Tale72",
+"product": "Nikon AI AF Micro-Nikkor 105mm f/2.8S"
+},
+{
+"patent": "US005734508",
+"example": "Example01",
+"tale": "Tale58",
+"product": "Nikon AI AF Nikkor 24-120mm f/3.5-5.6D"
+},
+{
+"patent": "JP2000-019398",
+"example": "Example01",
+"tale": "Tale67",
+"product": "Nikon AI AF-S Zoom-Nikkor 80-200mm f/2.8D IF-ED"
+},
+{
+"patent": "JP1984-121015",
+"example": "Example04",
+"tale": "Tale59",
+"product": "Nikon AI Nikkor 105mm f/1.8S"
+},
+{
+"patent": "US004392724",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon AI Micro-Nikkor 105mm f/2.8S"
+},
+{
+"patent": "US004260223",
+"example": "Example01",
+"tale": "Tale26",
+"product": "Nikon AI Micro-Nikkor 55mm f/2.8"
+},
+{
+"patent": "US004057330",
+"example": "Example02P",
+"tale": "",
+"product": "Nikon AI Nikkor 135mm f/2.8S"
+},
+{
+"patent": "US004062630",
+"example": "Example05",
+"tale": "Tale30",
+"product": "Nikon AI Nikkor 135mm F2"
+},
+{
+"patent": "US004338001",
+"example": "Example02",
+"tale": "Tale10",
+"product": "Nikon AI Nikkor 180mm f/2.8 ED"
+},
+{
+"patent": "US004452513",
+"example": "Example03P",
+"tale": "",
+"product": "Nikon AI Nikkor 200-400mm f/4S"
+},
+{
+"patent": "US004176913",
+"example": "Example02",
+"tale": "Tale31",
+"product": "Nikon AI Nikkor 200mm f/2S IF-ED"
+},
+{
+"patent": "US004163603",
+"example": "Example03",
+"tale": "Tale98",
+"product": "Nikon AI Nikkor 24mm f/2"
+},
+{
+"patent": "US005315441",
+"example": "Example01",
+"tale": "Tale28",
+"product": "Nikon AI Nikkor 28mm f/1.4D"
+},
+{
+"patent": "US005917663",
+"example": "Example02",
+"tale": "Tale57",
+"product": "Nikon AI Nikkor 28mm f/2.8S"
+},
+{
+"patent": "US003576360",
+"example": "Example01",
+"tale": "Tale27",
+"product": "Nikon AI Nikkor 35mm f/1.4S"
+},
+{
+"patent": "US003507558",
+"example": "Example01",
+"tale": "Tale84",
+"product": "Nikon AI Nikkor 35mm f/2S"
+},
+{
+"patent": "JP2003-005030",
+"example": "Example06",
+"tale": "Tale78",
+"product": "Nikon AI Nikkor 45mm f/2.8P "
+},
+{
+"patent": "US004621909",
+"example": "Example03",
+"tale": "Tale16",
+"product": "Nikon AI Nikkor 50mm f/1.2S"
+},
+{
+"patent": "US008879901",
+"example": "Example04PP",
+"tale": "",
+"product": "Nikon AI Nikkor 50mm f/1.2S with Metabones M43 Speed Booster 0.71x"
+},
+{
+"patent": "US004514051",
+"example": "ExampleML02P",
+"tale": "",
+"product": "Nikon AI Nikkor 50mm f/1.8"
+},
+{
+"patent": "US004234242",
+"example": "Example03",
+"tale": "Tale60",
+"product": "Nikon AI Nikkor 50mm f/1.8S"
+},
+{
+"patent": "JP1981-035116",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon AI Nikkor 600mm f/5.6 IF-ED"
+},
+{
+"patent": "US004223981",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon AI Nikkor 80-200mm f/4.5"
+},
+{
+"patent": "US004452513",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon AI Nikkor 80-200mm f/4S"
+},
+{
+"patent": "US004396256",
+"example": "Example01",
+"tale": "Tale89",
+"product": "Nikon AI Nikkor 85mm f/1.4S"
+},
+{
+"patent": "US003507556",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon AI Reflex-Nikkor 1000mm f/11"
+},
+{
+"patent": "US004189212",
+"example": "Example08",
+"tale": "Tale46",
+"product": "Nikon AI Zoom-Nikkor 25-50mm f/4"
+},
+{
+"patent": "US004699475",
+"example": "Example07",
+"tale": "Tale71",
+"product": "Nikon AI Zoom-Nikkor 35-105mm f/3.5-4.5S"
+},
+{
+"patent": "US004770511",
+"example": "Example02",
+"tale": "Tale47",
+"product": "Nikon AI Zoom-Nikkor 35-200mm f/3.5-4.5S"
+},
+{
+"patent": "US004266860",
+"example": "Example02P",
+"tale": "",
+"product": "Nikon AI Zoom-Nikkor 35-70mm f/3.5"
+},
+{
+"patent": "US003743384",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon AI Zoom-Nikkor 360-1200mm f/11 ED"
+},
+{
+"patent": "US004497547",
+"example": "Example01",
+"tale": "Tale61",
+"product": "Nikon AI Zoom-Nikkor 50-135mm f/3.5S"
+},
+{
+"patent": "US004189213",
+"example": "Example03",
+"tale": "Tale92",
+"product": "Nikon AI Zoom-Nikkor 50-300mm f/4.5 ED"
+},
+{
+"patent": "US004812027",
+"example": "Example01",
+"tale": "Tale32",
+"product": "Nikon AI-S AF Nikkor 85mm f/1.8"
+},
+{
+"patent": "JP1989-078210",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon AI-S AF Zoom-Nikkor 75-300mm f/4.5-5.6"
+},
+{
+"patent": "JP1986-169808",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon AI-S Zoom-Nikkor 35-135mm f/3.5-4.5"
+},
+{
+"patent": "US003615125",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon Auto Zoom-Nikkor 80-200mm f/4.5"
+},
+{
+"patent": "JP1981-119110",
+"example": "Example01",
+"tale": "Tale42",
+"product": "Nikon E 75-150mm f/3.5"
+},
+{
+"patent": "JP1999-305119",
+"example": "Example06",
+"tale": "Tale24",
+"product": "Nikon FC-E8"
+},
+{
+"patent": "US003737214",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon Fisheye-Nikkor 6mm f/2.8"
+},
+{
+"patent": "US003524697",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon Fisheye-Nikkor 6mm f/5.6"
+},
+{
+"patent": "JP1998-206733",
+"example": "Example05",
+"tale": "Tale83",
+"product": "Nikon IX-Nikkor 30-60mm f/4-5.6"
+},
+{
+"patent": "US004203653",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon LW-Nikkor 28mm f/2.8"
+},
+{
+"patent": "US004437734",
+"example": "Example01",
+"tale": "Tale69",
+"product": "Nikon Medical-Nikkor 120mm f/4 IF"
+},
+{
+"patent": "US005751485",
+"example": "Example03P",
+"tale": "",
+"product": "Nikon Micro-Nikkor 105mm f/2.8"
+},
+{
+"patent": "US004260223",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon Micro-Nikkor 55mm f/2.8"
+},
+{
+"patent": "JP1976-043920",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon Nikkor 1200mm F/11 ED"
+},
+{
+"patent": "JP1973-071634",
+"example": "Example02P",
+"tale": "",
+"product": "Nikon Nikkor 15mm f/5.6"
+},
+{
+"patent": "US004514051",
+"example": "ExampleML01P",
+"tale": "",
+"product": "Nikon Nikkor 180mm f/2.8 ED"
+},
+{
+"patent": "US004206971",
+"example": "ExampleMLP",
+"tale": "",
+"product": "Nikon Nikkor 200mm f/2 IF-ED"
+},
+{
+"patent": "US003549241",
+"example": "Example02P",
+"tale": "",
+"product": "Nikon Nikkor 20mm f/4"
+},
+{
+"patent": "US005528428",
+"example": "Example03P",
+"tale": "",
+"product": "Nikon Nikkor 28mm f/2.8 (28ti)"
+},
+{
+"patent": "US004099850",
+"example": "Example05P",
+"tale": "",
+"product": "Nikon Nikkor 28mm f/3.5"
+},
+{
+"patent": "JP1976-043917",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon Nikkor 300mm ED f/4.5"
+},
+{
+"patent": "JP1980-166613",
+"example": "Example02P",
+"tale": "",
+"product": "Nikon Nikkor 300mm ED f/4.5 with Nikon TC-301"
+},
+{
+"patent": "US004732459",
+"example": "Example04P",
+"tale": "",
+"product": "Nikon Nikkor 300mm f/2 ED-IF"
+},
+{
+"patent": "US003874770",
+"example": "Example01",
+"tale": "Tale38",
+"product": "Nikon Nikkor 35mm f/2.8"
+},
+{
+"patent": "US005243468",
+"example": "Example05P",
+"tale": "",
+"product": "Nikon Nikkor 35mm f2.8 (35ti)"
+},
+{
+"patent": "US003738736",
+"example": "Example03P",
+"tale": "",
+"product": "Nikon Nikkor 50mm f/1.2"
+},
+{
+"patent": "US004448497",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon Nikkor 50mm f/1.4"
+},
+{
+"patent": "JP1967-018597",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon Nikkor 50mm f/1.4S"
+},
+{
+"patent": "JP1976-043918",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon Nikkor 600mm F/5.6 ED"
+},
+{
+"patent": "JP2022-092388",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon Nikkor Z 100-400mm f/4.5-5.6 VR S"
+},
+{
+"patent": "WO2024-147268",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon Nikkor Z 135mm F1.8 S Plena"
+},
+{
+"patent": "WO2021-117563",
+"example": "Example04P",
+"tale": "",
+"product": "Nikon Nikkor Z 14-24mm f/2.8 S"
+},
+{
+"patent": "JP2019-008031",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon Nikkor Z 14-30mm f/4 S"
+},
+{
+"patent": "WO2022-259649",
+"example": "Example05P",
+"tale": "",
+"product": "Nikon Nikkor Z 24-120mm f/4 S"
+},
+{
+"patent": "WO2020-157904",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon Nikkor Z 24-200mm f/4-6.3 VR"
+},
+{
+"patent": "JP2021-189377",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon Nikkor Z 24-50mm f/4-6.3"
+},
+{
+"patent": "WO2020-136749",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon Nikkor Z 24-70mm f/2.8 S"
+},
+{
+"patent": "WO2019-049372",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon Nikkor Z 24-70mm f/4 S"
+},
+{
+"patent": "WO2023-190222",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon Nikkor Z 26mm F/2.8"
+},
+{
+"patent": "WO2022-071249",
+"example": "Example02P",
+"tale": "",
+"product": "Nikon Nikkor Z 28mm f/2.8"
+},
+{
+"patent": "JP2025-052870",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon Nikkor Z 35mm f/1.2 S"
+},
+{
+"patent": "JP2019-090947",
+"example": "Example04P",
+"tale": "",
+"product": "Nikon Nikkor Z 35mm f/1.8 S"
+},
+{
+"patent": "JP2021-189351",
+"example": "Example04P",
+"tale": "",
+"product": "Nikon Nikkor Z 40mm f/2"
+},
+{
+"patent": "WO2021-241230",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon Nikkor Z 50mm f/1.2 S"
+},
+{
+"patent": "WO2019-220618",
+"example": "Example09P",
+"tale": "",
+"product": "Nikon Nikkor Z 50mm f/1.8 S"
+},
+{
+"patent": "WO2019-229849",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon Nikkor Z 58mm f/0.95 S Noct"
+},
+{
+"patent": "WO2020-105104",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon Nikkor Z 70-200mm f/2.8 VR S"
+},
+{
+"patent": "WO2026-172598",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon Nikkor Z 70-200mm f/2.8 VR S II"
+},
+{
+"patent": "JP2020-173366",
+"example": "Example03P",
+"tale": "",
+"product": "Nikon Nikkor Z 85mm f/1.8 S"
+},
+{
+"patent": "WO2024-053269",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon Nikkor Z DX 12-28mm f/3.5-5.6 PZ VR"
+},
+{
+"patent": "WO2020-012638",
+"example": "Example08P",
+"tale": "",
+"product": "Nikon Nikkor Z DX 16-50mm f/3.5-6.3 VR"
+},
+{
+"patent": "WO2022-264542",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon Nikkor Z DX 18-140mm f/3.5-6.3 VR"
+},
+{
+"patent": "WO2020-105107",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon Nikkor Z DX 50-250mm f/4.5-6.3 VR"
+},
+{
+"patent": "WO2022-097401",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon Nikkor Z MC 105mm f/2.8 VR S"
+},
+{
+"patent": "JP2021-189311",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon Nikkor Z TC-1.4x"
+},
+{
+"patent": "JP2021-189311",
+"example": "Example08P",
+"tale": "",
+"product": "Nikon Nikkor Z TC-2.0x"
+},
+{
+"patent": "JP1963-026133",
+"example": "Example01",
+"tale": "Tale12",
+"product": "Nikon Nikkor-H 2.8cm f/3.5"
+},
+{
+"patent": "US002828671",
+"example": "Example01",
+"tale": "Tale07",
+"product": "Nikon Nikkor-N 5cm f/1.1"
+},
+{
+"patent": "US003622227",
+"example": "Example01",
+"tale": "Tale14",
+"product": "Nikon Nikkor-N Auto 24mm f/2.8"
+},
+{
+"patent": "US003736049",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon Nikkor-N Auto 28mm f/2"
+},
+{
+"patent": "JP1968-030782",
+"example": "Example02",
+"tale": "Tale01",
+"product": "Nikon Nikkor-O 2.1cm f/4"
+},
+{
+"patent": "GB1238668",
+"example": "Example02P",
+"tale": "",
+"product": "Nikon Nikkor-O Auto 35mm f/2"
+},
+{
+"patent": "US003663095",
+"example": "Example02P",
+"tale": "",
+"product": "Nikon Nikkor-PD Auto 15mm f/5.6"
+},
+{
+"patent": "US003560079",
+"example": "Example01",
+"tale": "Tale44",
+"product": "Nikon Nikkor-S Auto 50mm f/1.4"
+},
+{
+"patent": "JP1964-025754",
+"example": "Example01",
+"tale": "Tale02",
+"product": "Nikon Nikkor-S Auto 50mm f/2"
+},
+{
+"patent": "US004176915",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon Nikkor-SW 90mm f/4.5"
+},
+{
+"patent": "JP1966-017177",
+"example": "Example01",
+"tale": "Tale40",
+"product": "Nikon Nikkor-S Auto 58mm f/1.4"
+},
+{
+"patent": "JP2017-161685",
+"example": "Example02P",
+"tale": "",
+"product": "Nikon PC Nikkor 19mm f/4E ED"
+},
+{
+"patent": "US007656591",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon PC-E Micro-Nikkor 45mm f/2.8D ED"
+},
+{
+"patent": "JP2000-292689",
+"example": "Example02P",
+"tale": "",
+"product": "Nikon PC-E Micro-Nikkor 85mm f/2.8D"
+},
+{
+"patent": "JP2008-151949",
+"example": "Example02P",
+"tale": "",
+"product": "Nikon PC-E Nikkor 24mm f/3.5D ED"
+},
+{
+"patent": "US003774991",
+"example": "Example03P",
+"tale": "",
+"product": "Nikon pre-AI 800mm f/8 ED"
+},
+{
+"patent": "JP1964-018719",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon Reflex-Nikkor 500mm f/5"
+},
+{
+"patent": "US004666259",
+"example": "Example01",
+"tale": "Tale13",
+"product": "Nikon Reflex-Nikkor 500mm f/8(new)"
+},
+{
+"patent": "US003632190",
+"example": "Example02P",
+"tale": "",
+"product": "Nikon Reflex-Nikkor-C 500mm F/8"
+},
+{
+"patent": "US005579169",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon R-UW AF Fisheye-Nikkor 13mm f/2.8"
+},
+{
+"patent": "US005257137",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon R-UW AF Micro-Nikkor 50mm f/2.8"
+},
+{
+"patent": "JP1989-031113",
+"example": "Example05P",
+"tale": "",
+"product": "Nikon R-UW AF Nikkor 28mm f/2.8"
+},
+{
+"patent": "US005490012",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon R-UW AF Zoom-Nikkor 20-35mm f/2.8"
+},
+{
+"patent": "US004303314",
+"example": "Example01",
+"tale": "Tale80",
+"product": "Nikon Series E 100mm f/2.8"
+},
+{
+"patent": "US004303314",
+"example": "Example03",
+"tale": "Tale76",
+"product": "Nikon Series E 135mm f/2.8"
+},
+{
+"patent": "US004380375",
+"example": "Example01",
+"tale": "Tale91",
+"product": "Nikon Series E Zoom 36-72mm f/3.5"
+},
+{
+"patent": "US004154508",
+"example": "Example11",
+"tale": "Tale73",
+"product": "Nikon TC-1"
+},
+{
+"patent": "US004206971",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon TC-14"
+},
+{
+"patent": "US004514051",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon TC-14A"
+},
+{
+"patent": "JP1983-129411",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon TC-16A"
+},
+{
+"patent": "JP1980-166613",
+"example": "ExampleRCL2P",
+"tale": "",
+"product": "Nikon TC-301"
+},
+{
+"patent": "JP2000-275517",
+"example": "Example01",
+"tale": "Tale24",
+"product": "Nikon TC-E2"
+},
+{
+"patent": "JP2001-174702",
+"example": "Example01",
+"tale": "Tale24",
+"product": "Nikon TC-E3ED"
+},
+{
+"patent": "US004437733",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon TV-Nikkor 11.5-69mm f/1.2(Nikon S-100)"
+},
+{
+"patent": "GB1050055",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon Ultra-Micro-Nikkor 29.5mm f/1.2"
+},
+{
+"patent": "JP1986-090115",
+"example": "Example04P",
+"tale": "",
+"product": "Nikon UV-Micro-Nikkor 105mm f/4.5"
+},
+{
+"patent": "JP1967-009417",
+"example": "Example01P",
+"tale": "",
+"product": "Nikon UV-Nikkor 55mm F4"
+},
+{
+"patent": "US20010040736",
+"example": "Example02",
+"tale": "Tale24",
+"product": "Nikon WC-E 63"
+},
+{
+"patent": "US002896506",
+"example": "Example01",
+"tale": "Tale03",
+"product": "Nikon W-Nikkor 3.5cm f/1.8"
+},
+{
+"patent": "US003771853",
+"example": "Example03",
+"tale": "Tale15",
+"product": "Nikon Zoom Nikkor 28-45mm f/4.5"
+},
+{
+"patent": "US20030072085",
+"example": "Example01",
+"tale": "Tale22",
+"product": "Nikon Zoom-Nikkor 5.6-16.8mm f/2.7-4.8 (Coolpix SQ)"
+},
+{
+"patent": "US006141156",
+"example": "Example04",
+"tale": "Tale35",
+"product": "Nikon Zoom Nikkor 80-400mm f/4.5-5.6D ED VR"
+},
+{
+"patent": "US004468097",
+"example": "Example02P",
+"tale": "",
+"product": "Nikon Zoom-Nikkor 80-200mm f/2.8 ED-IF"
+},
+{
+"patent": "JP2003-177313",
+"example": "Example01",
+"tale": "Tale22",
+"product": "Nikon Zoom-Nikkor 8-24mm f2.8-4.9 (Coolpix 4300)"
+},
+{
+"patent": "DE02206106",
+"example": "Example01P",
+"tale": "",
+"product": "Olympus 1000mm f11 E Zuiko Auto-T"
+},
+{
+"patent": "US003838911",
+"example": "Example01P",
+"tale": "",
+"product": "Olympus 135mm f3.5 E Zuiko Auto-T"
+},
+{
+"patent": "US003850509",
+"example": "Example01P",
+"tale": "",
+"product": "Olympus 16mm f3.5 Zuiko Auto-Fisheye"
+},
+{
+"patent": "US004029397",
+"example": "Example02P",
+"tale": "",
+"product": "Olympus 18mm f3.5 Zuiko MC Auto-W"
+},
+{
+"patent": "US003884556",
+"example": "Example03P",
+"tale": "",
+"product": "Olympus 21mm f3.5 G Zuiko Auto-W"
+},
+{
+"patent": "US003830559",
+"example": "Example01P",
+"tale": "",
+"product": "Olympus 24mm f2 J Zuiko Auto-W"
+},
+{
+"patent": "US003884556",
+"example": "Example04P",
+"tale": "",
+"product": "Olympus 24mm f2.8 I Zuiko Auto-W"
+},
+{
+"patent": "US003994574",
+"example": "Example02P",
+"tale": "",
+"product": "Olympus 24mm F2.8 Zuiko Auto-W"
+},
+{
+"patent": "US003862794",
+"example": "Example02P",
+"tale": "",
+"product": "Olympus 28mm f2 I Zuiko Auto-W"
+},
+{
+"patent": "DE02205380",
+"example": "Example03P",
+"tale": "",
+"product": "Olympus 28mm f3.5 G Zuiko Auto-W"
+},
+{
+"patent": "US003819253",
+"example": "Example01P",
+"tale": "",
+"product": "Olympus 300mm f4.5 F Zuiko Auto-T"
+},
+{
+"patent": "US004153338",
+"example": "Example03P",
+"tale": "",
+"product": "Olympus 35-70mm F3.6 Zuiko Auto-Zoom"
+},
+{
+"patent": "US003844640",
+"example": "Example01P",
+"tale": "",
+"product": "Olympus 35mm f2 H Zuiko Auto-W"
+},
+{
+"patent": "US003864027",
+"example": "Example01P",
+"tale": "",
+"product": "Olympus 400mm f6.3 E Zuiko Auto-T"
+},
+{
+"patent": "US004188091",
+"example": "Example02P",
+"tale": "",
+"product": "Olympus 500mm f8.0 Zuiko Reflex"
+},
+{
+"patent": "US003884557",
+"example": "Example01P",
+"tale": "",
+"product": "Olympus 50mm f3.5 Zuiko Auto-Macro"
+},
+{
+"patent": "US003827781",
+"example": "Example01P",
+"tale": "",
+"product": "Olympus 600mm f6.5 F Zuiko Auto-T"
+},
+{
+"patent": "US003796481",
+"example": "Example04P",
+"tale": "",
+"product": "Olympus 75-150mm f4 Zuiko Auto-Zoom"
+},
+{
+"patent": "DE02157160",
+"example": "Example01P",
+"tale": "",
+"product": "Olympus 8mm f2.8 Zuiko Auto-Fisheye"
+},
+{
+"patent": "US20030072086",
+"example": "Example07P",
+"tale": "",
+"product": "Olympus 9-36mm f2-2.4 AF (E-10)"
+},
+{
+"patent": "JP1950-003066",
+"example": "Example01P",
+"tale": "",
+"product": "Olympus E.Zuiko 45mm F2.8 (Ace-E)"
+},
+{
+"patent": "US004235521",
+"example": "Example01P",
+"tale": "",
+"product": "Olympus F.Zuiko 35mm f2.8 (XA)"
+},
+{
+"patent": "US003848972",
+"example": "Example01P",
+"tale": "",
+"product": "Olympus F.Zuiko Auto-T 85mm F2"
+},
+{
+"patent": "US008248716",
+"example": "Example01P",
+"tale": "",
+"product": "Olympus M.Zuiko 12mm F2.0"
+},
+{
+"patent": "US008994842",
+"example": "Example01P",
+"tale": "",
+"product": "Olympus M.Zuiko 14-42mm F3.5-5.6 II R"
+},
+{
+"patent": "JP2013-186458",
+"example": "Example03P",
+"tale": "",
+"product": "Olympus M.Zuiko 17mm F1.8"
+},
+{
+"patent": "US008755132",
+"example": "Example01P",
+"tale": "",
+"product": "Olympus M.Zuiko 17mm F2.8"
+},
+{
+"patent": "JP2015-075501",
+"example": "Example01P",
+"tale": "",
+"product": "Olympus M.Zuiko 25mm F1.8"
+},
+{
+"patent": "JP2021-096331",
+"example": "Example06P",
+"tale": "",
+"product": "Olympus M.Zuiko Digital ED 150-400mm F4.5 TC1.25x IS Pro with TC"
+},
+{
+"patent": "JP2021-096331",
+"example": "Example05P",
+"tale": "",
+"product": "Olympus M.Zuiko Digital ED 150-400mm F4.5 TC1.25x IS Pro without TC"
+},
+{
+"patent": "JP2023-032222",
+"example": "Example01P",
+"tale": "",
+"product": "Olympus M.Zuiko Digital ED 20mm F1.4 Pro"
+},
+{
+"patent": "JP2023-005568",
+"example": "Example01P",
+"tale": "",
+"product": "Olympus M.Zuiko Digital ED 40-150mm F4.0 Pro"
+},
+{
+"patent": "JP2013-161076",
+"example": "Example01P",
+"tale": "",
+"product": "Olympus M.Zuiko Digital ED 75mm F1.8"
+},
+{
+"patent": "WO2022-137385",
+"example": "Example02P",
+"tale": "",
+"product": "Olympus M.Zuiko Digital ED 8-25mm F4.0 Pro"
+},
+{
+"patent": "JP2017-090535",
+"example": "Example01P",
+"tale": "",
+"product": "Olympus M.Zuiko ED 12-100mm f4.0 IS Pro"
+},
+{
+"patent": "JP2020-154139",
+"example": "Example01P",
+"tale": "",
+"product": "Olympus M.Zuiko ED 12-200mm F3.5-6.3"
+},
+{
+"patent": "US20140139720",
+"example": "Example05P",
+"tale": "",
+"product": "Olympus M.Zuiko ED 12-40mm f2.8 Pro"
+},
+{
+"patent": "WO2021-070285",
+"example": "Example01P",
+"tale": "",
+"product": "Olympus M.Zuiko ED 12-45mm F4.0 Pro"
+},
+{
+"patent": "US20150370053",
+"example": "Example02P",
+"tale": "",
+"product": "Olympus M.Zuiko ED 12-50mm F3.5-6.3 EZ"
+},
+{
+"patent": "US009151939",
+"example": "Example01P",
+"tale": "",
+"product": "Olympus M.Zuiko ED 14-150mm F4.0-5.6 II"
+},
+{
+"patent": "US20140354858",
+"example": "Example04P",
+"tale": "",
+"product": "Olympus M.Zuiko ED 14-42mm F3.5-5.6 EZ"
+},
+{
+"patent": "US010073255",
+"example": "Example04P",
+"tale": "",
+"product": "Olympus M.Zuiko ED 17mm F1.2 Pro"
+},
+{
+"patent": "US010107992",
+"example": "Example04P",
+"tale": "",
+"product": "Olympus M.Zuiko ED 300mm F4.0 IS Pro"
+},
+{
+"patent": "JP2016-099362",
+"example": "Example06P",
+"tale": "",
+"product": "Olympus M.Zuiko ED 30mm F3.5 Macro"
+},
+{
+"patent": "US20150168697",
+"example": "Example04P",
+"tale": "",
+"product": "Olympus M.Zuiko ED 40-150mm F2.8 Pro"
+},
+{
+"patent": "US008767310",
+"example": "Example02P",
+"tale": "",
+"product": "Olympus M.Zuiko ED 40-150mm F4.0-5.6 R"
+},
+{
+"patent": "JP2019-023693",
+"example": "Example01P",
+"tale": "",
+"product": "Olympus M.Zuiko ED 45mm F1.2 Pro"
+},
+{
+"patent": "US010048474",
+"example": "Example01P",
+"tale": "",
+"product": "Olympus M.Zuiko ED 60mm F2.8 Macro"
+},
+{
+"patent": "JP2016-184136",
+"example": "Example07P",
+"tale": "",
+"product": "Olympus M.Zuiko ED 8mm F1.8 Fisheye"
+},
+{
+"patent": "US20090262236",
+"example": "Example01P",
+"tale": "",
+"product": "Olympus M.Zuiko ED 9-18mm F4.0-5.6 MFT"
+},
+{
+"patent": "US20150226943",
+"example": "Example01TCP",
+"tale": "",
+"product": "Olympus MC-14 M.Zuiko Digital 1.4X Teleconverter"
+},
+{
+"patent": "US20180136439",
+"example": "Example03P",
+"tale": "",
+"product": "Olympus MC-20 M.Zuiko Digital 2x Teleconverter"
+},
+{
+"patent": "JP2024-066164",
+"example": "Example01P",
+"tale": "",
+"product": "Olympus OM M. Zuiko Digital ED 90mm F3.5 Macro IS Pro"
+},
+{
+"patent": "US003741630",
+"example": "Example01P",
+"tale": "",
+"product": "Olympus OM Zuiko 8mm f2.8 Circular Fisheye"
+},
+{
+"patent": "US004431274",
+"example": "Example01P",
+"tale": "",
+"product": "Olympus Zuiko Auto-Macro 20mm F2"
+},
+{
+"patent": "US004377326",
+"example": "Example01P",
+"tale": "",
+"product": "Olympus Zuiko Auto-Macro 38mm f2.8"
+},
+{
+"patent": "US004708445",
+"example": "Example06P",
+"tale": "",
+"product": "Olympus Zuiko Auto-Macro 50mm F2"
+},
+{
+"patent": "US004792219",
+"example": "Example03P",
+"tale": "",
+"product": "Olympus Zuiko Auto-Macro 90mm F2"
+},
+{
+"patent": "US004099843",
+"example": "Example06P",
+"tale": "",
+"product": "Olympus Zuiko Auto-S 50mm F1.2"
+},
+{
+"patent": "US004094588",
+"example": "Example01P",
+"tale": "",
+"product": "Olympus Zuiko Auto-S 50mm F1.4"
+},
+{
+"patent": "US004728179",
+"example": "ExampleMLP",
+"tale": "",
+"product": "Olympus Zuiko Auto-S 50mm F1.8"
+},
+{
+"patent": "US003743387",
+"example": "Example01P",
+"tale": "",
+"product": "Olympus Zuiko Auto-S 55mm f1.2 G"
+},
+{
+"patent": "US004435049",
+"example": "Example05P",
+"tale": "",
+"product": "Olympus Zuiko Auto-T 100mm F2"
+},
+{
+"patent": "US003749478",
+"example": "Example02P",
+"tale": "",
+"product": "Olympus Zuiko Auto-T 100mm F2.8"
+},
+{
+"patent": "JP1984-176717",
+"example": "Example01P",
+"tale": "",
+"product": "Olympus Zuiko Auto-T 180mm F2"
+},
+{
+"patent": "JP1986-112115",
+"example": "ExampleML2P",
+"tale": "",
+"product": "Olympus Zuiko Auto-T 180mm F2.8"
+},
+{
+"patent": "US003804494",
+"example": "Example01P",
+"tale": "",
+"product": "Olympus Zuiko Auto-T 200mm F5"
+},
+{
+"patent": "JP1983-014810",
+"example": "Example03P",
+"tale": "",
+"product": "Olympus Zuiko Auto-T 350mm F2.8"
+},
+{
+"patent": "US004063802",
+"example": "Example01P",
+"tale": "",
+"product": "Olympus Zuiko Auto-T 85mm F2"
+},
+{
+"patent": "US004210388",
+"example": "Example01P",
+"tale": "",
+"product": "Olympus Zuiko Auto-W 21mm F2"
+},
+{
+"patent": "JP1982-197509",
+"example": "Example01P",
+"tale": "",
+"product": "Olympus Zuiko Auto-Zoom 35-70mm F4 AF"
+},
+{
+"patent": "US004568150",
+"example": "Example04P",
+"tale": "",
+"product": "Olympus Zuiko Auto-Zoom 65-200mm F4"
+},
+{
+"patent": "US004025167",
+"example": "Example02P",
+"tale": "",
+"product": "Olympus Zuiko Auto-Zoom 85-250mm F5"
+},
+{
+"patent": "US007706085",
+"example": "Example01P",
+"tale": "",
+"product": "Olympus Zuiko Digital 25mm F2.8"
+},
+{
+"patent": "US007583450",
+"example": "Example04P",
+"tale": "",
+"product": "Olympus Zuiko Digital ED 12-60mm F2.8-4.0 SWD"
+},
+{
+"patent": "US008081392",
+"example": "Example03P",
+"tale": "",
+"product": "Olympus Zuiko Digital ED 14-35mm F2.0 SWD"
+},
+{
+"patent": "US20090002845",
+"example": "Example01P",
+"tale": "",
+"product": "Olympus Zuiko Digital ED 14-42mm F3.5-5.6"
+},
+{
+"patent": "US007408719",
+"example": "Example01P",
+"tale": "",
+"product": "Olympus Zuiko Digital ED 150mm F2.0"
+},
+{
+"patent": "US20040017605",
+"example": "Example03P",
+"tale": "",
+"product": "Olympus Zuiko Digital ED 300mm F2.8"
+},
+{
+"patent": "US20080062534",
+"example": "Example01P",
+"tale": "",
+"product": "Olympus Zuiko Digital ED 40-150mm F4.0-5.6"
+},
+{
+"patent": "US20040042087",
+"example": "Example03P",
+"tale": "",
+"product": "Olympus Zuiko Digital ED 50-200mm F2.8-3.5 SWD"
+},
+{
+"patent": "US007280284",
+"example": "Example03P",
+"tale": "",
+"product": "Olympus Zuiko Digital ED 7-14mm F4.0"
+},
+{
+"patent": "JP2006-201524",
+"example": "Example01P",
+"tale": "",
+"product": "Olympus Zuiko Digital ED 90-250mm F2.8"
+},
+{
+"patent": "JP2011-048232",
+"example": "Example03P",
+"tale": "",
+"product": "Panasonic Leica DG Macro-Elmarit 45mm F2.8 Asph Mega OIS"
+},
+{
+"patent": "US20150192839",
+"example": "Example05P",
+"tale": "",
+"product": "Panasonic Leica DG Nocticron 42.5mm F1.2 Asph Power OIS"
+},
+{
+"patent": "JP2017-167327",
+"example": "Example01P",
+"tale": "",
+"product": "Panasonic Leica DG Summilux 12mm F1.4 Asph"
+},
+{
+"patent": "US20150268449",
+"example": "Example02P",
+"tale": "",
+"product": "Panasonic Leica DG Summilux 15mm F1.7 Asph"
+},
+{
+"patent": "JP2013-003324",
+"example": "Example02P",
+"tale": "",
+"product": "Panasonic Leica DG Summilux 25mm F1.4 II Asph"
+},
+{
+"patent": "US20230367186",
+"example": "Example01P",
+"tale": "",
+"product": "Panasonic Leica DG Summilux 9mm F1.7 Asph"
+},
+{
+"patent": "US20180284478",
+"example": "Example01P",
+"tale": "",
+"product": "Panasonic Leica DG Vario-Elmar 100-400mm F4.0-6.3 Asph Power OIS"
+},
+{
+"patent": "US20190312999",
+"example": "Example01P",
+"tale": "",
+"product": "Panasonic Leica DG Vario-Elmarit 12-60mm F2.8-4.0 Asph Power OIS"
+},
+{
+"patent": "JP2018-180348",
+"example": "Example01P",
+"tale": "",
+"product": "Panasonic Leica DG Vario-Elmarit 8-18mm F2.8-4.0 Asph"
+},
+{
+"patent": "US20200371325",
+"example": "Example02P",
+"tale": "",
+"product": "Panasonic Leica DG Vario-Summilux 10-25mm F1.7 Asph"
+},
+{
+"patent": "US20220365327",
+"example": "Example03P",
+"tale": "",
+"product": "Panasonic Leica DG Vario-Summilux 25-50mm F1.7 Asph"
+},
+{
+"patent": "US20130148006",
+"example": "Example01P",
+"tale": "",
+"product": "Panasonic Lumix G 14mm F2.5 II Asph"
+},
+{
+"patent": "US20170059832",
+"example": "Example04P",
+"tale": "",
+"product": "Panasonic Lumix G 25mm F1.7 Asph"
+},
+{
+"patent": "US20120147254",
+"example": "Example04P",
+"tale": "",
+"product": "Panasonic Lumix G Fisheye 8mm F3.5"
+},
+{
+"patent": "US20120013991",
+"example": "Example01P",
+"tale": "",
+"product": "Panasonic Lumix G Vario 100-300mm F4.0-5.6 II Power OIS"
+},
+{
+"patent": "US20150097989",
+"example": "Example02P",
+"tale": "",
+"product": "Panasonic Lumix G Vario 12-32mm F3.5-5.6 Asph Mega OIS"
+},
+{
+"patent": "US20170242227",
+"example": "Example02P",
+"tale": "",
+"product": "Panasonic Lumix G Vario 12-60mm F3.5-5.6 Asph Power OIS"
+},
+{
+"patent": "US20150281588",
+"example": "Example01P",
+"tale": "",
+"product": "Panasonic Lumix G Vario 14-42mm F3.5-5.6 II Asph Mega OIS"
+},
+{
+"patent": "US20130335617",
+"example": "Example04P",
+"tale": "",
+"product": "Panasonic Lumix G Vario 45-150mm F4.0-5.6 Asph Mega OIS"
+},
+{
+"patent": "US20100194930",
+"example": "Example02P",
+"tale": "",
+"product": "Panasonic Lumix G Vario 7-14mm F4.0 Asph"
+},
+{
+"patent": "US20140132830",
+"example": "Example01P",
+"tale": "",
+"product": "Panasonic Lumix G X Vario PZ 45-175mm F4.0-5.6 Asph Power OIS"
+},
+{
+"patent": "US20240192475",
+"example": "Example01P",
+"tale": "",
+"product": "Panasonic Lumix S 14-28mm F4-5.6 Macro"
+},
+{
+"patent": "JP2021-179551",
+"example": "Example02P",
+"tale": "",
+"product": "Panasonic Lumix S 20-60mm F3.5-5.6"
+},
+{
+"patent": "JP2020-118738",
+"example": "Example01P",
+"tale": "",
+"product": "Panasonic Lumix S 24-105mm F4 Macro OIS"
+},
+{
+"patent": "CN216772097",
+"example": "Example01P",
+"tale": "",
+"product": "Panasonic Lumix S 35mm F1.8"
+},
+{
+"patent": "JP2022-125453",
+"example": "Example01P",
+"tale": "",
+"product": "Panasonic Lumix S 70-300mm F4.5-5.6 Macro OIS"
+},
+{
+"patent": "JP2021-076829",
+"example": "Example01P",
+"tale": "",
+"product": "Panasonic Lumix S Pro 16-35mm F4"
+},
+{
+"patent": "US20210055531",
+"example": "Example01P",
+"tale": "",
+"product": "Panasonic Lumix S Pro 24-70mm F2.8"
+},
+{
+"patent": "WO2020-158622",
+"example": "Example03P",
+"tale": "",
+"product": "Panasonic Lumix S Pro 50mm F1.4"
+},
+{
+"patent": "US20210132345",
+"example": "Example03P",
+"tale": "",
+"product": "Panasonic Lumix S Pro 70-200mm F2.8 OIS"
+},
+{
+"patent": "JP2020-086133",
+"example": "Example06P",
+"tale": "",
+"product": "Panasonic Lumix S Pro 70-200mm F4 OIS"
+},
+{
+"patent": "JP1997-297263",
+"example": "Example01P",
+"tale": "",
+"product": "Phase One Mamiya AF 55mm f2.8"
+},
+{
+"patent": "JP2003-185916",
+"example": "Example01P",
+"tale": "",
+"product": "Phase One Schneider Kreuznach 120mm LS f4 Macro"
+},
+{
+"patent": "JP2006-300972",
+"example": "Example03P",
+"tale": "",
+"product": "Phase One Schneider Kreuznach 28mm LS f4.5"
+},
+{
+"patent": "US001479251",
+"example": "Example01P",
+"tale": "",
+"product": "Projection Optics Super-Lite"
+},
+{
+"patent": "JP2012-003015",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh 18.3mm F2.5 (A12)"
+},
+{
+"patent": "US20130321936",
+"example": "Example03P",
+"tale": "",
+"product": "Ricoh 18.3mm F2.8 (GR II)"
+},
+{
+"patent": "US20190154946",
+"example": "Example05P",
+"tale": "",
+"product": "Ricoh 18.3mm F2.8 (GR3)"
+},
+{
+"patent": "JP2025-069516",
+"example": "Example02P",
+"tale": "",
+"product": "Ricoh 18.3mm F2.8 (GR IV)"
+},
+{
+"patent": "US20220026670",
+"example": "Example03P",
+"tale": "",
+"product": "Ricoh 26.1mm F2.8 (GR3x)"
+},
+{
+"patent": "US005760973",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh 28mm F2.8 (GR-1)"
+},
+{
+"patent": "JP2010-164839",
+"example": "Example04P",
+"tale": "",
+"product": "Ricoh 6.0mm F1.9 VC (GR)"
+},
+{
+"patent": "JP2022-117775",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh HD Pentax-D FA 21mmF2.4ED Limited DC WR"
+},
+{
+"patent": "US20170068075",
+"example": "Example02P",
+"tale": "",
+"product": "Ricoh HD Pentax-D FA 28-105mm F3.5-5.6ED DC WR"
+},
+{
+"patent": "US20190250367",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh HD Pentax-D FA 50mm F1.4 SDM AW"
+},
+{
+"patent": "US20160103303",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh HD Pentax-D FA 70-200mm F2.8ED DC AW"
+},
+{
+"patent": "US20200301101",
+"example": "Example03P",
+"tale": "",
+"product": "Ricoh HD Pentax-D FA 85mm F1.4ED SDM AW"
+},
+{
+"patent": "US20010007512",
+"example": "Example04P",
+"tale": "",
+"product": "Ricoh HD Pentax-D FA645 35mm F3.5AL[IF]"
+},
+{
+"patent": "US20130222925",
+"example": "Example04P",
+"tale": "",
+"product": "Ricoh HD Pentax-D FA645 90mm F2.8 ED AW SR Macro"
+},
+{
+"patent": "US20180164556",
+"example": "Example03P",
+"tale": "",
+"product": "Ricoh HD Pentax-DA 11-18mm F2.8ED DC AW"
+},
+{
+"patent": "JP2021-192088",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh HD Pentax-DA 16-50mm F2.8 ED PLM AW"
+},
+{
+"patent": "JP2016-114800",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh HD Pentax-DA 16-85mm F3.5-5.6ED DC WR"
+},
+{
+"patent": "JP2016-006455",
+"example": "Example02P",
+"tale": "",
+"product": "Ricoh HD Pentax-DA 18-50mm F4.0-5.6 DC WR RE"
+},
+{
+"patent": "US20160154223",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh HD Pentax-DA 20-40mm F2.8-4ED Limited DC WR"
+},
+{
+"patent": "US007411746",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh HD Pentax-DA 21mm F3.2 Limited"
+},
+{
+"patent": "US007715118",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh HD Pentax-DA 35mm F2.8 Macro Limited"
+},
+{
+"patent": "US20170329112",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh HD Pentax-DA 55-300mm F4.5-6.3ED PLM WR RE"
+},
+{
+"patent": "US007542219",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh HD Pentax-DA 70mm F2.4 Limited"
+},
+{
+"patent": "US20030197949",
+"example": "Example06P",
+"tale": "",
+"product": "Ricoh Pentax 5.8-17.4mm F2.6-4.8[Pentax Optio S]"
+},
+{
+"patent": "US003459469",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh Pentax Super-Takumar 135mm f2.5"
+},
+{
+"patent": "US003506339",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh Pentax Super-Takumar 28mm f3.5"
+},
+{
+"patent": "US003502394",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh Pentax Super-Takumar 300mm f4"
+},
+{
+"patent": "US003506336",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh Pentax Super-Takumar 35mm f2"
+},
+{
+"patent": "US003490825",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh Pentax Ultra-Achromatic-Takumar 85mm F4.5"
+},
+{
+"patent": "US004412725",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh Pentax-110 20-40mm F2.8"
+},
+{
+"patent": "US004223982",
+"example": "Example02P",
+"tale": "",
+"product": "Ricoh Pentax-110 24mm F2.8"
+},
+{
+"patent": "US004289385",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh Pentax-110 50mm F2.8"
+},
+{
+"patent": "US003515462",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh smc Pentax 17mm F4 Fish-Eye"
+},
+{
+"patent": "US003938883",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh smc Pentax 24mm F2.8"
+},
+{
+"patent": "US003545845",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh smc Pentax 24mm F3.5"
+},
+{
+"patent": "US004487485",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh SMC Pentax 645 A 45mm f2.8"
+},
+{
+"patent": "US006154324",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh SMC Pentax 645 FA 120mm f4.0 Macro"
+},
+{
+"patent": "US004948236",
+"example": "Example03P",
+"tale": "",
+"product": "Ricoh smc Pentax 6x7 120mm f3.5 Soft"
+},
+{
+"patent": "JP1986-051117",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh smc Pentax 6x7 300mm f4 ED [IF]"
+},
+{
+"patent": "JP1986-051117",
+"example": "Example02P",
+"tale": "",
+"product": "Ricoh smc Pentax 6x7 400mm f4 ED [IF]"
+},
+{
+"patent": "US004660940",
+"example": "Example03P",
+"tale": "",
+"product": "Ricoh smc Pentax 6x7 55mm f4"
+},
+{
+"patent": "US003502393",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh SMC Pentax 6x7 600mm f4"
+},
+{
+"patent": "JP1979-099427",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh smc Pentax 6x7 75mm f4.5 Shift"
+},
+{
+"patent": "JP1984-088715",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh smc Pentax 6x7 800mm f6.7"
+},
+{
+"patent": "US006002533",
+"example": "MLP",
+"tale": "",
+"product": "Ricoh smc Pentax 6x7 Macro 100mm f4.0"
+},
+{
+"patent": "US006002533",
+"example": "Example03P",
+"tale": "",
+"product": "Ricoh smc Pentax 6x7 Macro 100mm f4.0 with Life Size Converter"
+},
+{
+"patent": "US003506337",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh smc Pentax 85-210mm F4.5"
+},
+{
+"patent": "US006002533",
+"example": "AL03P",
+"tale": "",
+"product": "Ricoh smc Pentax Life Size Converter 6x7 for smc 6x7 Macro 100mm f4.0"
+},
+{
+"patent": "US004443068",
+"example": "Example03P",
+"tale": "",
+"product": "Ricoh smc Pentax Reflex 400-600mm F8-12"
+},
+{
+"patent": "US004447137",
+"example": "Example02P",
+"tale": "",
+"product": "Ricoh smc Pentax-A 135mm F1.8"
+},
+{
+"patent": "US003864026",
+"example": "Example04P",
+"tale": "",
+"product": "Ricoh smc Pentax-A 15mm F3.5"
+},
+{
+"patent": "US004550987",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh smc Pentax-A 200mm F4"
+},
+{
+"patent": "US004666260",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh smc Pentax-A 200mm F4 Macro ED"
+},
+{
+"patent": "US004523814",
+"example": "Example05P",
+"tale": "",
+"product": "Ricoh smc Pentax-A 28-135mm F4"
+},
+{
+"patent": "US004576443",
+"example": "Example05P",
+"tale": "",
+"product": "Ricoh smc Pentax-A 35-105mm F3.5"
+},
+{
+"patent": "US004812022",
+"example": "Example03P",
+"tale": "",
+"product": "Ricoh smc Pentax-A 35-70mm F4"
+},
+{
+"patent": "US003963325",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh smc Pentax-A 35mm F2.8"
+},
+{
+"patent": "US004545654",
+"example": "Example05P",
+"tale": "",
+"product": "Ricoh smc Pentax-A 400mm F2.8 ED [IF]"
+},
+{
+"patent": "US004468098",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh smc Pentax-A 70-210mm F4.0"
+},
+{
+"patent": "JP1986-285417",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh smc Pentax-A 645 35mm f3.5"
+},
+{
+"patent": "US004508434",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh smc Pentax-A 85mm F1.4"
+},
+{
+"patent": "US004923292",
+"example": "Example02P",
+"tale": "",
+"product": "Ricoh smc Pentax-D FA Macro 50mm F2.8"
+},
+{
+"patent": "US20050237627",
+"example": "Example04P",
+"tale": "",
+"product": "Ricoh smc Pentax-DA 14mm F2.8ED[IF]"
+},
+{
+"patent": "US007301711",
+"example": "Example06P",
+"tale": "",
+"product": "Ricoh smc Pentax-DA 16-50mm F2.8ED AL[IF] SD"
+},
+{
+"patent": "US007804652",
+"example": "Example04P",
+"tale": "",
+"product": "Ricoh smc Pentax-DA 17-70mm F4AL[IF] SDM"
+},
+{
+"patent": "US20120002298",
+"example": "Example06P",
+"tale": "",
+"product": "Ricoh smc Pentax-DA 18-135mm F3.5-5.6ED AL[IF] DC WR"
+},
+{
+"patent": "US005325234",
+"example": "Example03P",
+"tale": "",
+"product": "Ricoh smc Pentax-DA 200mm F2.8 ED[IF] SDM"
+},
+{
+"patent": "US007715116",
+"example": "Example07P",
+"tale": "",
+"product": "Ricoh smc Pentax-DA 300mm F4 ED[IF] SDM"
+},
+{
+"patent": "US007289274",
+"example": "Example05P",
+"tale": "",
+"product": "Ricoh smc Pentax-DA 50-135mm F2.8ED[IF] SDM"
+},
+{
+"patent": "JP2014-026184",
+"example": "Example04P",
+"tale": "",
+"product": "Ricoh smc Pentax-DA 50mm F1.8"
+},
+{
+"patent": "US20100073777",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh smc Pentax-DA 55mm F1.4 SDM"
+},
+{
+"patent": "US007489452",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh smc Pentax-DA 60-250mm F4 ED[IF] SDM"
+},
+{
+"patent": "US007317581",
+"example": "Example09P",
+"tale": "",
+"product": "Ricoh smc Pentax-DA Fish-eye 10-17mm F3.5-4.5ED[IF]"
+},
+{
+"patent": "US004770516",
+"example": "Example05P",
+"tale": "",
+"product": "Ricoh smc Pentax-F 100mm F2.8 Macro"
+},
+{
+"patent": "US004793698",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh smc Pentax-F 135mm F2.8 [IF]"
+},
+{
+"patent": "US005724193",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh smc Pentax-F 17-28mm F3.5-4.5 Fish-Eye"
+},
+{
+"patent": "US004848883",
+"example": "Example04P",
+"tale": "",
+"product": "Ricoh smc Pentax-F 250-600mm F5.6 ED [IF]"
+},
+{
+"patent": "US004468100",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh smc Pentax-F 28mm F2.8"
+},
+{
+"patent": "US004812026",
+"example": "Example02P",
+"tale": "",
+"product": "Ricoh smc Pentax-F 300mm F4.5 ED [IF]"
+},
+{
+"patent": "US005546232",
+"example": "Example03P",
+"tale": "",
+"product": "Ricoh smc Pentax-F 35-80mm F4-5.6"
+},
+{
+"patent": "US004871241",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh smc Pentax-F 70-210mm F4-5.6 ED"
+},
+{
+"patent": "US005267086",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh smc Pentax-F 85mm F2.8 Soft"
+},
+{
+"patent": "US20010006433",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh smc Pentax-FA 100-300mm F4.7-5.8"
+},
+{
+"patent": "US005347399",
+"example": "Example07P",
+"tale": "",
+"product": "Ricoh smc Pentax-FA 100-300mm F4-5.6"
+},
+{
+"patent": "US006359739",
+"example": "Example05P",
+"tale": "",
+"product": "Ricoh smc Pentax-FA 200mm F4 Macro ED [IF]"
+},
+{
+"patent": "US006327098",
+"example": "Example05P",
+"tale": "",
+"product": "Ricoh smc Pentax-FA 20-35mm F4AL"
+},
+{
+"patent": "US006128140",
+"example": "Example04P",
+"tale": "",
+"product": "Ricoh smc Pentax-FA 24-90mm F3.5-4.5 AL [IF]"
+},
+{
+"patent": "US004934797",
+"example": "Example03P",
+"tale": "",
+"product": "Ricoh smc Pentax-FA 24mm F2 AL [IF]"
+},
+{
+"patent": "US005264965",
+"example": "Example04P",
+"tale": "",
+"product": "Ricoh smc Pentax-FA 28-105mm F4-5.6"
+},
+{
+"patent": "US005568323",
+"example": "Example05P",
+"tale": "",
+"product": "Ricoh smc Pentax-FA 28-70mm F2.8 AL"
+},
+{
+"patent": "US005786942",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh smc Pentax-FA 28-70mm F4 AL"
+},
+{
+"patent": "US006078435",
+"example": "Example02P",
+"tale": "",
+"product": "Ricoh smc Pentax-FA 28-80mm F3.5-4.7"
+},
+{
+"patent": "US005233474",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh smc Pentax-FA 28mm F2.8 AL"
+},
+{
+"patent": "US005822132",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh smc Pentax-FA 28mm F2.8 Soft"
+},
+{
+"patent": "US006560042",
+"example": "Example03P",
+"tale": "",
+"product": "Ricoh smc Pentax-FA 31mm F1.8 AL Limited"
+},
+{
+"patent": "US006384987",
+"example": "Example05P",
+"tale": "",
+"product": "Ricoh smc Pentax-FA 35mm F2 AL"
+},
+{
+"patent": "US004904070",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh smc Pentax-FA 600mm F4ED[IF]"
+},
+{
+"patent": "US005061053",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh smc Pentax-FA 70-200mm F4-5.6"
+},
+{
+"patent": "US005572276",
+"example": "Example05P",
+"tale": "",
+"product": "Ricoh smc Pentax-FA 80-200mm F2.8 ED [IF]"
+},
+{
+"patent": "US006052235",
+"example": "Example06P",
+"tale": "",
+"product": "Ricoh smc Pentax-FA 80-320mm F4-5.6"
+},
+{
+"patent": "US20030218799",
+"example": "Example02P",
+"tale": "",
+"product": "Ricoh smc Pentax-FA J 28-80mm F3.5-5.6 AL"
+},
+{
+"patent": "US20030223122",
+"example": "Example04P",
+"tale": "",
+"product": "Ricoh smc Pentax-FA J 75-300mm F4.5-5.8 AL"
+},
+{
+"patent": "US004134645",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh smc Pentax-M 120mm F2.8"
+},
+{
+"patent": "US004134645",
+"example": "Example02P",
+"tale": "",
+"product": "Ricoh smc Pentax-M 135mm F3.5"
+},
+{
+"patent": "US004134645",
+"example": "Example03P",
+"tale": "",
+"product": "Ricoh smc Pentax-M 150mm F3.5"
+},
+{
+"patent": "US004139264",
+"example": "Example02P",
+"tale": "",
+"product": "Ricoh smc Pentax-M 200mm F4.0"
+},
+{
+"patent": "US004062622",
+"example": "Example02P",
+"tale": "",
+"product": "Ricoh smc Pentax-M 20mm F4.0"
+},
+{
+"patent": "US004143945",
+"example": "Example03P",
+"tale": "",
+"product": "Ricoh smc Pentax-M 28mm F2.8"
+},
+{
+"patent": "US003955883",
+"example": "Example02P",
+"tale": "",
+"product": "Ricoh smc Pentax-M 28mm F3.5"
+},
+{
+"patent": "US004293197",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh smc Pentax-M 300mm F4"
+},
+{
+"patent": "US004074931",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh smc Pentax-M 35-70mm F2.8-3.5"
+},
+{
+"patent": "US004143944",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh smc Pentax-M 35mm F1.4"
+},
+{
+"patent": "US004154509",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh smc Pentax-M 40mm F2.8"
+},
+{
+"patent": "US003817603",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh smc Pentax-M 50mm F1.7"
+},
+{
+"patent": "US004331389",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh smc Pentax-M 75-150mm F4"
+},
+{
+"patent": "US20150241657",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh smc Pentax-Q 06 Telephoto Zoom 15-45mm F2.8"
+},
+{
+"patent": "US003467462",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh SMCT Pentax 6x7 300mm f4"
+},
+{
+"patent": "JP1981-012612",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh XR Rikenon 28mm F2.8"
+},
+{
+"patent": "JP1978-131034",
+"example": "Example01P",
+"tale": "",
+"product": "Ricoh XR Rikenon 50mm F2.0"
+},
+{
+"patent": "CN221175109",
+"example": "Example01P",
+"tale": "",
+"product": "Rockstar 10mm F8 Fisheye"
+},
+{
+"patent": "DE03907928",
+"example": "Example05P",
+"tale": "",
+"product": "Rodenstock Apo-Sironar-W 150mm f5.6"
+},
+{
+"patent": "DE02818394",
+"example": "Example01P",
+"tale": "",
+"product": "Rodenstock Geronar 210mm f6.8"
+},
+{
+"patent": "DE03026282",
+"example": "Example01P",
+"tale": "",
+"product": "Rodenstock Geronar-WA 90mm f8"
+},
+{
+"patent": "DE02444954",
+"example": "Example04P",
+"tale": "",
+"product": "Rodenstock Grandagon-N 65mm f5.6"
+},
+{
+"patent": "DE02444954",
+"example": "Example03P",
+"tale": "",
+"product": "Rodenstock Grandagon-N 75mm f5.6"
+},
+{
+"patent": "DE02635415",
+"example": "Example01P",
+"tale": "",
+"product": "Rodenstock Grandagon-N 75mm f6.8"
+},
+{
+"patent": "DE02444954",
+"example": "Example02P",
+"tale": "",
+"product": "Rodenstock Grandagon-N 90mm f5.6"
+},
+{
+"patent": "DE02818435",
+"example": "Example01P",
+"tale": "",
+"product": "Rodenstock Rodagon-WA 80mm F4.0"
+},
+{
+"patent": "DE02706498",
+"example": "Example01P",
+"tale": "",
+"product": "Rodenstock Rogonar 50mm F2.8"
+},
+{
+"patent": "DE01089991",
+"example": "Example01P",
+"tale": "",
+"product": "Rodenstock Rogonar-S 50mm F2.8"
+},
+{
+"patent": "DE02729831",
+"example": "Example01P",
+"tale": "",
+"product": "Rodenstock Sironar-N 100mm f/5.6"
+},
+{
+"patent": "US001073950",
+"example": "Example01P",
+"tale": "",
+"product": "Ross Telecentric 305mm f6.8"
+},
+{
+"patent": "US20130235467",
+"example": "Example01P",
+"tale": "",
+"product": "Samsung 10mm F3.5 Fisheye"
+},
+{
+"patent": "US20130235465",
+"example": "Example05P",
+"tale": "",
+"product": "Samsung 12-24mm F4-5.6 ED"
+},
+{
+"patent": "US20130057972",
+"example": "Example03P",
+"tale": "",
+"product": "Samsung 16mm F2.4"
+},
+{
+"patent": "US20120154913",
+"example": "Example02P",
+"tale": "",
+"product": "Samsung 18-200mm F3.5-6.3 ED OIS"
+},
+{
+"patent": "US20110149118",
+"example": "Example01P",
+"tale": "",
+"product": "Samsung 18-55mm F3.5-5.6 OIS III"
+},
+{
+"patent": "US20120057246",
+"example": "Example06P",
+"tale": "",
+"product": "Samsung 20-50mm F3.5-5.6 ED II"
+},
+{
+"patent": "US20120056976",
+"example": "Example01P",
+"tale": "",
+"product": "Samsung 20mm F2.8"
+},
+{
+"patent": "US20100149663",
+"example": "Example01P",
+"tale": "",
+"product": "Samsung 30mm F2"
+},
+{
+"patent": "US20130314588",
+"example": "Example01P",
+"tale": "",
+"product": "Samsung 45mm F1.8"
+},
+{
+"patent": "US20110157719",
+"example": "Example04P",
+"tale": "",
+"product": "Samsung 50-200mm F4-5.6 ED OIS III"
+},
+{
+"patent": "US008203795",
+"example": "Example05P",
+"tale": "",
+"product": "Samsung 60mm F2.8 Macro ED SSA OIS"
+},
+{
+"patent": "KR1020150182611",
+"example": "Example01P",
+"tale": "",
+"product": "Samyang 100mm F2.8 ED UMC Macro"
+},
+{
+"patent": "KR1020150155317",
+"example": "Example01P",
+"tale": "",
+"product": "Samyang 135mm F2.0 ED UMC"
+},
+{
+"patent": "KR1020140184971",
+"example": "Example01P",
+"tale": "",
+"product": "Samyang 50mm F1.4 AS UMC"
+},
+{
+"patent": "KR1020170053557",
+"example": "Example01P",
+"tale": "",
+"product": "Samyang AF 14mm F2.8 FE/RF"
+},
+{
+"patent": "WO2021-246545",
+"example": "Example01P",
+"tale": "",
+"product": "Samyang AF 18mm F2.8 FE"
+},
+{
+"patent": "US20240151940",
+"example": "Example01P",
+"tale": "",
+"product": "Samyang AF 24mm F1.8 FE"
+},
+{
+"patent": "WO2020-230915",
+"example": "Example01P",
+"tale": "",
+"product": "Samyang AF 24mm F2.8 FE"
+},
+{
+"patent": "US20250231383",
+"example": "Example03P",
+"tale": "",
+"product": "Samyang AF 35-150mm F2-2.8 L"
+},
+{
+"patent": "KR1020180065114",
+"example": "Example04P",
+"tale": "",
+"product": "Samyang AF 35mm F2.8 FE"
+},
+{
+"patent": "KR1020150147546",
+"example": "Example01P",
+"tale": "",
+"product": "Samyang AF 50mm F1.4 FE"
+},
+{
+"patent": "KR1020200129711",
+"example": "Example02P",
+"tale": "",
+"product": "Samyang AF 85mm F1.4 EF"
+},
+{
+"patent": "WO2021-085655",
+"example": "Example03P",
+"tale": "",
+"product": "Samyang AF 85mm F1.4 FE/F/RF"
+},
+{
+"patent": "KR1020180084767",
+"example": "Example03P",
+"tale": "",
+"product": "Samyang XP 35mm F1.2"
+},
+{
+"patent": "CH479879",
+"example": "Example01P",
+"tale": "",
+"product": "Schacht S-Travenar 135mm F2.8"
+},
+{
+"patent": "DE00843305",
+"example": "Example02P",
+"tale": "",
+"product": "Schacht Travenar 135mm F3.5"
+},
+{
+"patent": "US002721501",
+"example": "Example01P",
+"tale": "",
+"product": "Schacht Travenar 90mm F2.8"
+},
+{
+"patent": "US006028720",
+"example": "Example02P",
+"tale": "",
+"product": "Schneider APO-Symmar 5.6 / 100"
+},
+{
+"patent": "US003038379",
+"example": "Example01P",
+"tale": "",
+"product": "Schneider Cinegon 1.8 / 10"
+},
+{
+"patent": "DE00927540",
+"example": "Example01P",
+"tale": "",
+"product": "Schneider Cinegon 1.9 / 6.5"
+},
+{
+"patent": "US003005379",
+"example": "Example01P",
+"tale": "",
+"product": "Schneider Cine-Xenon 1.4 / 25"
+},
+{
+"patent": "US003318653",
+"example": "Example01P",
+"tale": "",
+"product": "Schneider Curtagon 2.8 / 35 gen 2"
+},
+{
+"patent": "US002824495",
+"example": "Example01P",
+"tale": "",
+"product": "Schneider Curtagon 4 / 28"
+},
+{
+"patent": "US003376091",
+"example": "Example01P",
+"tale": "",
+"product": "Schneider Super-Angulon 5.6 / 75"
+},
+{
+"patent": "DE00975637",
+"example": "Example01P",
+"tale": "",
+"product": "Schneider Super-Angulon 8 / 90"
+},
+{
+"patent": "US004773745",
+"example": "Example01P",
+"tale": "",
+"product": "Schneider Super-Symmar HM 5.6 / 120"
+},
+{
+"patent": "US005870234",
+"example": "Example02P",
+"tale": "",
+"product": "Schneider Super-Symmar XL 5.6 / 110 Asph"
+},
+{
+"patent": "JP1967-023896",
+"example": "Example01P",
+"tale": "",
+"product": "Schneider Technika Super Angulon 8 / 75"
+},
+{
+"patent": "US003336094",
+"example": "Example02P",
+"tale": "",
+"product": "Schneider Tele-Variogon 4.0 / 80-240"
+},
+{
+"patent": "DE00471565",
+"example": "Example01P",
+"tale": "",
+"product": "Schneider Tele-Xenar 180mm f4.5"
+},
+{
+"patent": "US003912373",
+"example": "Example01P",
+"tale": "",
+"product": "Schneider TV-Variogon 2.1-6.6 / 20-600"
+},
+{
+"patent": "US003442573",
+"example": "Example01P",
+"tale": "",
+"product": "Schneider Variogon 1.8 / 8-40"
+},
+{
+"patent": "US003057257",
+"example": "Example01P",
+"tale": "",
+"product": "Schneider Variogon 2.8 / 10-40"
+},
+{
+"patent": "US003482900",
+"example": "Example01P",
+"tale": "",
+"product": "Schneider Variogon 2.8 / 45-100"
+},
+{
+"patent": "DE102012014955",
+"example": "Example01P",
+"tale": "",
+"product": "Schneider Video-Xenon T2.1 / 75"
+},
+{
+"patent": "DE00753329",
+"example": "Example01P",
+"tale": "",
+"product": "Schneider Xenar 2.8 / 50"
+},
+{
+"patent": "CH346706",
+"example": "Example01P",
+"tale": "",
+"product": "Schneider Xenon 1.9 / 50"
+},
+{
+"patent": "CH352844",
+"example": "Example01P",
+"tale": "",
+"product": "Schneider Xenon 2 / 50"
+},
+{
+"patent": "JP2021-092636",
+"example": "Example01P",
+"tale": "",
+"product": "Sigma 100-400mm F5-6.3 DG DN OS C"
+},
+{
+"patent": "JP2017-223778",
+"example": "Example01P",
+"tale": "",
+"product": "Sigma 100-400mm F5-6.3 DG OS HSM C"
+},
+{
+"patent": "JP2024-104911",
+"example": "Example02P",
+"tale": "",
+"product": "Sigma 10-18mm F2.8 DC DN C"
+},
+{
+"patent": "JP2010-243737",
+"example": "Example04P",
+"tale": "",
+"product": "Sigma 10-20mm F3.5 EX DC HSM"
+},
+{
+"patent": "JP2019-144477",
+"example": "Example01P",
+"tale": "",
+"product": "Sigma 105mm F1.4 DG HSM Art"
+},
+{
+"patent": "JP2012-027217",
+"example": "Example05P",
+"tale": "",
+"product": "Sigma 120-300mm F2.8 DG OS HSM Sport"
+},
+{
+"patent": "JP2018-045097",
+"example": "Example02P",
+"tale": "",
+"product": "Sigma 12-24mm F4 DG HSM A"
+},
+{
+"patent": "JP2005-106878",
+"example": "Example01P",
+"tale": "",
+"product": "Sigma 12-24mm F4.5-5.6 EX DG Ashperical HSM"
+},
+{
+"patent": "JP2020-042221",
+"example": "Example01P",
+"tale": "",
+"product": "Sigma 14-24mm F2.8 DG DN A"
+},
+{
+"patent": "JP2018-189733",
+"example": "Example01P",
+"tale": "",
+"product": "Sigma 14-24mm F2.8 DG HSM Art"
+},
+{
+"patent": "JP2016-139087",
+"example": "Example02P",
+"tale": "",
+"product": "Sigma 14mm F4 (dp0 Quattro)"
+},
+{
+"patent": "JP2016-080825",
+"example": "Example02P",
+"tale": "",
+"product": "Sigma 150-600mm F5-6.3 DG OS HSM C"
+},
+{
+"patent": "JP2015-203827",
+"example": "Example01P",
+"tale": "",
+"product": "Sigma 150-600mm F5-6.3 DG OS HSM Sport"
+},
+{
+"patent": "JP1990-248910",
+"example": "Example01P",
+"tale": "",
+"product": "Sigma 15mm F2.8 EX DG Diagonal Fisheye"
+},
+{
+"patent": "JP2008-040033",
+"example": "Example01P",
+"tale": "",
+"product": "Sigma 16.6mm F4 (dp1x)"
+},
+{
+"patent": "JP2018-205527",
+"example": "Example01P",
+"tale": "",
+"product": "Sigma 16mm F1.4 DC DN Contemporary"
+},
+{
+"patent": "CN121454749",
+"example": "Example01P",
+"tale": "",
+"product": "Sigma 17-40mm F1.8 DC A"
+},
+{
+"patent": "JP2011-128361",
+"example": "Example01P",
+"tale": "",
+"product": "Sigma 17-70mm F2.8-4 DC Macro OS HSM"
+},
+{
+"patent": "JP2014-048480",
+"example": "Example02P",
+"tale": "",
+"product": "Sigma 17-70mm F2.8-4 DC Macro OS HSM C"
+},
+{
+"patent": "JP2024-062005",
+"example": "Example02P",
+"tale": "",
+"product": "Sigma 17mm F4.0 DG DN C"
+},
+{
+"patent": "JP2005-331697",
+"example": "Example01P",
+"tale": "",
+"product": "Sigma 18-125mm F3.5-5.6 DC"
+},
+{
+"patent": "JP2006-259016",
+"example": "Example01P",
+"tale": "",
+"product": "Sigma 18-200mm F3.5-6.3 DC"
+},
+{
+"patent": "JP2013-257508",
+"example": "Example01P",
+"tale": "",
+"product": "Sigma 18-250mm F3.5-6.3 DC Macro OS HSM"
+},
+{
+"patent": "JP2022-138408",
+"example": "Example01P",
+"tale": "",
+"product": "Sigma 18-50mm F2.8 DC DN C"
+},
+{
+"patent": "JP2010-211056",
+"example": "Example01P",
+"tale": "",
+"product": "Sigma 18-50mm F2.8-4.5 DC OS HSM"
+},
+{
+"patent": "JP2019-117419",
+"example": "Example01P",
+"tale": "",
+"product": "Sigma 20mm F1.4 DG HSM Art"
+},
+{
+"patent": "JP2024-035865",
+"example": "Example01P",
+"tale": "",
+"product": "Sigma 23mm F1.4 DC DN C"
+},
+{
+"patent": "JP2010-101979",
+"example": "Example05P",
+"tale": "",
+"product": "Sigma 24.2mm F2.8 (dp2x)"
+},
+{
+"patent": "JP2017-156719",
+"example": "Example01P",
+"tale": "",
+"product": "Sigma 24-70mm F2.8 DG OS HSM A"
+},
+{
+"patent": "JP2023-074094",
+"example": "Example01P",
+"tale": "",
+"product": "Sigma 24mm F1.4 DG DN A"
+},
+{
+"patent": "JP2016-012034",
+"example": "Example01P",
+"tale": "",
+"product": "Sigma 24mm F1.4 DG HSM Art"
+},
+{
+"patent": "JP2001-330771",
+"example": "Example02P",
+"tale": "",
+"product": "Sigma 24mm F1.8 EX DG Aspherical Macro"
+},
+{
+"patent": "CN120386081",
+"example": "Example01P",
+"tale": "",
+"product": "Sigma 28-45mm F1.8 DG DN A"
+},
+{
+"patent": "JP2001-350089",
+"example": "Example01P",
+"tale": "",
+"product": "Sigma 28-80mm F3.5-5.6 Aspherical Macro HF"
+},
+{
+"patent": "JP2019-219472",
+"example": "Example06P",
+"tale": "",
+"product": "Sigma 28mm F1.4 DG HSM A"
+},
+{
+"patent": "JP2001-330771",
+"example": "Example01P",
+"tale": "",
+"product": "Sigma 28mm F1.8 EX DG Aspherical Macro"
+},
+{
+"patent": "JP2014-142520",
+"example": "Example01P",
+"tale": "",
+"product": "Sigma 30mm F1.4 DC HSM Art"
+},
+{
+"patent": "JP2013-156459",
+"example": "Example04P",
+"tale": "",
+"product": "Sigma 30mm F2.8 (dp2 Merrill/Quattro)"
+},
+{
+"patent": "JP2012-234169",
+"example": "Example01P",
+"tale": "",
+"product": "Sigma 30mm F2.8 DN A"
+},
+{
+"patent": "JP2022-033487",
+"example": "Example01P",
+"tale": "",
+"product": "Sigma 35mm F1.4 DG DN Art"
+},
+{
+"patent": "JP2014-048488",
+"example": "Example03P",
+"tale": "",
+"product": "Sigma 35mm F1.4 DG HSM Art"
+},
+{
+"patent": "JP2019-211703",
+"example": "Example01P",
+"tale": "",
+"product": "Sigma 45mm F2.8 DG DN C"
+},
+{
+"patent": "JP2010-152247",
+"example": "Example01P",
+"tale": "",
+"product": "Sigma 50-200mm F4-5.6 DC OS HSM"
+},
+{
+"patent": "JP2023-183894",
+"example": "Example01P",
+"tale": "",
+"product": "Sigma 50mm F1.4 DG DN A"
+},
+{
+"patent": "JP2015-114366",
+"example": "Example01P",
+"tale": "",
+"product": "Sigma 50mm F1.4 DG HSM Art"
+},
+{
+"patent": "JP2014-126652",
+"example": "Example03P",
+"tale": "",
+"product": "Sigma 50mm F2.8 (dp3 Merrill/Quattro)"
+},
+{
+"patent": "JP2020-030383",
+"example": "Example01P",
+"tale": "",
+"product": "Sigma 56mm F1.4 DC DN C"
+},
+{
+"patent": "JP1987-184425",
+"example": "Example01P",
+"tale": "",
+"product": "Sigma 600mm F8 Mirror MF ZEN"
+},
+{
+"patent": "JP2023-180574",
+"example": "Example05P",
+"tale": "",
+"product": "Sigma 60-600mm F4.5-6.3 DG DN OS S"
+},
+{
+"patent": "JP2020-020948",
+"example": "Example01P",
+"tale": "",
+"product": "Sigma 60-600mm F4.5-6.3 DG OS HSM S"
+},
+{
+"patent": "JP2014-145954",
+"example": "Example01P",
+"tale": "",
+"product": "Sigma 60mm F2.8 DN A"
+},
+{
+"patent": "US20250093627",
+"example": "Example01P",
+"tale": "",
+"product": "Sigma 70-200mm F2.8 DG DN OS S"
+},
+{
+"patent": "JP2010-217838",
+"example": "Example01P",
+"tale": "",
+"product": "Sigma 70-300mm F4-5.6 DG OS"
+},
+{
+"patent": "JP2019-144441",
+"example": "Example01P",
+"tale": "",
+"product": "Sigma 70mm F2.8 DG Macro Art"
+},
+{
+"patent": "JP2011-227124",
+"example": "Example04P",
+"tale": "",
+"product": "Sigma 8-16mm F4.5-5.6 DC HSM"
+},
+{
+"patent": "JP2021-085935",
+"example": "Example01P",
+"tale": "",
+"product": "Sigma 85mm F1.4 DG DN A"
+},
+{
+"patent": "JP2018-005099",
+"example": "Example04P",
+"tale": "",
+"product": "Sigma 85mm F1.4 DG HSM A"
+},
+{
+"patent": "JP2011-170128",
+"example": "Example05P",
+"tale": "",
+"product": "Sigma 85mm F1.4 EX DG HSM"
+},
+{
+"patent": "JP2008-003108",
+"example": "Example01P",
+"tale": "",
+"product": "Sigma 8mm F3.5 EX DG Circular Fisheye"
+},
+{
+"patent": "JP1998-039215",
+"example": "Example02P",
+"tale": "",
+"product": "Sigma APO 135-400mm F4.5-5.6 RF ZEN"
+},
+{
+"patent": "JP2004-085846",
+"example": "Example02P",
+"tale": "",
+"product": "Sigma APO 300-800mm F5.6 EX DG HSM"
+},
+{
+"patent": "JP2011-039260",
+"example": "Example02P",
+"tale": "",
+"product": "Sigma APO 50-500mm F4.5-6.3 DG OS HSM"
+},
+{
+"patent": "JP2001-108902",
+"example": "Example01P",
+"tale": "",
+"product": "Sigma APO 50-500mm F4-6.3 EX DG HSM"
+},
+{
+"patent": "JP2012-063403",
+"example": "Example02P",
+"tale": "",
+"product": "Sigma APO Macro 150mm F2.8 EX DG OS HSM"
+},
+{
+"patent": "JP1991-278012",
+"example": "Example02P",
+"tale": "",
+"product": "Sigma APO Macro 180mm F2.8"
+},
+{
+"patent": "JP2013-104994",
+"example": "Example02P",
+"tale": "",
+"product": "Sigma APO Macro 180mm F2.8 EX DG OS HSM"
+},
+{
+"patent": "JP2001-033704",
+"example": "Example01P",
+"tale": "",
+"product": "Sigma APO Macro 180mm F3.5 EX DG IF HSM"
+},
+{
+"patent": "JP1992-110811",
+"example": "Example03P",
+"tale": "",
+"product": "Sigma APO Macro 180mm F5.6 UC"
+},
+{
+"patent": "JP1994-051202",
+"example": "Example01P",
+"tale": "",
+"product": "Sigma APO Zoom 70-210mm F2.8"
+},
+{
+"patent": "JP2012-058682",
+"example": "Example04P",
+"tale": "",
+"product": "Sigma Macro 105mm F2.8 EX DG OS HSM"
+},
+{
+"patent": "JP2008-020656",
+"example": "Example01P",
+"tale": "",
+"product": "Sigma Macro 70mm F2.8 EX DG"
+},
+{
+"patent": "JP1989-316714",
+"example": "Example03P",
+"tale": "",
+"product": "Sigma Macro 90mm F2.8"
+},
+{
+"patent": "CN120491279",
+"example": "Example01P",
+"tale": "",
+"product": "SongRaw 50mm F1.2"
+},
+{
+"patent": "WO2017-134928",
+"example": "Example06P",
+"tale": "",
+"product": "Sony 1.4x Teleconverter Lens (SEL)"
+},
+{
+"patent": "WO2017-134928",
+"example": "Example03P",
+"tale": "",
+"product": "Sony 2x Teleconverter Lens (SEL)"
+},
+{
+"patent": "US008049968",
+"example": "Example05P",
+"tale": "",
+"product": "Sony 70-400mm F4-5.6 G SSM II"
+},
+{
+"patent": "US20120307129",
+"example": "Example01P",
+"tale": "",
+"product": "Sony DT 16-50mm F2.8 SSM"
+},
+{
+"patent": "US20130155294",
+"example": "Example01P",
+"tale": "",
+"product": "Sony DT 18-135mm F3.5-5.6 SAM"
+},
+{
+"patent": "US20080158689",
+"example": "Example01P",
+"tale": "",
+"product": "Sony DT 18-200mm F3.5-6.3"
+},
+{
+"patent": "US20070297067",
+"example": "Example02P",
+"tale": "",
+"product": "Sony DT 18-250 mm F3.5-6.3"
+},
+{
+"patent": "US20090290227",
+"example": "Example01P",
+"tale": "",
+"product": "Sony DT 18-55mm F3.5-5.6 SAM II"
+},
+{
+"patent": "WO2014-007298",
+"example": "Example02P",
+"tale": "",
+"product": "Sony E 10-18 mm F4 OSS"
+},
+{
+"patent": "US008553339",
+"example": "Example01P",
+"tale": "",
+"product": "Sony E 18-200mm F3.5-6.3 OSS"
+},
+{
+"patent": "US20110273780",
+"example": "Example01P",
+"tale": "",
+"product": "Sony E 18-55 mm F3.5-5.6 OSS"
+},
+{
+"patent": "US20140204265",
+"example": "Example04P",
+"tale": "",
+"product": "Sony E 20mm F2.8"
+},
+{
+"patent": "JP2012-159613",
+"example": "Example01P",
+"tale": "",
+"product": "Sony E 30mm F3.5 Macro"
+},
+{
+"patent": "JP2014-089352",
+"example": "Example01P",
+"tale": "",
+"product": "Sony E 35mm F1.8 OSS"
+},
+{
+"patent": "JP2012-242690",
+"example": "Example02P",
+"tale": "",
+"product": "Sony E 50mm F1.8 OSS"
+},
+{
+"patent": "US20150316753",
+"example": "Example01P",
+"tale": "",
+"product": "Sony E PZ 16-50mm F3.5-5.6 OSS"
+},
+{
+"patent": "WO2021-200206",
+"example": "Example02P",
+"tale": "",
+"product": "Sony FE 12-24mm F2.8 GM"
+},
+{
+"patent": "WO2019-187633",
+"example": "Example01P",
+"tale": "",
+"product": "Sony FE 135mm F1.8 GM"
+},
+{
+"patent": "WO2021-199923",
+"example": "Example01P",
+"tale": "",
+"product": "Sony FE 14mm F1.8 GM"
+},
+{
+"patent": "WO2024-135126",
+"example": "Example01P",
+"tale": "",
+"product": "Sony FE 16-35mm F2.8 GM II"
+},
+{
+"patent": "WO2023-153076",
+"example": "Example08P",
+"tale": "",
+"product": "Sony FE 20-70mm F4.0 G"
+},
+{
+"patent": "WO2020-213337",
+"example": "Example02P",
+"tale": "",
+"product": "Sony FE 20mm F1.8 G"
+},
+{
+"patent": "WO2023-181666",
+"example": "Example04P",
+"tale": "",
+"product": "Sony FE 24-70mm F2.8 GM II"
+},
+{
+"patent": "WO2019-073744",
+"example": "Example01P",
+"tale": "",
+"product": "Sony FE 24mm F1.4 GM"
+},
+{
+"patent": "JP2022-030896",
+"example": "Example01P",
+"tale": "",
+"product": "Sony FE 24mm F2.8 G"
+},
+{
+"patent": "WO2025-263124",
+"example": "Example01P",
+"tale": "",
+"product": "Sony FE 28-70mm F2 GM"
+},
+{
+"patent": "US20150077859",
+"example": "Example04P",
+"tale": "",
+"product": "Sony FE 28-70mm F3.5-5.6 OSS"
+},
+{
+"patent": "US010191254",
+"example": "Example10P",
+"tale": "",
+"product": "Sony FE 28mm F2"
+},
+{
+"patent": "US20190018229",
+"example": "Example01P",
+"tale": "",
+"product": "Sony FE 70-200 mm F2.8 GM OSS"
+},
+{
+"patent": "JP2023-039817",
+"example": "Example02P",
+"tale": "",
+"product": "Sony FE 70-200mm F2.8 GM OSS II"
+},
+{
+"patent": "US20150226945",
+"example": "Example01P",
+"tale": "",
+"product": "Sony FE 70-200mm F4 G OSS"
+},
+{
+"patent": "WO2025-239028",
+"example": "Example02P",
+"tale": "",
+"product": "Sony FE 85 mm F1.4 GM II"
+},
+{
+"patent": "WO2016-136352",
+"example": "Example02P",
+"tale": "",
+"product": "Sony FE 90mm F2.8 Macro G OSS"
+},
+{
+"patent": "US20190369371",
+"example": "Example04P",
+"tale": "",
+"product": "Sony FE C 16-35mm T3.1"
+},
+{
+"patent": "JP2023-044106",
+"example": "Example05P",
+"tale": "",
+"product": "Sony FE PZ 16-35mm F4 G"
+},
+{
+"patent": "US20100202053",
+"example": "Example01P",
+"tale": "",
+"product": "Sony G 5.7-62.7mm F1.8-3.5 OS[Sony HandyCam]"
+},
+{
+"patent": "US20140071331",
+"example": "Example04P",
+"tale": "",
+"product": "Sony Planar T* 50mm F1.4 ZA SSM"
+},
+{
+"patent": "WO2017-138250",
+"example": "Example02P",
+"tale": "",
+"product": "Sony Planar T* FE 50mm F1.4 ZA"
+},
+{
+"patent": "US20130033768",
+"example": "Example02P",
+"tale": "",
+"product": "Sony Sonnar T* E 24mm F1.8 ZA"
+},
+{
+"patent": "JP2015-041012",
+"example": "Example01P",
+"tale": "",
+"product": "Sony Sonnar T* FE 35mm F2.8 ZA"
+},
+{
+"patent": "US20150092100",
+"example": "Example01P",
+"tale": "",
+"product": "Sony Sonnar T* FE 55 mm F1.8 ZA"
+},
+{
+"patent": "US20080198475",
+"example": "Example03P",
+"tale": "",
+"product": "Sony Vario-Sonnar T 24-70mm F2.8 ZA SSM"
+},
+{
+"patent": "US20070229969",
+"example": "Example01P",
+"tale": "",
+"product": "Sony Vario-Sonnar T DT 16-80mm F3.5-4.5 ZA"
+},
+{
+"patent": "JP2015-166834",
+"example": "Example01P",
+"tale": "",
+"product": "Sony Vario-Tessar T FE 16-35mm F4 ZA OSS"
+},
+{
+"patent": "US009538088",
+"example": "Example01P",
+"tale": "",
+"product": "Sony Vario-Tessar T* E 16-70mm F4 ZA OSS"
+},
+{
+"patent": "DE00434759",
+"example": "Example01P",
+"tale": "",
+"product": "Steinheil 50mm F3.5 Triple-Anastigmat Cassar Series 0"
+},
+{
+"patent": "US20140347522",
+"example": "Example03P",
+"tale": "",
+"product": "Tamron 14-150mm F/3.5-5.8 Di III"
+},
+{
+"patent": "WO2014-126145",
+"example": "Example09P",
+"tale": "",
+"product": "Tamron 18-200mm F/3.5-6.3 Di II VC"
+},
+{
+"patent": "JP2012-181525",
+"example": "Example01P",
+"tale": "",
+"product": "Tamron 18-200mm F/3.5-6.3 Di III VC"
+},
+{
+"patent": "JP2017-116646",
+"example": "Example01P",
+"tale": "",
+"product": "Tamron 18-400mm F/3.5-6.3 Di II VC HLD"
+},
+{
+"patent": "JP2013-254160",
+"example": "Example07P",
+"tale": "",
+"product": "Tamron 28-300mm F3.5-6.3 Di VC PZD"
+},
+{
+"patent": "US20240295723",
+"example": "Example01P",
+"tale": "",
+"product": "Tamron 50-300mm F4.5-6.3 Di III VC VXD"
+},
+{
+"patent": "JP2021-043375",
+"example": "Example01P",
+"tale": "",
+"product": "Tamron 70-180mm F/2.8 Di III VXD"
+},
+{
+"patent": "US006437923",
+"example": "Example01P",
+"tale": "",
+"product": "Tamron AF 28-200mm F3.8-5.6 Aspherical 71D"
+},
+{
+"patent": "US20030156333",
+"example": "Example01P",
+"tale": "",
+"product": "Tamron AF 28-300mm F3.5-6.3 XR Di LD Aspherical [IF] Macro A061"
+},
+{
+"patent": "US010545321",
+"example": "Example04P",
+"tale": "",
+"product": "Tamron SP 150-600mm F/5-6.3 Di VC USD"
+},
+{
+"patent": "US008810918",
+"example": "Example04P",
+"tale": "",
+"product": "Tamron SP 24-70mm F/2.8 Di VC USD"
+},
+{
+"patent": "US008867144",
+"example": "Example01P",
+"tale": "",
+"product": "Tamron SP 70-200mm F/2.8 Di VC USD"
+},
+{
+"patent": "US008228605",
+"example": "Example02P",
+"tale": "",
+"product": "Tamron SP 70-300mm F/4-5.6 Di VC USD"
+},
+{
+"patent": "US009063253",
+"example": "Example01P",
+"tale": "",
+"product": "Tamron SP 90mm F/2.8 Di Macro 1:1 VC USD"
+},
+{
+"patent": "JP2007-133138",
+"example": "Example02P",
+"tale": "",
+"product": "Tamron SP AF 17-50mm F2.8 XR Di II LD Aspherical [IF] A16 A16N II"
+},
+{
+"patent": "JP2003-329924",
+"example": "Example02P",
+"tale": "",
+"product": "Tamron SP AF 180mm F3.5 Di LD [IF] Macro B01"
+},
+{
+"patent": "JP2003-344768",
+"example": "Example01P",
+"tale": "",
+"product": "Tamron SP AF 200-500mm F5.0-6.3 Di LD [IF] A08"
+},
+{
+"patent": "US007075731",
+"example": "Example01P",
+"tale": "",
+"product": "Tamron SP AF28-75mm F/2.8 XR Di LD Aspherical (Model A09)"
+},
+{
+"patent": "US20110286116",
+"example": "Example01P",
+"tale": "",
+"product": "Tamron SP AF60mm F/2 Di II LD [IF] Macro 1:1"
+},
+{
+"patent": "US20080212200",
+"example": "Example01P",
+"tale": "",
+"product": "Tamron SP AF70-200mm F2.8 Di"
+},
+{
+"patent": "US20190086648",
+"example": "Example02P",
+"tale": "",
+"product": "TH Swiss Irix 11mm f/4.0"
+},
+{
+"patent": "WO2020-119907",
+"example": "Example01P",
+"tale": "",
+"product": "TH Swiss Irix 150mm f/2.8 Macro"
+},
+{
+"patent": "JP1986-215513",
+"example": "Example01P",
+"tale": "",
+"product": "Tokina AT-X 300mm f2.8 AF"
+},
+{
+"patent": "JP1982-161804",
+"example": "Example01P",
+"tale": "",
+"product": "Tokina AT-X 35-200mm F3.5-4.5 (AT-X352)"
+},
+{
+"patent": "JP1979-080143",
+"example": "Example01P",
+"tale": "",
+"product": "Topcon 35-100mm F3.5-4.3"
+},
+{
+"patent": "CN108535851",
+"example": "Example01P",
+"tale": "",
+"product": "Venus Laowa 10-18mm f4.5-5.6 Zoom"
+},
+{
+"patent": "CN205720849",
+"example": "Example02P",
+"tale": "",
+"product": "Venus Laowa 12mm f2.8 Zero-D"
+},
+{
+"patent": "US20180149842",
+"example": "Example01P",
+"tale": "",
+"product": "Venus Laowa 15mm f2 Zero-D"
+},
+{
+"patent": "CN205427291",
+"example": "Example02P",
+"tale": "",
+"product": "Venus Laowa 15mm f4 Wide Angle Macro"
+},
+{
+"patent": "CN210573001",
+"example": "Example01P",
+"tale": "",
+"product": "Venus Laowa 24mm f14 2X Macro Probe"
+},
+{
+"patent": "CN116520542",
+"example": "Example02P",
+"tale": "",
+"product": "Venus Laowa 58mm f2.8 2X Ultra-Macro APO"
+},
+{
+"patent": "CN110161666",
+"example": "Example02P",
+"tale": "",
+"product": "Venus Laowa 65mm f2.8 2x Ultra Macro APO"
+},
+{
+"patent": "CN119805722",
+"example": "Example01P",
+"tale": "",
+"product": "Venus Laowa 8-15mm f2.8 FF Zoom Fisheye"
+},
+{
+"patent": "US20180164584",
+"example": "ExampleRCL1P",
+"tale": "",
+"product": "Venus Laowa MSC"
+},
+{
+"patent": "CN121091494",
+"example": "Example01P",
+"tale": "",
+"product": "Viltrox AF 14mm F4 Air"
+},
+{
+"patent": "CN211826700",
+"example": "Example01P",
+"tale": "",
+"product": "Viltrox AF 23mm F1.4 E"
+},
+{
+"patent": "CN115840281",
+"example": "Example04P",
+"tale": "",
+"product": "Viltrox AF 27mm f1.2 XF"
+},
+{
+"patent": "CN211826699",
+"example": "Example01P",
+"tale": "",
+"product": "Viltrox AF 33mm F1.4 E"
+},
+{
+"patent": "CN211955963",
+"example": "Example01P",
+"tale": "",
+"product": "Viltrox AF 35mm F1.8 FE"
+},
+{
+"patent": "CN211955966",
+"example": "Example01P",
+"tale": "",
+"product": "Viltrox AF 50mm F1.8 FE"
+},
+{
+"patent": "CN211955965",
+"example": "Example01P",
+"tale": "",
+"product": "Viltrox AF 56mm F1.4 E"
+},
+{
+"patent": "CN114755806",
+"example": "Example01P",
+"tale": "",
+"product": "Viltrox AF 75mm F1.2 STM ED IF"
+},
+{
+"patent": "CN209606699",
+"example": "Example01P",
+"tale": "",
+"product": "Viltrox MF 20mm F1.8 FE"
+},
+{
+"patent": "US004258980",
+"example": "Example02P",
+"tale": "",
+"product": "Vivitar 28mm f2"
+},
+{
+"patent": "GB1383783",
+"example": "Example01P",
+"tale": "",
+"product": "Vivitar 75-205mm f3.8"
+},
+{
+"patent": "US004333714",
+"example": "Example01P",
+"tale": "",
+"product": "Vivitar MC 28mm f2.8"
+},
+{
+"patent": "GB1408910",
+"example": "Example02P",
+"tale": "",
+"product": "Vivitar Series 1 135mm f2.3"
+},
+{
+"patent": "US003942876",
+"example": "Example04P",
+"tale": "",
+"product": "Vivitar Series 1 200mm f/3"
+},
+{
+"patent": "US003975089",
+"example": "Example01P",
+"tale": "",
+"product": "Vivitar Series 1 35-85mm f2.8"
+},
+{
+"patent": "US004523816",
+"example": "Example04P",
+"tale": "",
+"product": "Vivitar Series 1 450mm F4.5 Solid Mirror"
+},
+{
+"patent": "US004758073",
+"example": "Example04P",
+"tale": "",
+"product": "Vivitar Series 1 70-210mm f2.8-4 Macro"
+},
+{
+"patent": "JP1976-063635",
+"example": "Example01P",
+"tale": "",
+"product": "Vivitar Series 1 70-210mm F3.5 Macro"
+},
+{
+"patent": "GB0575076",
+"example": "Example02P",
+"tale": "",
+"product": "Wray 50mm F2 Unilite"
+},
+{
+"patent": "GB0696902",
+"example": "Example01P",
+"tale": "",
+"product": "Wray 64mm F0.7"
+},
+{
+"patent": "US003856386",
+"example": "Example01P",
+"tale": "",
+"product": "Yashica Auto Yashinon-DS 20mm F3.3"
+},
+{
+"patent": "JP1975-110330",
+"example": "Example01P",
+"tale": "",
+"product": "Yashica ML 24mm F2.8"
+},
+{
+"patent": "JP1978-129629",
+"example": "Example02P",
+"tale": "",
+"product": "Yashica ML 300mm F5.6"
+},
+{
+"patent": "JP1969-024068",
+"example": "Example01P",
+"tale": "",
+"product": "Yashica Yashinon-DX 21mm F3.3"
+},
+{
+"patent": "CN219085216",
+"example": "Example01P",
+"tale": "",
+"product": "Yongnuo YN11mm F1.8 DA DSM WL"
+},
+{
+"patent": "CN206074892",
+"example": "Example01P",
+"tale": "",
+"product": "Yongnuo YN100mm F2N"
+},
+{
+"patent": "CN214795390",
+"example": "Example01P",
+"tale": "",
+"product": "Yongnuo YN16mm F1.8S"
+},
+{
+"patent": "CN220137479",
+"example": "Example01P",
+"tale": "",
+"product": "Yongnuo YN33mm F1.4Z DA DSM WL Pro"
+},
+{
+"patent": "CN207216120",
+"example": "Example01P",
+"tale": "",
+"product": "Yongnuo YN40mm F2.8N"
+},
+{
+"patent": "CN106249387",
+"example": "Example02P",
+"tale": "",
+"product": "Yongnuo YN50mm f/1.4"
+},
+{
+"patent": "CN204883027",
+"example": "Example01P",
+"tale": "",
+"product": "Yongnuo YN50mm f1.8"
+},
+{
+"patent": "CN223389969",
+"example": "Example01P",
+"tale": "",
+"product": "Yongnuo YN50mm F1.8 RF"
+},
+{
+"patent": "CN110261999",
+"example": "Example01P",
+"tale": "",
+"product": "Yongnuo YN50mm F1.8S DA DSM"
+},
+{
+"patent": "CN220171327",
+"example": "Example01P",
+"tale": "",
+"product": "Yongnuo YN56mm F1.4Z DA DSM WL Pro"
+},
+{
+"patent": "GB0993360",
+"example": "Example02P",
+"tale": "",
+"product": "Zeiss Apo-Germinar 375mm F9"
+},
+{
+"patent": "JP2015-096915",
+"example": "Example02P",
+"tale": "",
+"product": "Zeiss Batis 1.8 / 85"
+},
+{
+"patent": "JP2016-188967",
+"example": "Example01P",
+"tale": "",
+"product": "Zeiss Batis 2.8 / 18"
+},
+{
+"patent": "US002721499",
+"example": "Example02",
+"tale": "Tale01",
+"product": "Zeiss Biogon 2.1cm f/4.5"
+},
+{
+"patent": "US002084309",
+"example": "Example01P",
+"tale": "",
+"product": "Zeiss Biogon 35mm F2.8 [pre-war]"
+},
+{
+"patent": "JP1955-004837",
+"example": "Example01P",
+"tale": "",
+"product": "Zeiss Biogon 35mm F2.8 Contax Opton"
+},
+{
+"patent": "US001786916",
+"example": "Example02P",
+"tale": "",
+"product": "Zeiss Biotar 50mm f/1.4"
+},
+{
+"patent": "US002968221",
+"example": "Example02P",
+"tale": "",
+"product": "Zeiss Biometar 120mm f2.8"
+},
+{
+"patent": "US002968221",
+"example": "Example01P",
+"tale": "",
+"product": "Zeiss Biometar 80mm f2.8"
+},
+{
+"patent": "US20030189767",
+"example": "Example01P",
+"tale": "",
+"product": "Zeiss DigiPrime Distagon T1.6 40mm"
+},
+{
+"patent": "US20030189767",
+"example": "Example05P",
+"tale": "",
+"product": "Zeiss DigiPrime T1.6 7mm"
+},
+{
+"patent": "US003038380",
+"example": "Example01P",
+"tale": "",
+"product": "Zeiss Distagon 4/35"
+},
+{
+"patent": "CH321571",
+"example": "Example01P",
+"tale": "",
+"product": "Zeiss Distagon 60mm F5.6"
+},
+{
+"patent": "US003915558",
+"example": "Example08P",
+"tale": "",
+"product": "Zeiss Distagon T f1.4 35mm Contax"
+},
+{
+"patent": "DE02359156",
+"example": "Example12P",
+"tale": "",
+"product": "Zeiss Distagon T f2 28mm Contax"
+},
+{
+"patent": "US20180180842",
+"example": "Example01P",
+"tale": "",
+"product": "Zeiss Distagon T 35mm F2(ZX1)"
+},
+{
+"patent": "DE01250153",
+"example": "Example02P",
+"tale": "",
+"product": "Zeiss Distagon T f2.8 25mm Contax"
+},
+{
+"patent": "GB0978797",
+"example": "Example01P",
+"tale": "",
+"product": "Zeiss Flektogon 20mm F4"
+},
+{
+"patent": "DE01157000",
+"example": "Example01P",
+"tale": "",
+"product": "Zeiss Flektogon 50mm F4"
+},
+{
+"patent": "FR1191673",
+"example": "Example01P",
+"tale": "",
+"product": "Zeiss Flexon 50mm F2"
+},
+{
+"patent": "DE01241637",
+"example": "Example01P",
+"tale": "",
+"product": "Zeiss Hologon f8 15mm"
+},
+{
+"patent": "GB0975446",
+"example": "Example01P",
+"tale": "",
+"product": "Zeiss Mirotar f4.5 500mm"
+},
+{
+"patent": "DE01268404",
+"example": "Example02P",
+"tale": "",
+"product": "Zeiss Olympia-Sonnar 180mm F2.8 Contarex"
+},
+{
+"patent": "GB0850117",
+"example": "Example01P",
+"tale": "",
+"product": "Zeiss Pancolar 50mm F2"
+},
+{
+"patent": "US002724994",
+"example": "Example02P",
+"tale": "",
+"product": "Zeiss Planar 2.8/80"
+},
+{
+"patent": "GB2066504",
+"example": "Example04P",
+"tale": "",
+"product": "Zeiss Planar 50mm F1.4 (Praktica)"
+},
+{
+"patent": "US002799207",
+"example": "Example01P",
+"tale": "",
+"product": "Zeiss Planar 80mm f2.8 (Graflex XL)"
+},
+{
+"patent": "DE01170157",
+"example": "Example01P",
+"tale": "",
+"product": "Zeiss Planar f1.4 55mm"
+},
+{
+"patent": "US003874771",
+"example": "Example05P",
+"tale": "",
+"product": "Zeiss Planar T f1.4 50mm"
+},
+{
+"patent": "DE01089183",
+"example": "Example01P",
+"tale": "",
+"product": "Zeiss Pro-Tessar 35mm f3.2"
+},
+{
+"patent": "DE01180159",
+"example": "Example01P",
+"tale": "",
+"product": "Zeiss Rollei-Mutar 0.7"
+},
+{
+"patent": "DE01180158",
+"example": "Example02P",
+"tale": "",
+"product": "Zeiss Rollei-Mutar 1.5"
+},
+{
+"patent": "US003997247",
+"example": "Example11P",
+"tale": "",
+"product": "Zeiss S-Biogon f5.6 40mm"
+},
+{
+"patent": "US20140071333",
+"example": "Example04P",
+"tale": "",
+"product": "Zeiss Sonnar 35mm F2 (Sony DSC-RX1RM2)"
+},
+{
+"patent": "JP2014-055992",
+"example": "Example04P",
+"tale": "",
+"product": "Zeiss Sonnar 35mm F2 (Sony DSC-RX1RM3)"
+},
+{
+"patent": "US003994576",
+"example": "Example01P",
+"tale": "",
+"product": "Zeiss Sonnar 40mm F2.8 Rollei"
+},
+{
+"patent": "US002186621",
+"example": "Example01P",
+"tale": "",
+"product": "Zeiss Sonnar 50mm F1.5 Opton Contax"
+},
+{
+"patent": "US003883229",
+"example": "Example02P",
+"tale": "",
+"product": "Zeiss Sonnar Superachromat f5.6 250mm CFE"
+},
+{
+"patent": "US002720140",
+"example": "Example03P",
+"tale": "",
+"product": "Zeiss Sonnar T f4 150mm"
+},
+{
+"patent": "DE00347838",
+"example": "Example01P",
+"tale": "",
+"product": "Zeiss Tele-Tessar 120mm F6.3"
+},
+{
+"patent": "DE01447294",
+"example": "Example01P",
+"tale": "",
+"product": "Zeiss Tele-Tessar 200mm F4"
+},
+{
+"patent": "CH314381",
+"example": "Example01P",
+"tale": "",
+"product": "Zeiss Tessar 50mm F3.5"
+},
+{
+"patent": "FR1066698",
+"example": "Example01P",
+"tale": "",
+"product": "Zeiss Tessar f2.8 50mm"
+},
+{
+"patent": "JP2015-161792",
+"example": "Example01P",
+"tale": "",
+"product": "Zeiss Touit 2.8 50M"
+},
+{
+"patent": "US20170307860",
+"example": "Example01P",
+"tale": "",
+"product": "Zeiss Ultra Prime Sonnar T 135mm T1.9"
+},
+{
+"patent": "DE03602859",
+"example": "Example01P",
+"tale": "",
+"product": "Zeiss Vario-Prakticar 35-70mm f2.7-3.5"
+},
+{
+"patent": "GB1167114",
+"example": "Example01P",
+"tale": "",
+"product": "Zeiss Vario-Sonnar 10-100mm F2.8"
+},
+{
+"patent": "GB0933844",
+"example": "Example01P",
+"tale": "",
+"product": "Zeiss Vario-Sonnar 7.5-30mm F1.9"
+},
+{
+"patent": "DE01447293",
+"example": "Example01P",
+"tale": "",
+"product": "Zeiss Vario-Sonnar 85-250mm F4"
+},
+{
+"patent": "US20130314585",
+"example": "Example03P",
+"tale": "",
+"product": "Zeiss Vario-Sonnar T 10.4-37.1mm F1.8-4.9 (Sony DSC-RX100M1-2)"
+},
+{
+"patent": "US20080218875",
+"example": "Example01P",
+"tale": "",
+"product": "Zeiss Vario-Sonnar T 14.3-71.5mm F2.8-4.8 (Sony DCS-R1)"
+},
+{
+"patent": "US004303312",
+"example": "Example01P",
+"tale": "",
+"product": "Zeiss Vario-Sonnar T 3.5/70-210"
+},
+{
+"patent": "US20140354857",
+"example": "Example07P",
+"tale": "",
+"product": "Zeiss Vario-Sonnar T 8.8-73.3mm F2.8 (Sony DSC-RX10M1-2)"
+},
+{
+"patent": "WO2019-188070",
+"example": "Example03P",
+"tale": "",
+"product": "Zeiss Vario-Sonnar T 9.0-72mm F2.8-4.5 (Sony DSC-RX100M6-7)"
+},
+{
+"patent": "CN110501809",
+"example": "Example01P",
+"tale": "",
+"product": "Zhong Yi 85mm f2.8 1-5X Super Macro"
+},
+{
+"patent": "CN218886280",
+"example": "Example01P",
+"tale": "",
+"product": "Zhong Yi Creator 28mm f5.6"
+},
+{
+"patent": "CN104101985",
+"example": "Example01P",
+"tale": "",
+"product": "Zhong Yi Creator 35mm F2"
+},
+{
+"patent": "CN107272156",
+"example": "Example01P",
+"tale": "",
+"product": "Zhong Yi SpeedMaster 35mm F0.95 II"
+},
+{
+"patent": "CN107255857",
+"example": "Example01P",
+"tale": "",
+"product": "Zhong Yi SpeedMaster 135mm F1.4"
+},
+{
+"patent": "CN107272157",
+"example": "Example01P",
+"tale": "",
+"product": "Zhong Yi SpeedMaster 25mm F0.95"
+},
+{
+"patent": "CN111965793",
+"example": "Example01P",
+"tale": "",
+"product": "Zhong Yi SpeedMaster 50mm F0.95 M"
+},
+{
+"patent": "CN110596863",
+"example": "Example01P",
+"tale": "",
+"product": "Zhong Yi SpeedMaster 65mm F1.4"
+}
+]

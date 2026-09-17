@@ -47,7 +47,7 @@ def build(spec, emb):
         if isinstance(d, str): d = float(emb['variable'][d][st])
         A = asp.get(str(s['i']))
         out.append({'i': s['i'], 'R': None if s['R'] in (None, 0) else float(s['R']),
-                    'z': z, 'k': (A or {}).get('k', 0.0), 'A': A,
+                    'z': z, 'k': (A or {}).get('k', (A or {}).get('K', 0.0)), 'A': A,
                     'stop': bool(s.get('stop')) or s['i'] == 'STO'})
         z += float(d)
     return out
@@ -76,6 +76,7 @@ def main():
     ap.add_argument('--axis', type=int)
     ap.add_argument('--side', choices=('lower', 'upper'), default='lower')
     ap.add_argument('--clip', default='', help="分区截断底边，如 '1010:735,999999:606'")
+    ap.add_argument('--rmax', type=float, default=60.0, help='最大扫描半径(mm)；超长焦前片要调大')
     ap.add_argument('--start', type=float, default=3.0, help='起扫半径(mm)，避开光轴线')
     ap.add_argument('--step', type=float, default=0.05)
     ap.add_argument('--gap', type=float, default=0.50, help='连续缺这么多 mm 就判定曲线到头')
@@ -132,7 +133,7 @@ def main():
     for s in S:
         if s['stop']: continue
         rmax, gap, r = 0.0, 0.0, a.start
-        while r < 60:
+        while r < a.rmax:
             g = sag(s, r)
             if g is None: break                     # 球面走到 r=|R| 就没有面型了
             if ink(x0 + (s['z'] + g) * pxmm, axis + sgn * r * pxmm):

@@ -18,7 +18,20 @@ Zemax 的自动口径 = 所有视场、整个光瞳追迹出来的最大光线�
 sag 用完整非球面式（含 k 与 A4..A16），在各面自己的 clear semi-dia 上取值。
 仅子午面（VCX 留 0），单色（各面 nd）。
 """
+import re
 import json, math, argparse
+
+# --- 非球面系数：支持奇数次项（佳能 A3..A15 等）-------------------------------
+# 返回 [(指数, 系数), ...]，指数为任意正整数。偶数次专利仍然原样工作。
+def acoef(a):
+    out = []
+    for k, v in (a or {}).items():
+        m = re.fullmatch(r'[Aa]\s*(\d+)', str(k))
+        if m and v:
+            out.append((int(m.group(1)), float(v)))
+    return sorted(out)
+# -----------------------------------------------------------------------------
+
 
 AK = ('A4','A6','A8','A10','A12','A14','A16','A18','A20')
 
@@ -36,7 +49,9 @@ class Surf:
         r = 1 - (1 + s.k) * s.c * s.c * y2
         if r < 0: return None
         z = s.c * y2 / (1 + math.sqrt(r))
-        for i, a in enumerate(s.A): z += a * y ** (4 + 2 * i)
+        ay = abs(y)
+        # 系数表已是 [(指数, 系数)]，奇数次项必须用 |y| —— 面型只依赖 r=|y|。
+        for e, cc in s.A: z += cc * ay ** e
         return z
     def dsag(s, y):
         h = 1e-7
@@ -52,9 +67,9 @@ def build(spec, emb, state):
         D = r['D']
         if isinstance(D, str): D = emb['variable'][D][state]
         a = asph.get(str(r['i']))
-        A = [a.get(k) or 0.0 for k in AK] if a else []
+        A = acoef(a) if a else []
         s = Surf(0.0 if r['R'] in (None, 0) else 1.0 / float(r['R']),
-                 (a or {}).get('k', 0.0) or 0.0, A, z, r.get('nd') or 1.0, str(r['i']))
+                 (a or {}).get('k', (a or {}).get('K', 0.0)) or 0.0, A, z, r.get('nd') or 1.0, str(r['i']))
         s.stop = bool(r.get('stop') or r['i'] == 'STO')
         s.glass = r.get('glass') or (('n=%.5f' % r['nd']) if r.get('nd') else None)
         s.lens = r.get('lens', '')
