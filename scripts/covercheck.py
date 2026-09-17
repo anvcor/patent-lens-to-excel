@@ -224,16 +224,64 @@ def main():
           % (dl, dl - eq, t0, a.ng, a.air, eq))
     print('    近轴焦点不动，ΣD 增加 %.4f mm' % (t0 - t0 / a.ng))
     if not a.write: return
+    var_bf = False
     if isinstance(last['D'], str):
-        k = last['D']; vals = set(round(float(v), 6) for v in emb['variable'][k].values())
-        if len(vals) != 1:
-            print('    最后一段是随状态变化的变量，请手工改 variable 表。'); return
-        # BF 各状态相同（常见：D22 只是「参考用」的一列）→ 直接落成定值，
-        # 否则补进来的盖板会被可变间隔逻辑带偏
-        last['D'] = float(vals.pop()); emb['variable'].pop(k, None)
-        for st_ in emb.get('states', []): pass
-        print('    末面 D 原是各状态恒定的变量 %s，已落成定值 %.4f' % (k, last['D']))
-    last['D'] = round(dl - eq, 4)
+        k = last['D']
+        zxs = spec.get('zmx') or {}
+        cfl = zxs.get('configs') or []
+        fcs = [f for f in (zxs.get('focus'), zxs.get('focus2')) if f]
+        fkeys = {f.get(kk) for f in fcs for kk in ('key_before', 'key_after', 'key_last')} - {None}
+        # 「恒定」要连已生成的结构一起看，而且**对焦间隔永远不算恒定**：
+        # 整組繰り出し且专利只印 ∞ 时（US20210263286A1 的 D12），variable 表里只有一个值，
+        # 但各结构的 D12 就是对焦行程 —— 当成恒定 BF 落成定值会把行程从结构里删掉（make_zmx KeyError）。
+        vals = set(round(float(v), 6) for v in emb['variable'][k].values())
+        vals |= set(round(float(c[k]), 6) for c in cfl if k in c and not isinstance(c[k], bool))
+        if len(vals) != 1 or k in fkeys:
+            # BF 随状态变（变焦镜头 G7 移动：WO2024214585A1 D25 = 11.855 / 22.479 / 29.495；或 BF 本身是对焦间隔）：
+            # 每个状态、lensmath 已写好的每个结构、以及**由守恒和算出它的 focus.sum** 都减同一个空气换算长。
+            var_bf = True
+            try:
+                from vignet import cfg_dmap
+            except Exception:
+                cfg_dmap = None
+            def _last_of(c):
+                d = cfg_dmap(spec, emb, c) if cfg_dmap else {}
+                return float(d[k]) if k in d else float(emb['variable'][k][state])
+            before = [_last_of(c) for c in cfl]
+            for st_, v in list(emb['variable'][k].items()):
+                emb['variable'][k][st_] = round(float(v) - eq, 5)
+            ncf = 0
+            for c in cfl:
+                if k in c:
+                    c[k] = round(float(c[k]) - eq, 5); ncf += 1
+            nsum = []
+            chain = any(f.get('key_last') == k for f in fcs)
+            for f in fcs:
+                # key_after / key_last 是「守恒和 − 前面的间隔」算出来的 —— 不改 sum，下游 cfg_dmap / make_zmx
+                # 会把没减过的 BF 重新算回来，所有结构离焦 ≈ eq（回归审查实测 −1.99mm）
+                if 'sum' in f and (k in (f.get('key_after'), f.get('key_last'))
+                                   or (chain and not f.get('key_after') and not f.get('key_last'))):
+                    f['sum'] = round(float(f['sum']) - eq, 6); nsum.append(f.get('key_before'))
+            print('    末面 D 是随状态变化的变量 %s：%d 个状态 + %d 个结构各减 %.4f%s'
+                  % (k, len(emb['variable'][k]), ncf, eq,
+                     ('；守恒和一并减（%s 组）' % ', '.join(map(str, nsum))) if nsum else ''))
+            if min(emb['variable'][k].values()) < 0.3:
+                print('    ★ 减完有状态的末面间隔 < 0.3mm，盖板放不下 —— 检查 --t / --air')
+            after = [_last_of(c) for c in cfl]
+            bad = [c.get('name') for c, b0, b1 in zip(cfl, before, after) if abs(b0 - eq - b1) > 1e-4]
+            if bad:
+                print('    ★★ 结构 %s 的末面间隔没有减对（应减 %.4f）—— 别交付，检查 focus.sum / configs' % (bad, eq))
+            elif cfl:
+                print('    ✓ %d 个结构重建后的末面间隔都减了 %.4f（近轴焦点不动）' % (len(cfl), eq))
+        else:
+            # BF 各状态、各结构都相同且不是对焦间隔（常见：D22 只是「参考用」的一列）→ 直接落成定值，
+            # 否则补进来的盖板会被可变间隔逻辑带偏
+            last['D'] = float(vals.pop()); emb['variable'].pop(k, None)
+            print('    末面 D 原是各状态恒定的变量 %s，已落成定值 %.4f' % (k, last['D']))
+            for c in cfl:
+                c.pop(k, None)
+    if not var_bf:
+        last['D'] = round(dl - eq, 4)
     last['note'] = (last.get('note', '') + ' ★ 专利未给传感器盖板；印刷 BF 是空气换算长，'
                     '已减去盖板换算长 %.4f' % eq).strip()
     i0 = emb['surfaces'].index(last)

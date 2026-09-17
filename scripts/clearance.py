@@ -59,13 +59,27 @@ class Surf:
         return None if a is None or b is None else (a - b) / (2 * h)
 
 
-def build(spec, emb, state):
+def build(spec, emb, state, dmin=False):
+    """dmin=True：可变间隔取全行程最小值（专利各状态 + zmx.configs）—— 只给边缘间隙体检用，
+    变焦/对焦时相邻面在最近的那一态才最容易撞；追迹仍用基准态。"""
     asph = {str(a['surface']).replace('面', ''): a for a in emb.get('aspheric', [])}
     rows = [r for r in emb['surfaces'] if r['i'] != 'IMG']
+    cfgs_ = (spec.get('zmx') or {}).get('configs') or []
+    _dm = []
+    if dmin:
+        try:
+            from vignet import cfg_dmap as _cdm  # 补齐 key_after / key_last（结构里只存 key_before）
+            _dm = [_cdm(spec, emb, c) for c in cfgs_]
+        except Exception:
+            _dm = [{k: v for k, v in c.items() if k in emb['variable'] and not isinstance(v, bool)}
+                   for c in cfgs_]
     S, z = [], 0.0
     for r in rows:
         D = r['D']
-        if isinstance(D, str): D = emb['variable'][D][state]
+        if isinstance(D, str) and dmin:
+            D = min([float(v) for v in emb['variable'][D].values()]
+                    + [float(d[D]) for d in _dm if D in d])
+        elif isinstance(D, str): D = emb['variable'][D][state]
         a = asph.get(str(r['i']))
         A = acoef(a) if a else []
         s = Surf(0.0 if r['R'] in (None, 0) else 1.0 / float(r['R']),
@@ -305,6 +319,11 @@ def main():
     print('  自动 clear semi-dia: ' + ' '.join('%s=%.3f' % (S[k].name, sd[k]) for k in range(len(S))))
     bad = report(S, sd, a.et_min, a.ec_min, a.ct_et_max)
     print('  → %d 处不合格' % len(bad))
+    Smin, _zm = build(spec, emb, state, dmin=True)
+    if any(abs(p.z - q.z) > 1e-9 for p, q in zip(S, Smin)):
+        print('\n  可变间隔按全行程最小值再查一遍（变焦/对焦时最近的那一态）:')
+        bad2 = report(Smin, sd, a.et_min, a.ec_min, a.ct_et_max)
+        print('  → %d 处不合格（全行程最小间隔）' % len(bad2))
     if not a.solve:
         # 体检模式也允许把追出来的 clear semi-dia 写回 spec（layout_check 要用），
         # 但不动 vignetting —— 那是 vignet.py / --solve 的活。

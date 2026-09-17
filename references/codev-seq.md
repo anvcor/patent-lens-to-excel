@@ -44,7 +44,7 @@ GO
 | `TYPE EVENASPH` + `CONI` + `PARM 2..8` | `ASP` + `K` + `CUF 0.0` + `A B C D` / `E F G H` / `J` | A…J 依次是 r⁴ r⁶ r⁸ r¹⁰ r¹² r¹⁴ r¹⁶ r¹⁸ r²⁰；**CODE V 的 K 与 Zemax 的 CONI 同义** |
 | `TOLE <vb> <len>`（写在面 va） | `THI S<va> OAL S<vb>..<va+1> <len>` | 面号两边是同一套（光阑也占一号） |
 | `MNUM n` + `LTTL` | `ZOO n` + `ZOO TIT` + `TIT Zk "名字"` | **写入用单层引号**：CODE V 导出时写两层（`TIT Z1 ""INF""`、`TITLE '"INF"'`），但它自己读不回来，结构名会全变成 `' '` —— 实测过 |
-| `THIC <面> <cfg> <值>` | `ZOO THI S<面> <各结构值>` + `ZOO THC S<面> 100 …` | THC 100 = 该厚度逐结构独立 |
+| `THIC <面> <cfg> <值> <状态>` | `ZOO THI S<面> <各结构值>` + `ZOO THC S<面> <码> …` | **码 0 = 变量、100 = 冻结**（逐结构各自；实证 CODE V 2026 `doc/ExamplesLibrary/LDM_BeamSplitter/LDM_Cube_Beamsplitter_Finish.seq` 的 `ZOO THC S5 0 100`）。Zemax 状态 1（变量）↔ 0，状态 0 ↔ 100。make_seq 默认把对焦间隔写 0 |
 | `FVCY/FVDY/FVCX`（视场号,结构号） | `ZOO VUY F<i>` / `ZOO VLY F<i>` / `ZOO VUX F<i>` / `ZOO VLX F<i>` | CODE V 按**视场**分组、VUY/VLY 交替写 |
 
 ## 排版细节
@@ -69,8 +69,8 @@ CODE V 的牌号 = **去掉所有非字母数字 + `_` + 厂家**：
 
 CODE V 侧的习惯是**用评价函数优化**出对焦组位置，不依赖软件的 solve。所以生成的 `.seq` 只要保证：
 
-- 各可变间隔在 `ZOO THI S<n>` 里逐结构给出起始值，且 `ZOO THC S<n> 100 …`（逐结构独立），
-  这样直接就能设成优化变量；
+- 各可变间隔在 `ZOO THI S<n>` 里逐结构给出起始值；**对焦间隔 `ZOO THC S<n> 0 …`（变量）**，其余 `100 …`（冻结），
+  打开就能直接优化对焦位置（`--no-vars` 全冻结）；变焦镜头每个会变的间隔各一行、不写 OAL；
 - ⚠ **带 OAL 解的那一面不能再写 `ZOO THI S<va>`**：`.seq` 是顺序执行的命令流，
   `ZOO THI` 排在解后面会把它覆盖成定值，表现为「求解不起作用」。CODE V 自己导出时两行都写
   （那只是当前值转储，**不是合法输入**），别照抄。

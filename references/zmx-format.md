@@ -53,10 +53,12 @@ SURF 1
 
 ## 三、多重结构段（Multi-Configuration）
 
-这是变倍 / 对焦状态的写法，也是本 skill 最关键的一段。整段在所有 `SURF` 之后：
+这是变倍 / 对焦状态的写法，也是本 skill 最关键的一段。整段在所有 `SURF`（以及评价函数段）之后。
+⚠ **`CONF n` 不是「当前结构」标记，是评价函数操作数**（OpticStudio 2024R2 存出来的文件只在评价函数段里有 CONF）。
+MCE 后面不要写 `CONF 1`，否则评价函数末尾会多出一个 CONF 操作数。
+THIC 行值后面第一个字段是**状态：0 固定 / 1 变量**（`THIC  18   1 11.961 1 0 0 1 1 1 0 0`）。
 
 ```
-CONF 1 0 0 0 0 0 0 0 0 0     # 当前显示的是第 1 个结构
 MNUM 3 1                      # 共 3 个结构，当前第 1 个
 LTTL   0   1 "Wide 12mm, Infinity" 0 0 0 1 1 0 0.0 "" 0
 LTTL   0   2 "Mid 17mm, Infinity"  0 0 0 1 1 0 0.0 "" 0
@@ -193,3 +195,28 @@ XDAT 块的位置与 `PARM` 相同（`MIRR`/`STOP` 之后、`DISZ` 之前）：
 
 **三条会把镜头改掉的坑**：Rn 改了系数要乘 `Rn^(2i)`；`XDAT 3` 非零等于改曲率、EFL 会变；
 `XDAT 1` 填小了等于截掉高次项。自校验数 XDAT 行数应为 **12**（2 + 10 项）。
+
+## 评价函数段（Merit Function Editor）
+
+实证：用户 OpticStudio 2024R2 手工生成、存盘的 `E:\Download\WO2024214585A1_Ex02_NikonZ24-70mmF28SII_catalog_OPT.zmx`。
+位置在最后一个 `SURF`（像面）之后、`TOL TOFF` / `MNUM` 之前：
+
+```
+CONF 1 0 0 0 0 0 0 0 0 0
+DMFS 0 0 0 0 0 0 0 0 0 0
+BLNK contrast s+t S Wgt = 1.0000 T Wgt = 1.0000 Contrast at 80 lp/MM GQ 3 rings 6 arms
+CONF 1 0 0 0 0 0 0 0 0 0
+BLNK No air or glass constraints.
+BLNK Operands for field 1.
+MECS 0 1 1 80 0.16785534350986436 0.29073398328101191 0 0.11635528346628801 0 0
+MECT 0 1 1 80 0.16785534350986436 0.29073398328101191 0 0.11635528346628801 0 0
+…
+CONF 2 0 0 0 0 0 0 0 0 0
+BLNK No air or glass constraints.
+…
+```
+
+- 操作数行：`<类型> <Int1> <Int2> <Hx…> … <Target> <Weight> 0 0`；MECS/MECT 为 `0 <波长> <视场> <lp/mm> <Px> <Py> 0 <权重> 0 0`。
+- GQ 3 环：ρ = 0.33571 / 0.70711 / 0.94197，环权重 5/18 / 8/18 / 5/18；6 臂在只有 Y 视场时只追半光瞳：离轴 θ = 60°/0°/−60°（每臂 π/3），轴上只追 θ=0（权重 π）。
+- 权重 = 环权重 × 波长权重/最大波长权重 × 视场权重/最大视场权重 × 臂角权重（480 个操作数逐个验证，误差 0）。
+- 生成器：`make_zmx.merit_contrast()`。

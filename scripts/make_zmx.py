@@ -144,6 +144,97 @@ def fields_of(zx, emb):
         raise SystemExit('无法确定最大像高：请在 spec 的 zmx 块里给 max_y 或 fields_y')
     return [round(ymax * f, 4) for f in FIELD_FRACS]
 
+def _gauss_rings(n):
+    """OpticStudio 的 Gaussian Quadrature 光瞳环：ρ² = (1+x)/2（x = n 点 Gauss-Legendre 根），环权重 = w/2。
+    n=3 → ρ 0.33571/0.70711/0.94197、权重 5/18 / 8/18 / 5/18（与用户向导生成的文件逐位对上）。"""
+    xs, ws = [], []
+    for i in range(1, n + 1):
+        x = math.cos(math.pi * (i - 0.25) / (n + 0.5))
+        for _ in range(100):
+            p0, p1 = 1.0, x
+            for k in range(2, n + 1):
+                p0, p1 = p1, ((2 * k - 1) * x * p1 - (k - 1) * p0) / k
+            dp = n * (x * p1 - p0) / (x * x - 1.0)
+            dx = p1 / dp; x -= dx
+            if abs(dx) < 1e-15: break
+        xs.append(x); ws.append(2.0 / ((1.0 - x * x) * dp * dp))
+    pr = sorted((math.sqrt((1.0 + x) / 2.0), w / 2.0) for x, w in zip(xs, ws))
+    return pr
+
+
+def merit_contrast(fy, wv, ncfg, freq=80.0, rings=3, arms=6, fw=None):
+    """默认评价函数：优化向导「Contrast」s+t、freq lp/mm、GQ rings 环 arms 臂、无空气/玻璃约束，
+    **逐结构铺一份**（CONF n + MECS/MECT）。用户 2026-09 在 OpticStudio 里手工生成的就是这套，
+    本函数对 WO2024214585A1 那份 _OPT.zmx 的 480 个操作数逐个复现（权重误差 0）。
+
+    行格式（照抄 OpticStudio 存出来的）：`MECS 0 <波长> <视场> <freq> <Px> <Py> 0 <权重> 0 0`
+    权重 = 环权重 × 波长权重/最大波长权重 × 视场权重/最大视场权重 × 臂角权重；
+    只有 Y 视场（旋转对称）时只追半个光瞳：离轴 arms/2 条臂（θ = 90° − (k+½)·360°/arms），
+    每臂 π/(arms/2)；轴上视场只追 θ=0 一条臂、权重 π。
+    """
+    fw = fw or [1.0] * len(fy)
+    wmax = max(w for _, w in wv) or 1.0
+    fmax = max(fw) or 1.0
+    rr = _gauss_rings(rings)
+    half = arms // 2
+    out = ['CONF 1 0 0 0 0 0 0 0 0 0', 'DMFS 0 0 0 0 0 0 0 0 0 0',
+           'BLNK contrast s+t S Wgt = 1.0000 T Wgt = 1.0000 Contrast at %s lp/MM GQ %d rings %d arms'
+           % (num(freq, '%.10G'), rings, arms)]
+    body = []
+    for fi, y in enumerate(fy, 1):
+        body.append('BLNK Operands for field %d.' % fi)
+        if abs(y) < 1e-12:
+            angs = [(0.0, math.pi)]
+        else:
+            angs = [(math.radians(90.0 - (k + 0.5) * 180.0 / half), math.pi / half) for k in range(half)]
+        for wi, (_lam, ww) in enumerate(wv, 1):
+            for th, aw in angs:
+                for rho, rw in rr:
+                    px = rho * math.cos(th); py = rho * math.sin(th)
+                    if abs(px) < 1e-15: px = 0.0
+                    if abs(py) < 1e-15: py = 0.0
+                    wt = rw * (ww / wmax) * (fw[fi - 1] / fmax) * aw
+                    for op in ('MECS', 'MECT'):
+                        body.append('%s 0 %d %d %s %s %s 0 %s 0 0'
+                                    % (op, wi, fi, num(freq, '%.10G'), repr(px) if px else '0',
+                                       repr(py) if py else '0', repr(wt)))
+    for c in range(1, ncfg + 1):
+        out.append('CONF %d 0 0 0 0 0 0 0 0 0' % c)
+        out.append('BLNK No air or glass constraints.')
+        out.extend(body)
+    return out
+
+
+def focus_vars(spec, emb):
+    """评价函数配套的变量：**对焦间隔**（逐结构 MCE THIC 置 Variable，∞ 结构也开 = 无穷远重新对焦）。
+
+    - zmx.focus_vars 显式给了就用它；
+    - 变焦：同一变焦位置的各结构之间会变的间隔 = 对焦间隔，按面序**去掉最后一个**
+      （它是补偿段；用户 2026-09 的 _OPT.zmx：D18/D21 变量、D23 不动）；
+    - 定焦：focus / focus2 的 key_before（key_after / key_last 由位置解 TOLE 跟随，守恒和自动保持）。
+    """
+    zx = spec['zmx']
+    if zx.get('focus_vars') is not None:
+        return list(zx['focus_vars'])
+    cfgs = zx.get('configs') or []
+    var = emb.get('variable') or {}
+    if zx.get('zoom'):
+        order = {s['D']: k for k, s in enumerate(emb['surfaces']) if isinstance(s['D'], str)}
+        fk = set()
+        groups = {}
+        for c in cfgs: groups.setdefault(c.get('zoom'), []).append(c)
+        for g in groups.values():
+            for key in var:
+                vs = [float(c[key]) for c in g if key in c]
+                if len(vs) > 1 and max(vs) - min(vs) > 1e-9: fk.add(key)
+        fk = sorted(fk, key=lambda k: order.get(k, 1e9))
+        return fk[:-1] if len(fk) > 1 else fk
+    out = []
+    for f in (zx.get('focus'), zx.get('focus2')):
+        if f and f.get('key_before'): out.append(f['key_before'])
+    return out
+
+
 def num(x, fmt='%.10G'):
     return fmt % x
 
@@ -189,14 +280,18 @@ def wfno_cfg(spec, emb, with_stop=False, with_beta=False):
     return (wf, ss) if with_stop else wf
 
 
-def build(spec, emb, catalog, asph_mode='auto'):
-    zx = spec['zmx']; fc = zx['focus']
-    kb, ka = fc['key_before'], fc.get('key_after')
+def build(spec, emb, catalog, asph_mode='auto', merit=True, freq=80.0):
+    zx = spec['zmx']
+    # 变焦镜头：结构里写全了所有可变间隔（lensmath.zoom_configs），不用位置解 ——
+    # 每个变焦位置的守恒和不同，TOLE 的长度进不了 MCE。每个可变间隔都逐结构进 MCE 的 THIC。
+    zoom = bool(zx.get('zoom'))
+    fc = {} if zoom else (zx.get('focus') or {})
+    kb, ka = fc.get('key_before'), fc.get('key_after')
     # 链式三段浮动（d_a + d_b + d_c = const，如本篇适马 105 微距：G2 与絞り各自移动）：
     # 第三段 key_last 的 DISZ = 守恒和 − 前两段，位置解随后会覆盖它。
     kl = fc.get('key_last')
     # 第二个对焦群（双浮动对焦，如索尼 135GM）。没有就是 None，行为与以前完全一致。
-    fc2 = zx.get('focus2')
+    fc2 = None if zoom else zx.get('focus2')
     kb2, ka2 = (fc2['key_before'], fc2.get('key_after')) if fc2 else (None, None)
     cfgs = zx['configs']
     surfs = [s for s in emb['surfaces'] if s['i'] != 'IMG']
@@ -345,8 +440,9 @@ def build(spec, emb, catalog, asph_mode='auto'):
         return f_['sum'] + sum(float(s['D']) for s in surfs
                                if isinstance(s['D'], (int, float))
                                and f_['var_before'] < _idx(s) < f_['var_after'])
-    poslen = _poslen(fc)
+    poslen = _poslen(fc) if fc.get('var_after') and 'sum' in fc else None
     poslen2 = _poslen(fc2) if fc2 and fc2.get('var_after') else None   # 链式三段：focus2 无 var_after
+    varsurf = {}                                   # 可变间隔名 → 所在面号（变焦时逐个进 MCE）
     for k, s in enumerate(surfs, 1):
         i = _idx(s); key = str(s['i'])
         A = asp.get(key)
@@ -395,7 +491,10 @@ def build(spec, emb, catalog, asph_mode='auto'):
             for n in range(1, xo_nterms + 1):       # XDAT n+2 = ρ^n 的系数
                 a(XDAT_FMT % (n + XO_BASE, pw.get(n, 0.0)))
         D = s['D']
-        if isinstance(D, str):
+        if isinstance(D, str): varsurf[D] = i
+        if isinstance(D, str) and zoom:
+            D = cfgs[0][D] if D in cfgs[0] else float(emb['variable'][D][emb['states'][0]])
+        elif isinstance(D, str):
             if D == kb:
                 D = [c0 for c0 in cfgs if kb in c0][0][kb]
             elif D == ka:
@@ -412,7 +511,7 @@ def build(spec, emb, catalog, asph_mode='auto'):
                 st0 = emb.get('states', [None])[0]
                 D = float(emb['variable'][D][st0])
         a('  DISZ %s' % num(float(D), '%.6G'))
-        if i == fc['var_after']:
+        if poslen is not None and i == fc['var_after']:
             a('  TOLE %d %s' % (fc['var_before'], num(poslen, '%.6G')))
         elif poslen2 is not None and i == fc2['var_after']:
             a('  TOLE %d %s' % (fc2['var_before'], num(poslen2, '%.6G')))
@@ -462,26 +561,41 @@ def build(spec, emb, catalog, asph_mode='auto'):
     sd = num(ip/2.0,'%.6G') if ip else '0'
     a('  DIAM %s 0 0 0 1 ""' % sd); a('  MEMA %s 0 0 0 1 ""' % sd)
     a('  POPS 0 0 0 0 0 0 0 0 1 1 1 1 0 0 0 0')
+    # ===== 配套评价函数（打开就能直接优化）=====
+    # 优化向导 Contrast s+t 80 lp/mm GQ 3 环 6 臂，逐结构一份；变量 = 对焦间隔（下面 MCE 的 THIC 状态位 1）。
+    if merit:
+        L.extend(merit_contrast(fy, wv, len(cfgs), freq))
+    fv = set(focus_vars(spec, emb)) if merit else set()
     a('TOL TOFF   0   0              0              0   0 0 0 0')
     a('MNUM %d 1' % len(cfgs))
     for i, c0 in enumerate(cfgs, 1):
         a('LTTL   0   %d "%s" 0 0 0 1 1 1 0 0' % (i, ascii_(c0['name'])))
     for i, c0 in enumerate(cfgs, 1):
         d0 = c0['d0']
-        v = '1.00000000E+10' if str(d0).upper().startswith('INF') else num(float(d0), '%.6G')
+        v = '1.00000000E+10' if str(d0).upper().startswith('INF') else num(float(d0), '%.10G')
         a('THIC   0   %d %s 0 0 0 1 1 1 0 0' % (i, v))
-    for i, c0 in enumerate(cfgs, 1):
-        a('THIC  %2d   %d %s 0 0 0 1 1 1 0 0' % (fc['var_before'], i, num(c0[kb], '%.6G')))
+    if zoom:
+        for key, sn in sorted(varsurf.items(), key=lambda t: t[1]):
+            vals = [float(c0[key]) if key in c0 else float(emb['variable'][key][emb['states'][0]])
+                    for c0 in cfgs]
+            if len(cfgs) > 1 and all(abs(v - vals[0]) < 1e-9 for v in vals):
+                continue                    # 所有结构都一样的就不必进 MCE
+            for i, v in enumerate(vals, 1):
+                # THIC 行第 4 个字段 = 状态：0 固定 / 1 变量（照 OpticStudio 存出来的 _OPT.zmx）
+                a('THIC  %2d   %d %s %d 0 0 1 1 1 0 0' % (sn, i, num(v, '%.10G'), 1 if key in fv else 0))
+    elif kb:
+        for i, c0 in enumerate(cfgs, 1):
+            a('THIC  %2d   %d %s %d 0 0 1 1 1 0 0' % (fc['var_before'], i, num(c0[kb], '%.10G'), 1 if kb in fv else 0))
     if fc2:
         for i, c0 in enumerate(cfgs, 1):
-            a('THIC  %2d   %d %s 0 0 0 1 1 1 0 0' % (fc2['var_before'], i, num(c0[kb2], '%.6G')))
+            a('THIC  %2d   %d %s %d 0 0 1 1 1 0 0' % (fc2['var_before'], i, num(c0[kb2], '%.10G'), 1 if kb2 in fv else 0))
     # 链式三段浮动（如适马 85 Art / JP2018-5099 実施例4）：三个可变间隔互不成对，
     # 位置解只能钉住其中一个，剩下的第三个必须自己进 MCE。
     # zmx.mce_extra = [{"var": 27, "key": "d27"}, ...]
     for ex in zx.get('mce_extra', []):
         for i, c0 in enumerate(cfgs, 1):
-            a('THIC  %2d   %d %s 0 0 0 1 1 1 0 0'
-              % (ex['var'], i, num(float(c0[ex['key']]), '%.6G')))
+            a('THIC  %2d   %d %s %d 0 0 1 1 1 0 0'
+              % (ex['var'], i, num(float(c0[ex['key']]), '%.10G'), 1 if ex['key'] in fv else 0))
     # ===== 逐结构渐晕：APER + FVCY/FVCX/FVDY/FVDX =====
     # Zemax 的 VDX/VDY/VCX/VCY 是**全局**量，只写在文件头里就等于所有结构共用一套。
     # 对焦镜头每个结构的渐晕差得很远（适马70微距 视场1 的 VDY 从 ∞ 的 +0.12 走到
@@ -500,7 +614,9 @@ def build(spec, emb, catalog, asph_mode='auto'):
                     continue          # 全 0 的视场行省掉：缺行时该视场直接用文件头的全局值
                 for ci, v in enumerate(vals, 1):
                     a('%s  %2d   %d %s 0 0 0 1 1 1 0 0' % (op, f+1, ci, num(float(v), '%.6G')))
-    a('CONF 1')
+    # ★ 文件末尾**不写** `CONF 1`：.zmx 里的 CONF 行是**评价函数操作数**（OpticStudio 存出来的文件
+    #   只在 MFE 段里有 CONF），写在 MCE 后面会被读成评价函数末尾多出来的一个 CONF 操作数
+    #   （用户 _OPT.zmx 2931 个操作数，旧写法读出 2932）。
     return ('\r\n'.join(L) + '\r\n').encode('latin-1', 'replace')
 
 def _idx(s):
@@ -684,6 +800,11 @@ def main():
                     help='auto=有 A18/A20 的面用 Extended Asphere(XASPHERE)、其余 Even Asphere；'
                          'extended=所有非球面都用 XASPHERE；'
                          'even=全部强按 Even Asphere（高次项会被重拟合进 r^16，有残差）')
+    ap.add_argument('--no-merit', action='store_true',
+                    help='不写配套评价函数、不把对焦间隔设成变量（默认写：Contrast s+t 80lp/mm GQ3×6 逐结构 + 对焦间隔变量）')
+    ap.add_argument('--mf-freq', type=float, default=80.0, help='评价函数的空间频率 lp/mm（默认 80）')
+    ap.add_argument('--modelglass', action='store_true',
+                    help='另外再出一份模型玻璃版 <o>_modelglass.zmx（默认只出目录版）')
     a=ap.parse_args()
     spec=json.load(open(a.spec,encoding='utf-8'))
     emb=spec['embodiments'][a.emb]
@@ -691,9 +812,11 @@ def main():
     global _idx
     _idx = lambda s: s['_i']
     pf=dict(emb.get('general',[])).get('f (mm)', 0)
-    for cat,tag in ((True,'catalog'),(False,'modelglass')):
+    # 交付默认只出目录玻璃版（用户 2026-09：「只需要输出一个 catalog zmx 和 seq」）；
+    # 模型玻璃版要的时候加 --modelglass。
+    for cat,tag in ((True,'catalog'),) + (((False,'modelglass'),) if a.modelglass else ()):
         p='%s_%s.zmx'%(a.o,tag)
-        open(p,'wb').write(build(spec,emb,cat,a.asph_type))
+        open(p,'wb').write(build(spec,emb,cat,a.asph_type,not a.no_merit,a.mf_freq))
         print(p); verify(p, pf, wfno_cfg(spec, emb, with_stop=True)[1])
 
 if __name__=='__main__':

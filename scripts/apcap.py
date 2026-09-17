@@ -55,10 +55,30 @@ def main():
     asp = {str(x['surface']).replace('面',''): x for x in emb.get('aspheric', [])}
     st = (emb.get('states') or [None])[0]
     S, z = [], 0.0
+    # 可变间隔取**全行程里的最小值**（专利各状态 + 已生成的各结构）：变焦/对焦时相邻两面在最近的那一态
+    # 才最容易撞（本篇 D13 在 W 端只有 1.000，D18 在 T 端近距只剩 2.164），只看基准态会把口径放得过大。
+    # 只用于相邻面干涉；各面 z 坐标本来就只拿来算相邻差。
+    cfgs_ = (spec.get('zmx') or {}).get('configs') or []
+    try:
+        from vignet import cfg_dmap as _cdm      # 补齐 key_after / key_last（结构里只存 key_before）
+    except Exception:
+        _cdm = None
+    _dm = [(_cdm(spec, emb, c) if _cdm else
+            {k: v for k, v in c.items() if k in emb['variable'] and not isinstance(v, bool)})
+           for c in cfgs_]
+    def _dmin(key):
+        vs = [float(v) for v in emb['variable'][key].values()]
+        vs += [float(d[key]) for d in _dm if key in d]
+        return min(vs)
     for q in emb['surfaces']:
         if q['i'] == 'IMG': break
         D = q['D']
-        if isinstance(D, str): D = float(emb['variable'][D][st])
+        if isinstance(D, str):
+            dmin = _dmin(D)
+            if abs(dmin - float(emb['variable'][D][st])) > 1e-9:
+                print('  面%-3s 可变间隔 %s：基准态 %.3f，全行程最小 %.3f（干涉按最小算）'
+                      % (q['i'], D, float(emb['variable'][D][st]), dmin))
+            D = dmin
         A = asp.get(str(q['i']))
         S.append({'i': q['i'], 'R': q['R'], 'D': float(D), 'z': z, 'nd': q.get('nd'),
                   'k': (A or {}).get('k', (A or {}).get('K', 0.0)), 'asp': A,

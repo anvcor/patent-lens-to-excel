@@ -306,7 +306,7 @@ def build(seq, args):
         elif 'EPD' in hdr and 'EPD' in zoo:
             for c in range(1, nz+1):
                 a(ml('APER', 0, c, float(zoo['EPD'][c-1])))
-        a('CONF 1')
+        # 末尾不写 `CONF 1`：.zmx 里 CONF 行是评价函数操作数，写在这会变成 MFE 里多出来的一个 CONF
 
     out = args.out or os.path.splitext(seq)[0] + '.zmx'
     open(out, 'w', newline='\r\n', encoding='latin-1').write('\n'.join(L) + '\n')

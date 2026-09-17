@@ -1,6 +1,6 @@
 ---
 name: patent-lens-to-excel
-description: "把光学镜头专利 PDF（日本特开 JP-A、中国 CN-A、美国 US、WO 等）里的透镜面数据表提取成 Excel 并反查 OHARA / HOYA / CDGM / HIKARI 玻璃牌号，也可直接输出带多重结构与对焦位置解的 Zemax .zmx。凡是用户提到\"专利数据整理\"\"提取专利镜片数据\"\"专利转 excel / 转 zmx\"\"查玻璃/牌号/nd vd 对应\"\"实施例数据\"\"面数据/レンズデータ/透镜表面\"，或者丢过来一个带镜头设计表的专利 PDF 并想要表格化结果时，都要用这个 skill。即使用户只说\"整理一下这个专利\"也应当触发。此外，用户手上已有的 CODE V 序列文件（.seq）要转成 Zemax .zmx、或反过来要 .seq 时，也用这个 skill（seq2zmx.py / make_seq.py）。"
+description: "把光学镜头专利 PDF（日本特开 JP-A、中国 CN-A、美国 US、WO 等）里的透镜面数据表提取成 Excel 并反查 OHARA / HOYA / CDGM / HIKARI 玻璃牌号，也可直接输出带多重结构与对焦位置解的 Zemax .zmx（定焦 INF/0.02x/0.06x/MFD 四结构；变焦 W/M/T 各 ∞ + 0.06x 六结构；自带评价函数与对焦变量）和 CODE V .seq。凡是用户提到\"专利数据整理\"\"提取专利镜片数据\"\"专利转 excel / 转 zmx\"\"查玻璃/牌号/nd vd 对应\"\"实施例数据\"\"面数据/レンズデータ/透镜表面\"，或者丢过来一个带镜头设计表的专利 PDF 并想要表格化结果时，都要用这个 skill。即使用户只说\"整理一下这个专利\"也应当触发。此外，用户手上已有的 CODE V 序列文件（.seq）要转成 Zemax .zmx、或反过来要 .seq 时，也用这个 skill（seq2zmx.py / make_seq.py）。"
 ---
 
 # 光学专利 PDF → 镜片数据 Excel（+ Zemax .zmx）
@@ -157,7 +157,7 @@ export PATENT_GLASS_DIR=/tmp/gc
      全图 PDF 时改用「联系表」定位，见 §2
 5  按上一步输出的 convert 命令裁出 1~2 张表格图
 6~7 Read t1.png / t2.png                                   # 录入数值
-8  写 spec.json（Write 工具，含 zmx.gcat；双浮动对焦时含 zmx.focus2；
+8  写 spec.json（Write 工具，含 zmx.gcat；双浮动对焦时含 zmx.focus2；**变焦镜头写 zmx.zoom、不写 focus**（见「变焦镜头」）；
      专利印了近距各态 F 数时含 zmx.fno_patent = {结构名: F}）
 9  lensmath.py --vendors <厂家序> --alt-only CDGM --write \
      && covercheck.py --write                              # 串同一个 bash
@@ -330,8 +330,22 @@ python3 scripts/build_workbook.py spec.final.json -o "XXX_专利数据整理.xls
   && python3 scripts/make_zmx.py spec.final.json -o XXX_Ex01
 ```
 
-`make_zmx.py` 同时出**目录玻璃版**和**模型玻璃版**，生成后自动反解析自校验，
+`make_zmx.py` 默认**只出目录玻璃版** `<o>_catalog.zmx`（模型玻璃版要的时候加 `--modelglass`），
+自带**配套评价函数 + 对焦间隔变量**（见「配套评价函数」一节），生成后自动反解析自校验，
 EFL 对不上专利 f 就不要交付。
+
+### 交付约定（用户 2026-09 定的，下次不用再问）
+
+| 镜头 | 多重结构（顺序即 MCE 结构号） | 交付文件 |
+|---|---|---|
+| **定焦** | **INF / 0.02x / 0.06x / MFD**（4 个） | `E:\Download\<专利号>_Ex<nn>_<镜头>_catalog.zmx` + `.seq` |
+| **变焦** | **W∞ / M∞ / T∞ / W 0.06x / M 0.06x / T 0.06x**（6 个；W/M/T = 专利可变间隔表的広角端/中間/望遠端） | 同上 |
+
+- **只出一个 catalog `.zmx` + 一个 `.seq`**。模型玻璃版、Excel 用户点名要才出。
+- 两个文件都要**打开就能优化**：`.zmx` 带评价函数且对焦间隔逐结构设为变量；`.seq` 对焦间隔 `ZOO THC 0`。
+- 定焦的 MFD：专利印了最短撮影距離态就用它（`lensmath` 自动收进 configs）；没印就在 spec 写
+  `zmx.mfd`（产品标称，像面起算 mm）。`lensmath` 结尾会打印结构清单，缺 MFD 会打 ★。
+- 变焦的 0.06x 由 `zmx.zoom.betas` 控制（默认 `[0.06]`）；专利近距态本身不进结构（`zoom.include_near: true` 才进）。
 
 **交付前八道卡，一道都不能省：**
 ① `vignet.py` 的逐面余量报告里**没有「★ 光束超出口径」**，且**每个结构每个视场都是 `OK`**
@@ -380,6 +394,87 @@ MCE 里 `THIC 0/10/16` 各 4 个结构。`key_after` 两个面**不进 MCE**，�
 
 **自检**：两组的守恒和要**分别**验；解出的 β 与专利印的（四舍五入后）一致。
 
+## 变焦镜头 —— W/M/T 各 ∞ + 0.06x，六个结构
+
+实测回归基准：**WO2024214585A1 実施例2 = NIKKOR Z 24-70mm f/2.8 S II**（内变焦：G1 固定、G2~G7 移动；
+对焦 = G5、G6 各自前伸，D18+D21+D23 在每个变焦位置内守恒但三个位置各不相同 30.483 / 34.060 / 32.862）。
+spec：`E:\Download\patent_specs\spec_WO2024214585A1_Ex02_NikonZ2470f28SII.final.json`。
+
+### spec 写法
+
+专利的「可変間隔データ」一般是「無限遠 W/M/T + 近距離 W/M/T」六列 —— **原样录成 6 个 state，所有可变间隔都录**
+（变焦间隔、对焦间隔、BF 一个不落）：
+
+```json
+"states": ["W-INF","M-INF","T-INF","W-MFD","M-MFD","T-MFD"],
+"variable": {"D5": {"W-INF": 42.598, …}, "D8": …, "D13": …, "D18": …, "D21": …, "D23": …, "D25": …},
+"zmx": {"fno": 2.91, "max_y": 21.70, "gcat": {…},
+  "zoom": {"positions": [
+             {"name":"W","label":"Wide","inf":"W-INF","near":["W-MFD"],"f":24.70,"fno":2.91},
+             {"name":"M","label":"Mid", "inf":"M-INF","near":["M-MFD"],"fno":2.91},
+             {"name":"T","label":"Tele","inf":"T-INF","near":["T-MFD"],"f":67.87,"fno":2.91}],
+           "betas": [0.06], "near_d0_printed": 165.0}}
+```
+
+- **不要写 `zmx.focus` / `focus2`**：变焦分支不用它们（每个位置的守恒和不同，位置解 TOLE 的长度进不了 MCE）。
+  专利没印某位置的近距态时，才用 `zmx.focus`（单组 key_before + key_after）让脚本平移那一组，结果全标 ★外推。
+- `positions[].fno`：每个变焦位置的 ∞ F 数。恒定光圈变焦专利常只印 FnoW/FnoT，中间态照填并在 note 里写明。
+- 结构名自动生成：`Wide 24.7mm INF` / `Wide 24.7mm 0.06x`（焦距取该位置的近轴 EFL）。
+
+### 脚本怎么处理（都已实现）
+
+| 步骤 | 变焦时的行为 |
+|---|---|
+| `lensmath.py` | `zoom_configs()`：逐位置在「∞ 态 → 近距态」的**间隔空间里分段线性**走参数 t（两态时就是定焦分支那条凸轮直线，单组/双浮动/链式通吃），对每个 t 解物距使**近轴像距 = 该结构末面间隔**（扣掉 ∞ 态印刷 BF 的舍入差），再二分出 \|β\|=0.06。**每个结构写全所有可变间隔**。`--betas` 缺省时变焦取 `zoom.betas`（默认 0.06） |
+| `covercheck.py` | 末面 BF 随变焦变化：每个 state **和已生成的每个结构**都减同一个空气换算长（近轴焦点不动） |
+| `aptrace.py` / `layout_check.py` | 用 states[0]（广角 ∞）几何 —— 专利断面图画的就是广角端 ∞ |
+| `vignet.aperture_cfg` | **按变焦位置分组**：每组在自己的 ∞ 结构上按 `positions[].fno` 定光阑，同组的 0.06x 按光阑固定算工作 F 数。恒定光圈变焦的光阑近轴半径随焦距变（本篇 8.37 / 11.00 / 12.22），全变焦共用一个光阑是错的 |
+| `apcap.py` / `clearance.py` | 相邻面干涉按**全行程最小间隔**算（专利各态 + 各结构取 min）：本篇 D5 在 T 端只剩 1.238、D18 在 T 近距只剩 2.164 |
+| `make_zmx.py` | 不写 TOLE；**每个会变的间隔逐结构进 MCE THIC**（所有结构都一样的行省掉）；对焦间隔状态位 = 变量 |
+| `make_seq.py` | 不写 OAL；每个会变的间隔一行 `ZOO THI`；对焦间隔 `ZOO THC 0` |
+
+### 变焦专有的三道硬验证（回话要摆出来）
+
+1. **专利近距态反解物距 = 专利印的近距離**：lensmath 会用专利近距态的间隔反解物距。本篇 W/M/T 解出
+   **165.06 / 165.02 / 164.99**，专利印「近距離(165mm)」—— 数据、对焦群、像面条件三件事一起对上。
+2. **各变焦位置的近轴 EFL** 对专利 fW/fT（本篇 24.6996 / 67.8790 vs 24.70 / 67.87；中间态 49.9992 = 50mm）。
+3. **vignet 解出的最大视场实际半角 = 专利 2ω/2**（本篇 W 42.75° vs 85.5/2、T 17.01° vs 34.0/2）。
+   OpticStudio `-CheckOnly` 里 `TOTR` 同一变焦位置的 ∞ 与 0.06x 相等（本篇 155.006 / 155.006 / 155.014 —— T 端差 8µm 是专利间隔三位小数的舍入）。
+
+哪个実施例是实物：变焦专利的実施例往往 f/F 数/全长全都一样，**只能靠枚数/群数/非球面位置/末片形状**对官方结构图。
+本篇 6 个実施例全是 24.70-67.8x F2.91；官方「14枚10群、非球面3枚」→ 只剩 Ex2/Ex5；
+官方图末片是**非球面负弯月**、G3 的 ED 胶合件前还有一片单独正透镜 → Ex2（Ex5 末片是球面正透镜）。
+尼康官网结构图：`https://imaging.nikon.com/imaging/lineup/lens/z-mount/<型号>/img/lensconstruction.jpg`。
+
+## 配套评价函数与对焦变量 —— 打开就能直接优化（定焦 / 变焦通用）
+
+用户 2026-09 原话：「我希望 skill 转换完也有配套的评价函数，方便我打开直接优化。对焦厚度间隙给变量就行，用户自己去优化。」
+样板是他在 OpticStudio 里手工做的 `E:\Download\WO2024214585A1_Ex02_NikonZ24-70mmF28SII_catalog_OPT.zmx`，
+`make_zmx.py` 默认就生成同一套（`--no-merit` 关掉，`--mf-freq` 改频率）：
+
+- **评价函数** = 优化向导 **Contrast，s+t，80 lp/mm，Gaussian Quadrature 3 环 6 臂，无空气/玻璃约束**，**逐结构一份**。
+  脚本输出与样板 2931 行逐行一致（数值差 ≤2e-16），OpticStudio 读出 1440 MECS + 1440 MECT + 43 BLNK + 7 CONF + 1 DMFS。
+- **变量** = 对焦间隔的 MCE THIC 行，**所有结构都开**（∞ 结构也开 = 无穷远重新对焦）：
+  - 定焦：`focus` / `focus2` 的 key_before（key_after / key_last 由位置解 TOLE 跟随，守恒和自动保持）；
+  - 变焦：同一变焦位置内会变的间隔，按面序**去掉最后一个**（样板：D18、D21 变量，D23 不动）；
+  - `zmx.focus_vars = ["D18","D21"]` 可显式覆盖。
+  - ⚠ 变焦时补偿段（D23）不是变量也没有解，重新对焦会让 G6 之后连同像面整体挪几十 µm（样板实测 W 端约 −52µm）。
+    用户的样板就是这么设的，照做；要严格保持像面，自己把 D23 也设变量并加 `TTHI 18 23` 约束。
+- `.seq` 侧：对焦间隔 `ZOO THC S<n> 0 …`（0 = 变量，100 = 冻结），`--no-vars` 关掉。CODE V 的 AUT 评价函数不写（本机 CODE V 无许可、没法验）。
+
+**.zmx 格式要点（实证自样板）**：
+- 评价函数段放在最后一个 `SURF`（像面）之后、`TOL TOFF` 之前。行格式
+  `MECS 0 <波长> <视场> <freq> <Px> <Py> 0 <权重> 0 0`，块结构
+  `CONF 1` / `DMFS` / `BLNK contrast s+t … GQ 3 rings 6 arms` / 每个结构 `CONF n` + `BLNK No air or glass constraints.` + 每个视场 `BLNK Operands for field i.` + 操作数。
+- 权重 = 环权重（GQ：3 环 5/18、8/18、5/18，ρ = √((1+x)/2)）× 波长权重/最大波长权重 × 视场权重/最大视场权重 × 臂角权重；
+  只有 Y 视场时只追半个光瞳：离轴 3 条臂 θ = 60°/0°/−60°、每臂 π/3；**轴上视场只追 θ=0 一条臂、权重 π**。
+- MCE `THIC <面> <结构> <值> <状态> …`：**值后第一个字段 = 状态，0 固定 / 1 变量**。
+- **`.zmx` 里的 `CONF` 行是评价函数操作数**，不是「当前结构」标记 —— 旧版在 MCE 之后写的那行 `CONF 1`
+  会变成评价函数末尾多出来的一个 CONF（OpticStudio 读出 2932 个操作数），已删。
+
+**验证（本篇，OpticStudio 2024 R2 ZOS-API）**：生成的文件直接 DLS 自动循环，评价函数 0.5435 → 0.4203，
+D18/D21 收敛到与用户手工优化结果差 ≤1µm（W∞ D18 11.9057 vs 11.9063，T 0.06x D21 16.1621 vs 16.1625）。
+
 ## 传感器盖板 —— 先看专利有没有，**没有就是没有，不要自己补**
 
 用户 2026-09 的原话：「**不一定有 cover glass。专利没有应该就是没有**」。
@@ -401,6 +496,12 @@ WO2019187633 面25-26 = 2.50mm nd1.51680/νd64.20 + 1.00mm 空气 —— 后者�
 还能顺便当「这一列是 d 线」的旁证。
 判断要看**倒数第一面和倒数第二面**都是平面 —— 别去看倒数第三面，
 那是盖板前面那片透镜、本来就不该是平面。
+
+**尼康 Z 卡口的正面证据**：尼康自家 US11768360B2（Z 24mm f/1.8 S）面数据表里**印了**盖板
+1.60mm（nd 1.51680）+ 空气 0.97mm（按像高=1 归一化 ×21.63 后）。所以尼康 Z 专利不带盖板时按这个补：
+`covercheck.py --force-add --t 1.6 --air 0.97`，玻璃取 HIKARI J-BK7A。
+实测 WO2024214585A1 Ex2（Z 24-70/2.8 S II）补上后轴上 TA-RMS 还改善 25%（0.00273 → 0.00204）。
+（WO2021117429A1 Z20 当时按通用 2.5mm 补的，那是这条证据找到之前的做法。）
 
 不自带、且有正面证据非补不可时（`--force-add`）：
 保持空气换算长不变（`d_last' = d_last − t/n − air`），近轴焦点不动，ΣD 增加 `t − t/n`。
@@ -1335,10 +1436,10 @@ LTTL   0   1 "INF" 0 0 0 1 1 1 0 0
 THIC   0   1 1.00E+10 0 0 0 1 1 1 0 0     ← 物距，无限远写 1e10
 …
 THIC  10   1 3.00 0 0 0 1 1 1 0 0         ← 第1对焦群前那个可变间隔
-THIC  16   1 12.6914 0 0 0 1 1 1 0 0      ← 第2对焦群前那个（双浮动时才有）
+THIC  16   1 12.6914 1 0 0 1 1 1 0 0      ← 第2对焦群前那个（双浮动时才有）；值后第一个字段 1 = 变量
 …
-CONF 1
 ```
+（旧版在 MCE 最后写一行 `CONF 1` —— 错的：`.zmx` 里 `CONF` 是**评价函数操作数**，见「配套评价函数」一节。）
 
 渐晕操作数跟在 THIC 后面（见「逐结构渐晕」）：
 
@@ -1349,7 +1450,8 @@ FVCX   1   1 0.0271 0 0 0 1 1 1 0 0
 FVDY   1   1 0.1263 0 0 0 1 1 1 0 0
 ```
 
-定焦默认四个结构 **INF / 0.02x / 0.06x / MFD**。
+定焦默认四个结构 **INF / 0.02x / 0.06x / MFD**；变焦六个 **W∞ / M∞ / T∞ / W 0.06x / M 0.06x / T 0.06x**
+（变焦时每个会变的间隔都进 MCE、不写 TOLE，见「变焦镜头」一节）。
 **只有对焦组前面那几个间隔进 MCE**：spec 里若还有别的「可变量」（常见的是末面 BF 那一列，
 各状态其实恒定），不能当成 key_after 用 `sum − key_before` 去算 ——
 那会把 BF 写成对焦间隔的值。`make_zmx.py` 已按基准状态取值处理。
@@ -1420,6 +1522,19 @@ FVDY   1   1 0.1263 0 0 0 1 1 1 0 0
 | `make_zmx.py` | 孔径自校验的近轴追迹漏了衍射面 `2·C2·y` 项，DOE 镜头（RF600/800 F11）报假的「光阑半径不一致 21%」 | 抽成 `cfg_paraxial()`，与 EFL 自校验同一套（含 BINARY_2） |
 | `seq2zmx.py` | 只有头部 `FNO` 没有 `ZOO FNO` 时不铺 APER，近距结构没法做 sin/tan 换算；头部是 `EPD` 的 .seq 直接 KeyError | 没有 ZOO FNO 也逐结构铺；`EPD`/`ZOO EPD` → `ENPD` + APER |
 | **`lensmath.py`** | **给 2023 年的佳能镜头配了含铅玻璃**（OHARA PBM2Y / PBH21 / BPH5）。只看 AGF 的 Obsolete 位挡不住 —— `-Y` 后缀的含铅款仍标 Preferred | `load()` 读 NM 行 status 位；`CURRENT` 加 `'OHARA': ^(S-|L-)`；`best(eco=True)` 把 `status==2` 或 `_gen!=0` 的牌号**完全排除**，空池自动回退并告警；老专利用 `--allow-legacy` |
+| **`make_zmx.py` / `seq2zmx.py`** | MCE 最后写一行 `CONF 1` 当「当前结构」—— 但 `.zmx` 里 `CONF` 是**评价函数操作数**，有评价函数时读出来多一个 CONF（2931 → 2932），没有时凭空生成一个只含 CONF 的评价函数 | 删掉那一行（OpticStudio 自己存的文件只在评价函数段里有 CONF） |
+| **`make_zmx.py`** | 只会出 ∞/对焦结构：`zx['focus']` 硬取键，变焦 spec（没有 focus）直接 KeyError；位置解 TOLE 的长度又进不了 MCE，变焦各位置守恒和不同时写不出来 | 变焦分支：不写 TOLE，每个会变的间隔逐结构进 MCE THIC；focus 改 `.get` |
+| `vignet.py` | `cfg_dmap` 在 focus 有 `key_last` 却没 `sum` 时 `float(fc['sum'])` KeyError（`setdefault` 的参数会先求值） | 先判 `'sum' in fc` |
+| `vignet.py` | 孔径模型只按**一个** ∞ 结构定光阑 —— 变焦镜头 W/M/T 光阑近轴半径各不相同（8.37/11.00/12.22），共用一个会把 M/T 的 F 数算错 | `aperture_cfg` 按结构的 `zoom` 键分组，每组按 `positions[].fno` 各定光阑 |
+| `covercheck.py` | 末面 BF 是随状态变化的变量时直接「请手工改 variable 表」退出 —— 变焦镜头的 BF 就是变的 | 每个状态、以及 lensmath 已写好的每个结构都减同一个空气换算长 |
+| `apcap.py` / `clearance.py` | 相邻面干涉只按基准态（广角 ∞）的间隔查，变焦到望远端 / 对焦到近距时间隔小得多（D5 42.6 → 1.24） | 可变间隔取专利各态与各结构的最小值 |
+| `make_seq.py` | `_si()` 面号计数器是模块级状态，只对部分面调用时非整数面号（STO/CG1）会编错 | 每个面都过一遍并在循环前清零 |
+| **`covercheck.py`** | 末面间隔是**由守恒和算出来的**（链式 key_last / key_after）时只减了 variable 表、没减 `focus.sum` —— 下游 cfg_dmap / make_zmx 用 sum 把旧 BF 算回来，**所有结构离焦 −1.99mm** 且自校验看不出（对抗审查复现，Z24 变体） | 同时减 `focus.sum`（链式连 focus2.sum）；写完用 `cfg_dmap` 逐结构重建末面间隔，核对「正好减了 eq」再写 ✓ |
+| **`covercheck.py`** | 「BF 各状态恒定」只看 variable 表：整組繰り出し且专利只印 ∞（US20210263286A1 的 D12）被当成恒定 BF 落成定值、从结构里删掉 → make_zmx KeyError；旧版不崩但 MCE 里的 D12 没减、离焦 2.65mm | 恒定性连结构值一起判，**对焦间隔永远不算恒定**；走变量分支逐状态逐结构减 |
+| **`make_seq.py`** | 链式三段（key_last）不写 OAL（1102c1d 重构时丢的）；对焦间隔设成变量后 CODE V 里优化，守恒和不保持、全长漂移 | key_last 也写 `THI S<va> OAL S<vb>..<va+1>`（Z24：`S22 OAL S14..23 45.6393` = zmx 的 TOLE 14） |
+| `make_seq.py` | `--no-oal` 时第二对焦群的 key_after 不进 ZOO THI（RF100 的 D29 一直是 ∞ 值，近距结构全长 162→188） | 补上 focus2 key_after 行 |
+| `apcap.py` / `clearance.py` | 「全行程最小间隔」只读结构里存着的键，key_after / key_last（由 sum 算）漏掉 —— RF800 D16 真最小 11.43 却按 32.21 查 | 结构值走 `vignet.cfg_dmap` 补齐 |
+| `lensmath.py` | 变焦 `include_near` 且一个位置有多个近距态时，全部叫「… MFD」重名（fno_patent / wfno_override 按名字查会串）；`near_d0_printed` 印到每个近距态上；t 步进累加浮点把正好 0.10 的间隔判出界 | 只有最后一个近距态叫 MFD、其余用专利状态名；整数步进 + 二分到 0.10 |
 
 ## 出口三（反向）：CODE V `.seq` → Zemax `.zmx`（`seq2zmx.py`）
 
@@ -1469,16 +1584,16 @@ python3 scripts/seq2zmx.py A2628.seq -o A2628.zmx \
 |---|---|
 | `find_tables.py` | 横线密度给页打分；**`--locate "TABLE 1"` 一条命令从标题算到裁图参数**（含分栏、内容带、过高自动切段） |
 | `crop_sheet.py` | 把多页多条带拼成宽1500/高≤2000的图 |
-| `lensmath.py` | d/e 线判定 + 玻璃匹配（**厂家优先硬约束** / **同厂家内现行牌号优先** / `--alt-only` / `--match-tol` / **Offset 解基准与偏移** / dPgF，色散公式 1·2·6·10·11·12·13 + 加载自校验）+ ΣD/EFL 校验 + 对焦位置解（**支持双浮动对焦群与链式三段**，按机械行程扫描，`--mfd` 按产品标称 MFD 反解一态） |
-| `covercheck.py` | 盖板判定与补回；`--force-add` 强制补（日系可换镜默认走这条） |
+| `lensmath.py` | d/e 线判定 + 玻璃匹配（**厂家优先硬约束** / **同厂家内现行牌号优先** / `--alt-only` / `--match-tol` / **Offset 解基准与偏移** / dPgF，色散公式 1·2·6·10·11·12·13 + 加载自校验）+ ΣD/EFL 校验 + 对焦位置解（**支持双浮动对焦群与链式三段**，按机械行程扫描，`--mfd` / `zmx.mfd` 按产品标称 MFD 反解一态）；**变焦 `zoom_configs()`：W/M/T 各 ∞ + 各 \|β\| 结构，写全所有可变间隔** |
+| `covercheck.py` | 盖板判定与补回；`--force-add` 强制补（有正面证据时）；**末面 BF 随变焦变化时每个状态与结构各减空气换算长** |
 | **`aptrace.py`** | **断面图：逐面沿各自面型曲线扫墨迹 → 每个面自己的净口径（首选）**；`--clip` 分区截底边、`--thr` 灰度阈值、`--dpi 600` 必须 |
 | `figmeas.py` | 断面图逐**元件**量口径（顶点最小二乘标定 + 连通域）；小幅图上会串位，留作对照 |
-| **`apcap.py`** | **固定口径的相邻面干涉体检与收口**（空气边缘间隙 / 玻璃边缘厚度，含非球面 sag）＋**按实际光束收紧 `--trim`**＋重建 `fix_semi_surfaces`；口径全固定时**必跑**，且要排在 vignet 之后 |
+| **`apcap.py`** | **固定口径的相邻面干涉体检与收口**（空气边缘间隙 / 玻璃边缘厚度，含非球面 sag）＋**按实际光束收紧 `--trim`**＋重建 `fix_semi_surfaces`；口径全固定时**必跑**，且要排在 vignet 之后；**可变间隔按全行程最小值查干涉** |
 | **`vignet.py`** | **孔径模型 `aperture_cfg()`：逐结构近轴工作 F 数（专利近距 F 数优先 / 物理光阑固定）→ `zmx.aperture`**；`cfg_dmap()` 补齐 key_after/key_last；**轴上满光瞳需求体检（写 `zmx.axial_3d`）**；**逐结构**（含有限共轭）3D 斜光线追迹 → VDY/VCY/**VCX** → `vignetting_cfg`；渐晕定义面（整片扩展）+ 逐面余量报告（取全结构最大光束）+ 实际半角（验 ω）+ 写 `semi_3d`；`--margin` / `--first-only` / `--fit-ellipse` |
 | `clearance.py` | 边缘厚度/间隙/薄厚比体检；`--compare-aim`；`--solve` 反解渐晕；优先采用 `semi_3d` |
 | `layout_check.py` | 叠加图（交付第三道卡）；`--pxmm`/`--x0` 手动标定；`--grid N` 毫米刻度线 |
-| `make_zmx.py` | spec → 目录版/模型玻璃版 .zmx，含全部约定与自校验（**Offset 解的偏移会加回去再算 EFL**；自校验会报每个非球面的面型与 XDAT 行数）；**`glass_offset` → `GLAS <基准> 4 …`**；**有 A18/A20 的面自动写成 Extended Asphere `XASPHERE`+XDAT**（`--asph-type auto\|extended\|even`）；**孔径 `FNUM <v> 1` + 逐结构 APER**（自校验反推各结构光阑半径）；MCE 铺 THIC + **APER/FVCY/FVCX/FVDY** |
-| **`make_seq.py`** | **spec → CODE V 序列文件 `.seq`**（另一条出口，省掉 Zemax→CODE V 的往返）；波长/视场（**倒序**）/渐晕（**要换算**）/口径/非球面（**A..J 到 r²⁰，精确**）/位置解/多重结构全套对应；`--glass catalog\|exact`、`--no-oal` |
+| `make_zmx.py` | spec → **目录版 .zmx（默认只出这一个，`--modelglass` 另出模型玻璃版）**，**自带配套评价函数（Contrast s+t 80lp/mm GQ3×6 逐结构）+ 对焦间隔 MCE 变量**（`--no-merit` / `--mf-freq`）；**变焦时每个可变间隔逐结构进 MCE**；含全部约定与自校验（**Offset 解的偏移会加回去再算 EFL**；自校验会报每个非球面的面型与 XDAT 行数）；**`glass_offset` → `GLAS <基准> 4 …`**；**有 A18/A20 的面自动写成 Extended Asphere `XASPHERE`+XDAT**（`--asph-type auto\|extended\|even`）；**孔径 `FNUM <v> 1` + 逐结构 APER**（自校验反推各结构光阑半径）；MCE 铺 THIC + **APER/FVCY/FVCX/FVDY** |
+| **`make_seq.py`** | **spec → CODE V 序列文件 `.seq`**（另一条出口，省掉 Zemax→CODE V 的往返）；波长/视场（**倒序**）/渐晕（**要换算**）/口径/非球面（**A..J 到 r²⁰，精确**）/位置解/多重结构全套对应；**对焦间隔 `ZOO THC 0`（变量，`--no-vars` 关）**；变焦时每个可变间隔一行 `ZOO THI`、不写 OAL；`--glass catalog\|exact`、`--no-oal` |
 | **`seq2zmx.py`** | **反方向：CODE V `.seq` → Zemax `.zmx`**（用户自己在 CODE V 里做的设计要拿进 Zemax 时用；不经过 spec.json）；玻璃名反查目录牌号、渐晕反算、CIR→DIAM+CLAP、多重结构；`--reverse-fields` / `--raim` / `--gcat` |
 | **`zapi_vigfit.ps1`** | **本机 OpticStudio（ZOS-API 无界面）当判官**：报孔径类型、逐结构 PWFN/WFNO/EPD/PMAG/TOTR；每个结构先 OpticStudio 自己的 Set Vignetting（`-NoSetVig` 关掉），再按 4 位小数向内取整、逐视场追 Py/Px=±1 收到全过，`-Out` 写 JSON；`-CheckOnly` 只验不改；每进一个结构先按快照复位（没有 MCE 行的视场是全局量，否则会漏到后面的结构） |
 | **`vigfit_merge.py`** | 把 `zapi_vigfit.ps1` 的 JSON 写回 `zmx.vignetting_cfg`（打印逐项变化），然后重出 zmx/seq |
@@ -1544,8 +1659,8 @@ CODE V 导出时写 `TITLE '"INF"'` / `TIT Z1 ""INF""`（双层引号），但�
 用户（CODE V 侧）的习惯是**用评价函数优化**出对焦组位置，不依赖软件的 solve。
 所以 `make_seq.py` 的任务只是把文件铺好、让他直接开优化，不必去复刻 Zemax 那套位置解语义：
 
-- 各可变间隔在 `ZOO THI S<n>` 里逐结构给出起始值，且 `ZOO THC S<n> 100 …`（逐结构独立），
-  直接就能设成优化变量；
+- 各可变间隔在 `ZOO THI S<n>` 里逐结构给出起始值；**对焦间隔默认 `ZOO THC S<n> 0 …`（变量）**，
+  其余 `100 …`（冻结、逐结构独立）—— 与 .zmx 的 MCE 变量是同一组（`make_zmx.focus_vars`），`--no-vars` 全冻结；
 - 默认仍写一行 `THI S<va> OAL S<vb>..<va+1> <len>`：它编码的是「前群 A + 光阑与像面都固定 ⇒
   三段间隔之和恒定」这条**物理约束**，留着省事，也不妨碍把 d18/d22 设成变量；
 - ⚠ **带 OAL 解的那一面绝不能再写 `ZOO THI S<va>`。** `.seq` 是按顺序执行的命令流，

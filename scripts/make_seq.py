@@ -130,13 +130,22 @@ def build(spec, emb, title, gmode):
     d0 = cfgs[0]['d0']
     a('SO    0.0 %s' % ('0.1e11' if str(d0).upper().startswith('INF') else num(d0)))
 
-    fc, fc2 = zx.get('focus'), zx.get('focus2')
+    # 变焦镜头：结构里写全了所有可变间隔，逐个进 ZOO THI；不写 OAL 解（各变焦位置守恒和不同）
+    zoom = bool(zx.get('zoom'))
+    fc, fc2 = (None, None) if zoom else (zx.get('focus'), zx.get('focus2'))
     kb = fc and fc['key_before']; kb2 = fc2 and fc2['key_before']
     warn = []
+    varsurf = {}
+    _si_last[0] = 0
     for s in surfs:
+        sidx = _si(s)                      # 每个面都要过一遍，非整数面号（STO/CG1）才编得对
         R = 0.0 if s['R'] in (None, 0, 'inf') else float(s['R'])
         D = s['D']
         if isinstance(D, str):
+            varsurf[D] = sidx
+        if isinstance(D, str) and zoom:
+            D = float(cfgs[0][D]) if D in cfgs[0] else float(emb['variable'][D][st])
+        elif isinstance(D, str):
             D = (cfgs[0].get(D) if D in (kb, kb2) else None) or float(emb['variable'][D][st])
         g = ''
         if s.get('nd'):
@@ -192,12 +201,18 @@ def build(spec, emb, title, gmode):
                 a('  ' + '; '.join('%s %s' % (CVLET[i], num(co[i])) for i in grp)
                   .replace('A ', 'A   ', 1).replace('E ', 'E   ', 1).replace('J ', 'J   ', 1))
     a('SI    0.0 0.0')
-    noaal = gmode.endswith('|no-oal')
+    noaal = '|no-oal' in gmode
+    # 对焦间隔逐结构设成变量（ZOO THC 0），与 .zmx 那边 MCE THIC 的 Variable 同一组（make_zmx.focus_vars）。
+    from make_zmx import focus_vars
+    fvs = set() if '|no-vars' in gmode else {varsurf[k] for k in focus_vars(spec, emb) if k in varsurf}
     solved = []
     # 双浮动对焦群要写**两条** OAL 解。只写第一条时，第二组的 key_after（如 d22）
     # 既没有解也不进 ZOO THI，四个结构里会被一直钉在 ∞ 态的值上 —— 像面跟着跑掉。
+    # 链式三段（key_last，如 US11768360B2 的 D14/D20/D22）也要写 OAL：对焦间隔设成变量以后，
+    # 没有这条解 CODE V 优化时守恒和不保持、全长漂移（.zmx 那边是 TOLE 14 在面22，同一条约束）。
     for f in (fc, fc2):
-        if not f or noaal or f.get('key_last') or not f.get('key_after'): continue
+        if (not f or noaal or 'var_after' not in f or 'sum' not in f
+                or not (f.get('key_after') or f.get('key_last'))): continue
         va, vb = int(f['var_after']), int(f['var_before'])
         solved.append(va)
         tot = f['sum'] + sum(float(x['D']) for x in surfs
@@ -224,6 +239,11 @@ def build(spec, emb, title, gmode):
         # 但那份导出并不是一份合法的输入 —— 别照抄。
         # 这条规则与 zmx 侧同源：用了位置解，MCE 里就不要再写该面的 THIC 行。
         rows = [(0, [c['d0'] for c in cfgs])]
+        if zoom:
+            for key, sn in sorted(varsurf.items(), key=lambda t: t[1]):
+                vals = [float(c[key]) if key in c else float(emb['variable'][key][st]) for c in cfgs]
+                if not all(abs(v - vals[0]) < 1e-9 for v in vals):
+                    rows.append((sn, vals))
         if kb and fc: rows.append((int(fc['var_before']), [c[kb] for c in cfgs]))
         if fc and fc.get('key_last') and not solved:
             # 链式三段浮动：位置解那一面的厚度 = 守恒和 − 前两个可变间隔
@@ -233,11 +253,14 @@ def build(spec, emb, title, gmode):
             rows.append((int(fc['var_after']),
                          [round(fc['sum'] - c[kb], 6) for c in cfgs]))
         if kb2 and fc2: rows.append((int(fc2['var_before']), [c[kb2] for c in cfgs]))
+        if fc2 and fc2.get('key_after') and fc2.get('var_after') and int(fc2['var_after']) not in solved:
+            # --no-oal 时第二对焦群的 key_after 也要逐结构给值（旧版漏了：RF100 的 D29 一直停在 ∞ 值）
+            rows.append((int(fc2['var_after']), [round(fc2['sum'] - c[kb2], 6) for c in cfgs]))
         rows = [r for r in rows if r[0] not in solved]
         for sn, vals in rows:
             v = ['0.1e11' if str(x).upper().startswith('INF') else num(x) for x in vals]
             L.extend(wrap('ZOO   THI S%d' % sn, v))
-            a('ZOO THC S%d %s' % (sn, ' '.join('100' for _ in vals)))
+            a('ZOO THC S%d %s' % (sn, ' '.join(('0' if sn in fvs else '100') for _ in vals)))
     a('GO')
     return L, warn
 
@@ -254,6 +277,8 @@ def main():
     ap.add_argument('spec'); ap.add_argument('-o', required=True)
     ap.add_argument('--emb', type=int, default=0)
     ap.add_argument('--glass', choices=('catalog', 'exact'), default='catalog')
+    ap.add_argument('--no-vars', action='store_true',
+                    help='对焦间隔不设变量（默认 ZOO THC 0 = 变量，打开就能优化对焦位置）')
     ap.add_argument('--no-oal', action='store_true',
                     help='不写 THI S<va> OAL 位置解。CODE V 里对焦组位置一般是用**评价函数优化**出来的，'
                          '位置解会占掉一个自由度；想让三个间隔都自由参与优化时用这个开关。'
@@ -263,7 +288,8 @@ def main():
     a = ap.parse_args()
     spec = json.load(open(a.spec, encoding='utf-8')); emb = spec['embodiments'][a.emb]
     title = a.title or (spec['zmx'].get('configs') or [{'name': 'LENS'}])[0]['name']
-    L, warn = build(spec, emb, title, a.glass + ('|no-oal' if a.no_oal else ''))
+    L, warn = build(spec, emb, title, a.glass + ('|no-oal' if a.no_oal else '')
+                    + ('|no-vars' if a.no_vars else ''))
     open(a.o, 'wb').write(('\n'.join(L) + '\n').encode('latin-1'))
     print('已写出 %s（%d 行）' % (a.o, len(L)))
     if warn:

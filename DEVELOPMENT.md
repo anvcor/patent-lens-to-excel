@@ -102,6 +102,11 @@ seq2zmx.py                  反方向 .seq → .zmx（也用来回转验证 make
 5. **CODE V 视场顺序与 Zemax 相反**（轴上在前），`YRI` / 渐晕 / `ZOO … F<i>` 一起倒；带 OAL 解的面不写 `ZOO THI`。
 6. **玻璃**：厂家优先是硬约束；佳能 OHARA 第一；OHARA 只用 `S-`/`L-`；牌号必须在用户 Glasscat 里存在。
 7. 生成器读口径用的是 `surfaces[].extra['有効径 φi']`；`zmx.semi_diameters` 只给 clearance / layout_check 用。
+8. **交付约定**：定焦 INF/0.02x/0.06x/MFD 四结构、变焦 W∞/M∞/T∞/W0.06x/M0.06x/T0.06x 六结构；默认只出 `_catalog.zmx` + `.seq`。
+9. **配套评价函数**（`make_zmx.merit_contrast`）必须与用户样板 `E:\Download\WO2024214585A1_Ex02_NikonZ24-70mmF28SII_catalog_OPT.zmx`
+   的评价函数段逐行一致；对焦变量走 `make_zmx.focus_vars()`，.zmx（THIC 状态位 1）与 .seq（`ZOO THC 0`）必须同一组。
+10. **`.zmx` 里 `CONF` 行是评价函数操作数**，MCE 之后不许再写 `CONF 1`。
+11. **变焦**：结构里写全所有可变间隔，生成器不写 TOLE/OAL；`aperture_cfg` 按 `zoom` 分组；apcap/clearance 的干涉按全行程最小间隔。
 
 ## 7. 回归与验证
 
@@ -125,6 +130,7 @@ for f in scripts/*.py tools/*.py; do python -c "import ast,io,sys;ast.parse(io.o
    | `spec_JP2022-85382A_Ex03_CanonRF16.json` | 超广角 53°、光瞳像差极大 |
    | `spec_JP2023-140823A_Ex06.final.json` | 整组繰り出し |
    | `spec_JP2024-169698A_Ex02_CanonRF1200.final.json` | 萤石、只印 ∞ |
+   | `spec_WO2024214585A1_Ex02_NikonZ2470f28SII.final.json` | **变焦**（W/M/T × ∞/0.06x 六结构）、链式两组对焦、BF 随变焦变、按变焦位置分组的光阑、评价函数 + 对焦变量 |
 
    看点：`make_zmx` 自校验 EFL 对得上专利 f、「孔径类型 Paraxial Working F/#」「与孔径模型逐结构一致 ✓」；
    `vignet` 没有 `★Py/Px±1被挡`、轴上体检「全部通过」。
@@ -162,6 +168,13 @@ python tools/build_skill.py                # → E:\Download\patent-lens-to-exce
 - 旁支：`E:\Download\Bokeh_Simulation\bokehsim\parsers.py` 读 `FNUM` 忽略第二个字段（单独任务在处理）。
 
 ## 10. 变更记录
+
+- **2026-09-17（晚）**：**变焦镜头**支持（`lensmath.zoom_configs`、`aperture_cfg` 按变焦位置分组、make_zmx/make_seq 全可变间隔进 MCE/ZOO、
+  covercheck 变量 BF、apcap/clearance 全行程最小间隔）；**配套评价函数 + 对焦变量**（Contrast s+t 80lp/mm GQ3×6 逐结构，
+  与用户样板逐行一致；.seq `ZOO THC 0`）；make_zmx 默认只出 catalog；删掉 MCE 后多余的 `CONF 1`；`zmx.mfd`。
+  首个变焦回归件 WO2024214585A1 Ex2（Nikon Z 24-70/2.8 S II）。
+  对抗审查（8 agent，10 个定焦回归 spec 新旧输出逐字节比对）另修：covercheck 守恒和未减（离焦 2mm）/整组前伸被当恒定 BF、
+  make_seq 链式 OAL 丢失与 --no-oal 漏 focus2 key_after、apcap/clearance 最小间隔漏 key_after/key_last、include_near 重名。
 
 - **2026-09-17**：孔径改 Paraxial Working F/#（`aperture_cfg`，专利近距 F 数优先）；`vignet` 近距几何修正
   （`cfg_dmap`）、光阑参考光瞳坐标；`make_seq` 写逐结构 `ZOO FNO`（sin 定义换算）、`seq2zmx` 对应反算；

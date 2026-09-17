@@ -274,12 +274,179 @@ def solve_obj(g, f, omax=1e9):
     return brentq(g, br[0], br[1])
 
 
+def zoom_configs(emb, zx, betas):
+    """变焦镜头的结构表：每个变焦位置一个 ∞ 结构 + 每个 |β| 一个对焦结构。
+
+    spec 写法（见 references/spec-schema.md「变焦」）：
+        zmx.zoom = {"positions": [{"name":"W","label":"W","inf":"W-INF","near":["W-MFD"],"fno":2.91}, ...],
+                    "betas": [0.06], "include_near": false}
+    emb.states / emb.variable 里每个变焦位置的 ∞ 态与专利近距态各一列（所有可变间隔都要写全）。
+
+    做法：
+    - **结构里写全所有可变间隔**（变焦间隔 + 对焦间隔 + BF），不再只写 key_before ——
+      变焦镜头每个位置的守恒和各不相同（本篇 D18+D21+D23 = 30.483 / 34.060 / 32.862），
+      zmx 的位置解 TOLE 长度又进不了 MCE，所以两条出口都按「每个可变间隔逐结构定值」写。
+    - 对焦路径：专利给了该位置的近距态 → 在「∞ 态 → 近距态₁ → 近距态₂ …」的间隔空间里**分段线性**走 t。
+      两态时这正是 lensmath 定焦分支的凸轮直线（单组 / 双浮动 / 链式三段通吃），中间 0.06x 的分工是插值的。
+      没给近距态、但 zmx.focus 是单组（key_before + key_after）→ 在该位置按 ±x 平移那一组。
+    - 像面条件对任何对焦方式都成立：**近轴像距 = 该结构末面到像面的间隔**（末面间隔是变量时跟着走），
+      再扣掉 ∞ 态「近轴后焦 − 印刷 BF」的舍入差。
+    """
+    var = emb['variable']
+    keys = list(var)
+    zz = zx['zoom']
+    rows = [q for q in emb['surfaces'] if q['i'] != 'IMG']
+    klast = rows[-1]['D'] if isinstance(rows[-1]['D'], str) else None
+
+    def expand(dm):
+        out = []
+        for s in rows:
+            D = s['D']
+            if isinstance(D, str): D = dm[D]
+            out.append({'R': s['R'], 'D': float(D), 'nd': s.get('nd'), 'doe': s.get('doe')})
+        return out
+
+    def dlast(dm):
+        return float(dm[klast]) if klast else float(rows[-1]['D'])
+
+    fcs = zx.get('focus') or {}
+    inf_cfgs, near_cfgs, pat_cfgs = [], {m: [] for m in betas}, []
+    print('\n== 变焦：逐变焦位置 ∞ + 对焦解（%d 个变焦位置 × |β| %s）=='
+          % (len(zz['positions']), ', '.join('%.2fx' % m for m in betas)))
+    for p in zz['positions']:
+        st = p['inf']
+        dm0 = {k: float(var[k][st]) for k in keys}
+        S0 = expand(dm0)
+        f0, bf0, _ = paraxial(S0)
+        off = bf0 - dlast(dm0)
+        label = p.get('label', p['name'])
+        nm0 = '%s %.1fmm' % (label, f0)
+        pf = p.get('f')
+        print('\n  [%s] %s  EFL=%.4f%s  近轴后焦=%.4f（印刷末面间隔 %.4f，舍入差 %+.4f）  ΣD=%.3f'
+              % (p['name'], st, f0, ('（专利 %.2f）' % pf) if pf else '（专利未印）', bf0, dlast(dm0), off,
+                 sum(q['D'] for q in S0)))
+        inf_cfgs.append(dict([('name', nm0 + ' INF'), ('zoom', p['name']), ('d0', 'INFINITY')]
+                             + [(k, dm0[k]) for k in keys] + [('efl', round(f0, 4))]))
+        near = list(p.get('near') or [])
+        path = [dm0] + [{k: float(var[k][q]) for k in keys} for q in near]
+        if len(path) > 1:
+            fk = [k for k in keys if any(abs(d[k] - dm0[k]) > 1e-9 for d in path[1:])]
+            nseg = len(path) - 1
+            def dm_at(t, _path=path, _nseg=nseg):
+                j = min(max(int(math.floor(t)), 0), _nseg - 1)
+                u = t - j
+                return {k: _path[j][k] + (_path[j + 1][k] - _path[j][k]) * u for k in keys}
+            t_doc = float(nseg)
+            print('       对焦间隔 %s：沿专利 %s 分段线性（凸轮是插值的）' % (fk, ' → '.join([st] + near)))
+        elif fcs.get('key_before') and fcs.get('key_after'):
+            if zx.get('focus2'):
+                print('       ★ 变焦分支没有近距态时只支持单组平移兜底，zmx.focus2 已忽略（双浮动没有近距态定不了凸轮）')
+            kb, ka = fcs['key_before'], fcs['key_after']
+            fk = [kb, ka]
+            def _mk(sg, _kb=kb, _ka=ka, _dm0=dm0):
+                def f_(t):
+                    d = dict(_dm0); d[_kb] = _dm0[_kb] + sg * t; d[_ka] = _dm0[_ka] - sg * t
+                    return d
+                return f_
+            dm_at = None; t_doc = 0.0
+            for sg in (+1.0, -1.0):
+                cand = _mk(sg)
+                try:
+                    Sx = expand(cand(0.05)); fx = paraxial(Sx)[0]
+                    o = solve_obj(lambda o_: paraxial(Sx, obj=o_)[1] - (dlast(cand(0.05)) + off),
+                                  min(abs(fx), abs(f0)))
+                except Exception:
+                    o = None
+                if o and o > 0:
+                    dm_at = cand; break
+            if dm_at is None:
+                print('       ★ 单组 %s/%s 两个方向都解不出实物距，跳过该位置的对焦结构' % (kb, ka)); continue
+            print('       专利没印该位置近距态 → 单组 %s+%s 平移（全部标 ★外推）' % (kb, ka))
+        else:
+            print('       ★ 专利没印该位置近距态，zmx.focus 也不是单组 → 只出 ∞ 结构'); continue
+
+        def ok(dm, _fk=fk):
+            return all(dm[k] >= 0.10 - 1e-9 for k in _fk)
+
+        def solve(t, _dm_at=dm_at, _f0=f0, _off=off):
+            dm = _dm_at(t); S = expand(dm)
+            fx = paraxial(S)[0] or _f0
+            try:
+                o = solve_obj(lambda o_: paraxial(S, obj=o_)[1] - (dlast(dm) + _off),
+                              min(abs(fx), abs(_f0)))
+            except Exception:
+                o = None
+            if o is None: return None, None, dm
+            return paraxial(S, obj=o)[2], o, dm
+
+        # 可走的最远 t：对焦间隔全部 ≥ 0.10mm（专利记载段之外按最后一段外推，标 ★外推）
+        # 整数步进（t = n·step，不累加浮点：50 次 +0.02 = 1.0000000000000004 会把正好 0.10 的间隔判出界），
+        # 再在最后一步里二分到「最小对焦间隔 = 0.10」的精确位置，与定焦分支一致。
+        step = 0.02 if t_doc else 0.05
+        tmax = max(t_doc, 1.0) * 4 if t_doc else 200.0
+        n = 0
+        while (n + 1) * step <= tmax + 1e-12 and ok(dm_at((n + 1) * step)):
+            n += 1
+        t_hi = n * step
+        if (n + 1) * step <= tmax + 1e-12:
+            lo_, hi_ = t_hi, (n + 1) * step
+            for _ in range(50):
+                mid_ = 0.5 * (lo_ + hi_)
+                if ok(dm_at(mid_)): lo_ = mid_
+                else: hi_ = mid_
+            t_hi = lo_
+        N = 600
+        tab = []
+        for i in range(1, N + 1):
+            t = t_hi * i / N
+            b, o, _dm = solve(t)
+            if o: tab.append((t, abs(b)))
+        for j in range(1, int(t_doc) + 1):
+            b, o, dm = solve(float(j))
+            q = near[j - 1]
+            # near_d0_printed 是专利表头那个「近距離(165mm)」—— 只属于最后一个近距态（最短撮影距離）
+            given = (emb.get('d0') or {}).get(q) or (zz.get('near_d0_printed') if j == int(t_doc) else None)
+            print('       %-8s 专利近距态  物距(面1起) %s  β=%+.5f  撮影距離(像面起) %.1fmm%s'
+                  % (q, ('%.2f' % o) if o else '解不出', b or 0.0,
+                     (o or 0) + sum(x['D'] for x in expand(dm)),
+                     ('   ← 专利印 %s' % given) if given else ''))
+            if zz.get('include_near') and o:
+                # 最后一个近距态 = MFD；中间态用专利的状态名，避免结构重名（fno_patent / wfno_override 按名字查）
+                nmq = ('%s MFD' % nm0) if j == int(t_doc) else ('%s %s' % (nm0, q))
+                pat_cfgs.append(dict([('name', nmq), ('zoom', p['name']), ('d0', round(o, 4))]
+                                     + [(k, round(dm[k], 5)) for k in keys]
+                                     + [('beta', round(b, 5)), ('efl', round(f0, 4))]))
+        for m in betas:
+            pr = [(u, v) for u, v in zip(tab, tab[1:]) if (u[1] - m) * (v[1] - m) <= 0]
+            if not pr:
+                print('       %.2fx: 超出对焦行程（|β| 最大 %.4f）' % (m, max([x[1] for x in tab] or [0]))); continue
+            (t1, b1), (t2, b2) = pr[0]
+            for _ in range(60):
+                tm = 0.5 * (t1 + t2); bm = abs(solve(tm)[0] or 0.0)
+                if (b1 - m) * (bm - m) <= 0: t2, b2 = tm, bm
+                else: t1, b1 = tm, bm
+            t = 0.5 * (t1 + t2)
+            b, o, dm = solve(t)
+            ext = t > t_doc + 1e-9
+            print('       %-8s t=%.4f  物距 %.2f  β=%+.5f  %s%s'
+                  % ('%.2fx' % m, t, o, b, '  '.join('%s=%.4f' % (k, dm[k]) for k in fk),
+                     '   ← ★外推：超出专利记载的对焦范围' if ext else ''))
+            near_cfgs[m].append(dict([('name', '%s %.2fx' % (nm0, m)), ('zoom', p['name']), ('d0', round(o, 4))]
+                                     + [(k, round(dm[k], 5)) for k in keys]
+                                     + [('beta', round(b, 5)), ('efl', round(f0, 4)), ('extrapolated', ext)]))
+    cfgs = inf_cfgs + [c for m in betas for c in near_cfgs[m]] + pat_cfgs
+    print('\n  变焦交付结构（%d 个）：%s' % (len(cfgs), ' / '.join(c['name'] for c in cfgs)))
+    return cfgs
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('spec'); ap.add_argument('--vendors', nargs='+', default=['HOYA', 'OHARA', 'CDGM'])
     ap.add_argument('--brand-slack', type=float, default=BRAND_SLACK,
                     help='Δnd 落在最优值+该带宽内即按厂家优先级选（默认 0.0020，设 0 关闭）')
-    ap.add_argument('--betas', nargs='*', type=float, default=[0.02, 0.06])
+    ap.add_argument('--betas', nargs='*', type=float, default=None,
+                    help='对焦结构的 |β|。默认：定焦 0.02 0.06（再加 MFD 态 = INF/0.02x/0.06x/MFD 四结构）；'
+                         '变焦 zmx.zoom.betas，没写就 0.06（W/M/T 各 ∞ + 0.06x = 六结构）')
     ap.add_argument('--match-tol', type=float, default=2e-5,
                     help='d 线时认作「等效牌号」的 |Δnd| 上限（默认 2e-5）；超出则保留印刷 nd/vd 且不写 glass')
     ap.add_argument('--alt-only', nargs='*', default=[],
@@ -296,6 +463,14 @@ def main():
     a = ap.parse_args()
     spec = json.load(open(a.spec, encoding='utf-8'))
     emb = spec['embodiments'][a.emb]
+    _zx0 = spec.get('zmx') or {}
+    if a.betas is None:
+        a.betas = list((_zx0.get('zoom') or {}).get('betas') or [0.06]) if _zx0.get('zoom') else [0.02, 0.06]
+    if a.mfd is not None and _zx0.get('zoom'):
+        print('★ --mfd 只对定焦生效；变焦的近距结构用 zmx.zoom.betas / zmx.zoom.include_near')
+    if a.mfd is None and _zx0.get('mfd') and not _zx0.get('zoom'):
+        # 产品标称 MFD 写在 spec 里（zmx.mfd，自像面起算 mm）就不必每次敲 --mfd
+        a.mfd = float(_zx0['mfd'])
     libs = {v: load(v) for v in a.vendors}
     if _BADF:
         print('  ⚠ 色散公式自校验未通过（这些牌号不参与 e 线判定与 dPgF）: '
@@ -418,7 +593,11 @@ def main():
         return bool(rows) and rows[-1]['D'] == key
 
     fc2 = zx.get('focus2')
-    if not fc: print('\n(spec 无 zmx.focus，跳过对焦解)'); 
+    if zx.get('zoom'):
+        # ===== 变焦镜头：W/M/T 各 ∞ + 各 |β| 对焦 =====
+        cfgs = zoom_configs(emb, zx, a.betas)
+        if a.write: spec.setdefault('zmx', {})['configs'] = cfgs
+    elif not fc: print('\n(spec 无 zmx.focus，跳过对焦解)');
     elif not fc2 and fc.get('key_after') is None and _var_on_last_surface(fc['key_before']):
         # ===== 整組繰り出し：可変間隔 = 最終レンズ面〜像面 =====
         # 紧凑型定焦常见（本例 JP2023-140823A）：对焦时整个镜筒相对像面前伸，
@@ -740,6 +919,14 @@ def main():
                   % (extra, o or float('nan'), kb, x, ka, tot - x, b))
             cfgs.append({'name': extra, 'd0': round(o, 2) if o else None, kb: x})
         if a.write: spec.setdefault('zmx', {})['configs'] = cfgs
+    cf = (spec.get('zmx') or {}).get('configs') if a.write else None
+    if cf and not zx.get('zoom'):
+        # 定焦交付约定：INF / 0.02x / 0.06x / MFD 四个结构（用户 2026-09 定的）
+        nms = [c.get('name') for c in cf]
+        has_mfd = len(nms) >= 2 and not re.match(r'^\d+\.\d+x$', str(nms[-1]))
+        print('\n  定焦结构（约定 INF / 0.02x / 0.06x / MFD）：%s%s'
+              % (' / '.join(map(str, nms)),
+                 '' if has_mfd else '   ★ 缺 MFD 态：专利没印近距态时在 spec 写 zmx.mfd（产品标称，像面起算 mm）或传 --mfd'))
     if a.write:
         out = a.spec[:-5] + '.matched.json' if a.write == 'AUTO' else a.write
         json.dump(spec, open(out, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)

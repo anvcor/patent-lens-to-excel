@@ -106,7 +106,7 @@ def cfg_dmap(spec, emb, c):
         except (TypeError, ValueError): pass
     fc, fc2 = zx.get('focus') or {}, zx.get('focus2') or {}
     kb1, kb2, kl = fc.get('key_before'), fc2.get('key_before'), fc.get('key_last')
-    if kl and kb1 in d and kb2 in d:
+    if kl and kb1 in d and kb2 in d and 'sum' in fc:
         d.setdefault(kl, float(fc['sum']) - d[kb1] - d[kb2])
     else:
         for f, kb in ((fc, kb1), (fc2, kb2)):
@@ -162,8 +162,46 @@ def aperture_cfg(spec, emb, state, cfgs):
       用户实测 1.00x 结构 ENPD 15.73、状态栏 WFNO 9.149（说明书 5.7）。
 
     zmx.wfno_override = {结构名: F} 最高优先级，逐结构强行指定。
+
+    ★ 变焦镜头（zmx.zoom + 结构带 'zoom' 键）：**按变焦位置分组各算一遍**。
+      每个变焦位置的光阑在它自己的 ∞ 结构上、按该位置的 F 数（zoom.positions[].fno）定 ——
+      恒定光圈变焦的物理光阑直径随焦距变，全变焦共用一个光阑是错的；
+      同一位置的对焦结构再按「光阑固定」（或 fno_patent）算工作 F 数。
     """
     zx = spec['zmx']
+    zpos = {p['name']: p for p in ((zx.get('zoom') or {}).get('positions') or [])}
+    if zpos and any(c.get('zoom') for c in cfgs):
+        order = []
+        for c in cfgs:
+            if c.get('zoom') not in order: order.append(c.get('zoom'))
+        rows_all, notes_all, s_first = [None] * len(cfgs), [], None
+        names_all = [c.get('name') for c in cfgs]
+        ov_all, fp_all = zx.get('wfno_override') or {}, zx.get('fno_patent') or {}
+        for tag, tab in (('fno_patent', fp_all), ('wfno_override', ov_all)):
+            for k in tab:
+                if k not in names_all:
+                    notes_all.append('%s 的键 %r 对不上任何结构名 —— 已忽略' % (tag, k))
+        for zn in order:
+            idx = [i for i, c in enumerate(cfgs) if c.get('zoom') == zn]
+            p = zpos.get(zn)
+            if p is None:
+                raise SystemExit('结构 %s 的 zoom=%r 在 zmx.zoom.positions 里找不到'
+                                 % ([cfgs[i].get('name') for i in idx], zn))
+            gnames = {cfgs[i].get('name') for i in idx}
+            zx2 = {k: v for k, v in zx.items() if k not in ('zoom', 'epd')}
+            # 每组只拿自己结构名的键，否则别的组会报「对不上任何结构名」的假告警
+            zx2['wfno_override'] = {k: v for k, v in ov_all.items() if k in gnames}
+            zx2['fno_patent'] = {k: v for k, v in fp_all.items() if k in gnames}
+            if p.get('fno'): zx2['fno'] = float(p['fno'])
+            if p.get('epd'): zx2['epd'] = float(p['epd'])
+            spec2 = dict(spec); spec2['zmx'] = zx2
+            ss, rows = aperture_cfg(spec2, emb, state, [cfgs[i] for i in idx])
+            notes_all += ['[%s] %s' % (zn, t) for t in getattr(aperture_cfg, 'notes', [])]
+            if s_first is None: s_first = ss
+            for i, r in zip(idx, rows):
+                r['zoom'] = zn; r['stop_semi_inf'] = ss; rows_all[i] = r
+        aperture_cfg.notes = notes_all
+        return s_first, rows_all
     ov = zx.get('wfno_override') or {}
     fpat = {k: float(v) for k, v in (zx.get('fno_patent') or {}).items()}
     notes = []
