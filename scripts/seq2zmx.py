@@ -69,6 +69,21 @@ def vendor_cat(vend, extra):
 
 def key(s): return re.sub(r'[^A-Z0-9]', '', s.upper())
 
+
+def model_glass_token(g):
+    """CODE V 模型玻璃的两种合法单词写法 → (nd, vd)；不是模型玻璃返回 None。
+        nd:νd     1.86321:41.27
+        xxx.yyy   .xxx = nd−1、.yyy = νd/100，如 863210.4127、517.642（Lens System Setup RM p.525）
+    以前只认「nd vd」两个词，这两种会落到牌号分支、在 rsplit('_') 上崩掉。"""
+    num_re = r'[-+]?(\d+\.?\d*|\.\d+)'
+    m = re.match(r'^(%s):(%s)$' % (num_re, num_re), g)
+    if m:
+        return (float(m.group(1)), float(m.group(3)))
+    m = re.match(r'^(\d+)\.(\d+)$', g)
+    if m:
+        return (1.0 + float('0.' + m.group(1)), float('0.' + m.group(2)) * 100.0)
+    return None
+
 # ---------------- 读 .seq ----------------
 def read_seq(path):
     raw = open(path, encoding='latin-1').read().replace('\r\n', '\n')
@@ -92,11 +107,15 @@ def parse(lines):
                 s = {'kind': m.group(1), 'rdy': float(m.group(2)), 'thi': float(m.group(3)),
                      'glass': None, 'model': None, 'asp': None, 'cir': None,
                      'sto': False, 'oal': None, 'doe': None}
-                if len(rest) == 1:
-                    s['glass'] = rest[0]
-                elif len(rest) >= 2:
-                    try:    s['model'] = (float(rest[0]), float(rest[1]))   # CODE V 模型玻璃
+                if len(rest) >= 2 and not rest[1].startswith('!'):
+                    # 旧版 make_seq 的「nd vd」空格写法（CODE V 自己会读错成 n=1.1，但本意清楚，照本意读）
+                    try:    s['model'] = (float(rest[0]), float(rest[1]))
                     except ValueError: s['glass'] = rest[0]
+                elif rest and not rest[0].startswith('!'):
+                    g = rest[0]
+                    mg = model_glass_token(g)
+                    if mg: s['model'] = mg
+                    else:  s['glass'] = g
                 surfs.append(s); cur = s; continue
             m = re.match(r'^TIT\s+Z(\d+)\s+(.*)$', t)
             if m:

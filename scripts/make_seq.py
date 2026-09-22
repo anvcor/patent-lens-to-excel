@@ -23,7 +23,7 @@ Zemax → CODE V 的对应关系（都验过）：
 玻璃：CODE V 的牌号是「去掉所有非字母数字 + _ + 厂家」，如 J-LAK01 → JLAK01_HIKARI。
   --glass catalog（默认）＝ 复刻 CODE V 自己导入时的做法：Offset 解的面直接用**基准目录玻璃**，
      **两个偏移量会丢掉**（实测 EFL 因此从 34.4045 变成 34.4369）。脚本会打印告警。
-  --glass exact  ＝ Offset 解的面改写成 CODE V 的模型玻璃 `S <R> <THI> <nd> <vd>`，
+  --glass exact  ＝ Offset 解的面改写成 CODE V 的模型玻璃 `S <R> <THI> <nnnnnn.vvvv>`（见 model_glass），
      EFL 与专利一致，但丢掉真实玻璃的色散曲线。两者各有取舍，按用途选。
 """
 import argparse, json, datetime, re
@@ -66,6 +66,23 @@ def wrap(tag, vals, width=72):
             cur += ' ' + v
     out.append(cur + ' ')
     return out
+
+
+def model_glass(nd, vd):
+    """CODE V 模型（虚拟）玻璃。合法写法只有两种（CODE V Lens System Setup RM p.525）：
+        xxx.yyy   .xxx = nd−1、.yyy = νd/100  →  863210.41270
+        nd:νd     1.86321:41.27（这种还允许 n > 2）
+    **以前这里写成 `1.86321 41.27`（空格隔开）是错的**：CODE V 报 "Extra data '41.27' ignored"，
+    再把 1.86321 当 xxx.yyy 解成 nd = 1.1、νd = 86.3 —— 索尼 16-25 G 的 5 片这样写，
+    EFL 16.5 算成 6.9、轴上弥散斑 2.8 mm，而文件看起来一切正常。
+    选 xxx.yyy：CODE V 与 lens-bench（lensio.js 的数字式玻璃分支）都认；冒号写法 lens-bench 目前
+    会当成空气。xxx 必须正好 6 位（lens-bench 按 (nd−1)×10⁶ 解）。n ≥ 2 这种写不下，只能用冒号。"""
+    nd, vd = float(nd), float(vd)
+    if not (1.0 <= nd < 2.0) or not (0 < vd < 100):
+        return '%s:%s' % (num(nd), num(vd))
+    xxx = int(round((nd - 1.0) * 1e6))
+    yyy = ('%.6f' % (vd / 100.0)).split('.')[1].rstrip('0') or '0'
+    return '%06d.%s' % (xxx, yyy)
 
 
 def cvglass(name):
@@ -158,14 +175,14 @@ def build(spec, emb, title, gmode):
                 g = ' ' + s['glass_codev']
                 if go: warn.append((s['i'], s['glass_codev'], go['d_nd'], go['d_vd']))
             elif go and gmode.startswith('exact'):
-                g = ' %s %s' % (num(s['nd']), num(s['vd']))
+                g = ' ' + model_glass(s['nd'], s['vd'])
             elif go:
                 g = ' ' + cvglass(go['base'])
                 warn.append((s['i'], go['base'], go['d_nd'], go['d_vd']))
             elif s.get('glass'):
                 g = ' ' + cvglass(s['glass'])
             else:
-                g = ' %s %s' % (num(s['nd']), num(s['vd']))     # 模型玻璃
+                g = ' ' + model_glass(s['nd'], s['vd'])          # 模型玻璃
         a('S     %s %s%s' % (num(R), num(D), g))
         phi = (s.get('extra') or {}).get('有効径 φi')
         if phi: a('  CIR %s' % num(round(phi / 2.0, 6)))
