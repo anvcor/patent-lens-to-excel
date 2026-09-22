@@ -1009,7 +1009,12 @@ def main():
             'source': [r['src'] for r in aprows],
             'epd_cfg': [round(2*r['rEP'], 4) for r in aprows],
             'configs': [r['name'] for r in aprows]}
-        spec['zmx']['fix_semi_surfaces'] = defs
+        # 渐晕定义面单独记一份；fix_semi_surfaces 只并入、不覆盖 —— 以前直接覆盖成 defs，
+        # 专利/断面图口径（aptrace 或手工全量固定）会退回自动，Zemax 按当前结构算口径，
+        # 其它变焦位置轴上光线就显得被切（JP2023-039817A 70-200 GM II 踩过）。
+        spec['zmx']['vig_def_surfaces'] = defs
+        old = spec['zmx'].get('fix_semi_surfaces') or []
+        spec['zmx']['fix_semi_surfaces'] = sorted(set(old) | set(defs), key=lambda v: (not isinstance(v, int), v))
         json.dump(spec, open(out, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
         print('已写出 %s（vignetting_cfg: %d 个结构 × %d 视场）' % (out, len(vig_cfg), len(vig_cfg[0])))
 

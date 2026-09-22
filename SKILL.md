@@ -796,8 +796,9 @@ python3 scripts/apcap.py spec.final.json -o spec.cap.json \
 - **上限要跟「这一面自己」的现口径比，不能跟相邻两面的较小者比。**
   面1 现口径 31.75、面2 只有 26.25，拿 min 去比就会漏掉面1 该收到 31.105
   （超过 |R2|=31.105 面2 根本不存在）。
-- **apcap 必须排在 `vignet.py --write` 之后**：vignet 会把 `fix_semi_surfaces` 覆盖成
-  「渐晕定义面」那一小串，apcap 结束时重新把所有有口径的面列进去（`--no-fix-all` 可关）。
+- **apcap 必须排在 `vignet.py --write` 之后**：vignet 只把「渐晕定义面」**并入** `fix_semi_surfaces`
+  （另存 `vig_def_surfaces`，不再覆盖原有全量）；apcap 结束时再把所有有口径的面列进去（`--no-fix-all` 可关）。
+  跳过 apcap 直接 make_zmx 时，专利/断面图口径也保持固定，不会退回自动口径造成「望远端轴上被切」的假报。
 
 本篇最终只收了 3 个面：面1 31.75→31.105、面31/32 19.45·19.55→18.656；
 收完逐段复查 0 处不合格，面31→32 边缘间隙 +0.306mm。

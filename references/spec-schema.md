@@ -97,7 +97,7 @@ surface 上：
 
 | 字段 | 说明 |
 |---|---|
-| `fix_semi_surfaces` | 要把 `DIAM` 固定（flag=1）的面号列表。`aptrace.py` 写全量 → `vignet.py --write` 会覆盖成「渐晕定义面」那一小串 → **`apcap.py` 结束时再重建全量**（`--no-fix-all` 可关）。所以 apcap 必须排在 vignet 之后 |
+| `fix_semi_surfaces` | 要把 `DIAM` 固定（flag=1）的面号列表。`aptrace.py` 写全量 → `vignet.py --write` 把「渐晕定义面」并入（不覆盖，定义面另存 `vig_def_surfaces`）→ **`apcap.py` 结束时再重建全量**（`--no-fix-all` 可关）。所以 apcap 必须排在 vignet 之后 |
 | `semi_3d` | `vignet.py` 写的逐面 3D 光束最大半径（列表，按面序）。`clearance.py` / `apcap.py` 拿它当「不许切光束」的下界 |
 | `fno_patent` | 专利**各種データ**印的各对焦态 F 数，`{结构名: F}`（结构名 = lensmath 生成的 configs 名，如 `{"INF":2.92,"0.50x":4.49,"MFD(1.40x)":6.64}`）。有它时 `vignet.aperture_cfg()` 以它为准、中间结构按 |β| 插值；没有就按物理光阑固定反算。只印 ∞（佳能 US 常见）就别写近距键 |
 | `wfno_override` | `{结构名: F}`，逐结构硬指定近轴工作 F 数，优先级最高 |

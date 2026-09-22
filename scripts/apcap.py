@@ -162,8 +162,8 @@ def main():
                 q['extra']['有効径 φi'] = new; n += 1
     print('\n收口 %d 个面' % n)
     # 口径全固定是 apcap 的前提（不然 Zemax 自己算的口径会绕过这里的干涉检查），
-    # 所以在这里**重建** fix_semi_surfaces —— vignet.py --write 会把它覆盖成
-    # 「渐晕定义面」那一小串，apcap 必须排在它后面并把全部有口径的面重新列进去。
+    # 所以在这里**重建** fix_semi_surfaces —— vignet.py --write 只并入「渐晕定义面」，
+    # 但 clearance/手工改过的口径也要重新列全，apcap 仍排在 vignet 后面。
     if not a.no_fix_all:
         spec.setdefault('zmx', {})['fix_semi_surfaces'] = [
             q['i'] for q in emb['surfaces']

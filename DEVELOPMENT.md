@@ -97,8 +97,8 @@ seq2zmx.py                  反方向 .seq → .zmx（也用来回转验证 make
 2. **近距结构的几何**：任何按结构重建系统的地方都要用 `vignet.cfg_dmap()`（补齐 key_after / key_last），
    不能只覆盖 key_before。
 3. **渐晕的光瞳坐标是光阑参考的**（对齐 Zemax RAIM Real）；拿 OpticStudio 对照时 .zmx 口径必须全部固定。
-4. **顺序**：vignet → clearance → apcap → make_*；`vignet --write` 会把 `fix_semi_surfaces` 覆盖成渐晕定义面，
-   apcap 负责重建全量；`--trim` 收紧之后绝不能再跑 vignet（自激塌缩）。
+4. **顺序**：vignet → clearance → apcap → make_*；`vignet --write` 把渐晕定义面**并入** `fix_semi_surfaces`（原有全量保留，定义面另存 `vig_def_surfaces`），
+   apcap 仍会按全部有口径的面重建一次；`--trim` 收紧之后绝不能再跑 vignet（自激塌缩）。
 5. **CODE V 视场顺序与 Zemax 相反**（轴上在前），`YRI` / 渐晕 / `ZOO … F<i>` 一起倒；带 OAL 解的面不写 `ZOO THI`。
 6. **玻璃**：厂家优先是硬约束；佳能 OHARA 第一；OHARA 只用 `S-`/`L-`；牌号必须在用户 Glasscat 里存在。
 7. 生成器读口径用的是 `surfaces[].extra['有効径 φi']`；`zmx.semi_diameters` 只给 clearance / layout_check 用。
