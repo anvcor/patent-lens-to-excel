@@ -75,6 +75,7 @@ apcap.py --trim 0           先按几何干涉收口
 vignet.py --write           孔径模型（逐结构工作 F 数）+ 逐结构渐晕（光阑参考坐标）+ 轴上满光瞳体检
   └ 有「★★ 切到轴上光瞳」→ apcap 抬口径 → 再跑一次 vignet
 clearance.py                边厚/间隙体检
+dropneg.py                  删负厚度的无光焦度面（遮光平面），并入前间隔、其后改号（mkspec 后、lensmath 前）
 apcap.py                    干涉收口 + 轴上抬升 + 重建 fix_semi_surfaces（必须排在 vignet 之后）
 build_workbook.py / make_zmx.py / make_seq.py     Excel / .zmx / .seq（输出到 E:\Download\）
 zapi_vigfit.ps1             OpticStudio：Set Vignetting 起步 → 取整 → 收到 Py/Px=±1 全过 → JSON

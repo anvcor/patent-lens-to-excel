@@ -172,15 +172,31 @@ def merit_contrast(fy, wv, ncfg, freq=80.0, rings=3, arms=6, fw=None, effl=None,
     只有 Y 视场（旋转对称）时只追半个光瞳：离轴 arms/2 条臂（θ = 90° − (k+½)·360°/arms），
     每臂 π/(arms/2)；轴上视场只追 θ=0 一条臂、权重 π。
 
-    effl：逐结构焦距目标（None 表示该结构不约束）。变焦镜头每个 ∞ 结构段首写一行
+    effl：逐结构焦距目标（None 表示该结构不约束）。变焦镜头的焦距约束**集中放在最前面、DMFS 之前**：
+      CONF 1 / BLNK 说明 / EFFL … / CONF 2 / EFFL … / CONF 3 / EFFL …（第 1 行必须是 CONF）
     `EFFL 0 <主波长> 0 0 0 0 <目标> <权重> 0 0`，防止优化对焦间隔时把焦距带跑（用户 2026-09-23 要求）。
+    为什么放 DMFS 前：①打开 MFE 第一屏就能看到全部结构的焦距约束（放在各结构段首时 M/T 段在
+    第 494/984 行，用户以为只有广角端）；②OpticStudio 重跑优化向导只替换 DMFS 之后的部分，前面的用户操作数保留。
     """
     fw = fw or [1.0] * len(fy)
     wmax = max(w for _, w in wv) or 1.0
     fmax = max(fw) or 1.0
     rr = _gauss_rings(rings)
     half = arms // 2
-    out = ['CONF 1 0 0 0 0 0 0 0 0 0', 'DMFS 0 0 0 0 0 0 0 0 0 0',
+    out = []
+    if effl and any(effl):
+        # ★ 第 1 行必须是 CONF：多重结构下第 1 个操作数不是 CONF 时，OpticStudio 算评价函数会自己在最前面
+        #   插一个 CONF 1，总数不变、最后一个操作数被挤掉（实测 T 结构少了 1 个 MECT）。
+        first = True
+        for c in range(1, ncfg + 1):
+            tg = effl[c - 1]
+            if tg:
+                out.append('CONF %d 0 0 0 0 0 0 0 0 0' % c)
+                if first:
+                    out.append('BLNK Zoom focal length targets (one EFFL per zoom configuration).')
+                    first = False
+                out.append('EFFL 0 %d 0 0 0 0 %s %s 0 0' % (pwav, num(float(tg), '%.10G'), num(effl_wt, '%.10G')))
+    out += ['CONF 1 0 0 0 0 0 0 0 0 0', 'DMFS 0 0 0 0 0 0 0 0 0 0',
            'BLNK contrast s+t S Wgt = 1.0000 T Wgt = 1.0000 Contrast at %s lp/MM GQ %d rings %d arms'
            % (num(freq, '%.10G'), rings, arms)]
     body = []
@@ -203,10 +219,6 @@ def merit_contrast(fy, wv, ncfg, freq=80.0, rings=3, arms=6, fw=None, effl=None,
                                        repr(py) if py else '0', repr(wt)))
     for c in range(1, ncfg + 1):
         out.append('CONF %d 0 0 0 0 0 0 0 0 0' % c)
-        tg = effl[c - 1] if effl else None
-        if tg:
-            out.append('BLNK Zoom focal length target.')
-            out.append('EFFL 0 %d 0 0 0 0 %s %s 0 0' % (pwav, num(float(tg), '%.10G'), num(effl_wt, '%.10G')))
         out.append('BLNK No air or glass constraints.')
         out.extend(body)
     return out
