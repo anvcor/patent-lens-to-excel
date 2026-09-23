@@ -85,6 +85,40 @@ def model_glass(nd, vd):
     return '%06d.%s' % (xxx, yyy)
 
 
+_CV_CAT = {}
+
+
+def codev_catalog():
+    """本机 CODE V 自带玻璃目录的牌号集合 {'OHARA': {'SLAL18', ...}, ...}。
+    CODE V 2026 的 OHARA 目录没有 S-LAL18N / S-LAH66N 这类新牌号（只有老的 SLAL18 / SLAH66），
+    seq 里写 SLAL18N_OHARA 会报「not in the OHARA catalog」、那一面变空气（RF 28-70 F2 L 踩过）。
+    目录位置：环境变量 CODEV_DIR，否则依次找 E:/CODEV2026、C:/CODEV2026、E:/CODEV11.5。找不到目录就返回 None（不检查）。"""
+    if 'v' in _CV_CAT:
+        return _CV_CAT['v']
+    import os, glob, io
+    roots = [os.environ.get('CODEV_DIR')] + ['E:/CODEV2026', 'C:/CODEV2026', 'E:/CODEV11.5']
+    cat = None
+    for r in roots:
+        if r and os.path.isdir(os.path.join(r, 'glass')):
+            cat = {}
+            for fp in glob.glob(os.path.join(r, 'glass', '*.xml')):
+                txt = io.open(fp, encoding='utf-8', errors='replace').read()
+                cat[os.path.splitext(os.path.basename(fp))[0].upper()] = set(
+                    x.upper() for x in re.findall(r'<GlassName>([^<]+)</GlassName>', txt))
+            break
+    _CV_CAT['v'] = cat
+    return cat
+
+
+def cv_has(cvname):
+    """'SLAL18N_OHARA' 在本机 CODE V 目录里吗？（目录找不到 → 当作有，不干预）"""
+    cat = codev_catalog()
+    if not cat:
+        return True
+    br, _, ven = cvname.rpartition('_')
+    return ven.upper() not in cat or br.upper() in cat[ven.upper()]
+
+
 def cvglass(name):
     """'HIKARI J-LAK01' → 'JLAK01_HIKARI'"""
     ven, br = name.split()[0], name.split()[-1]
@@ -152,6 +186,7 @@ def build(spec, emb, title, gmode):
     fc, fc2 = (None, None) if zoom else (zx.get('focus'), zx.get('focus2'))
     kb = fc and fc['key_before']; kb2 = fc2 and fc2['key_before']
     warn = []
+    missing = []
     varsurf = {}
     _si_last[0] = 0
     for s in surfs:
@@ -181,6 +216,10 @@ def build(spec, emb, title, gmode):
                 warn.append((s['i'], go['base'], go['d_nd'], go['d_vd']))
             elif s.get('glass'):
                 g = ' ' + cvglass(s['glass'])
+                if not cv_has(g.strip()):
+                    # CODE V 目录里没有这个牌号 → 模型玻璃（nd/vd 与目录值一致，丢掉部分色散细节）
+                    missing.append((s['i'], g.strip()))
+                    g = ' ' + model_glass(s['nd'], s['vd'])
             else:
                 g = ' ' + model_glass(s['nd'], s['vd'])          # 模型玻璃
         a('S     %s %s%s' % (num(R), num(D), g))
@@ -279,6 +318,7 @@ def build(spec, emb, title, gmode):
             L.extend(wrap('ZOO   THI S%d' % sn, v))
             a('ZOO THC S%d %s' % (sn, ' '.join(('0' if sn in fvs else '100') for _ in vals)))
     a('GO')
+    build.missing = missing
     return L, warn
 
 
@@ -309,6 +349,8 @@ def main():
                     + ('|no-vars' if a.no_vars else ''))
     open(a.o, 'wb').write(('\n'.join(L) + '\n').encode('latin-1'))
     print('已写出 %s（%d 行）' % (a.o, len(L)))
+    for i, g in getattr(build, 'missing', []):
+        print('  ⚠ 面%-3s %s 不在本机 CODE V 玻璃目录里 → 已写成模型玻璃（nd/vd 同目录值）' % (i, g))
     if warn:
         print('  ⚠ 下列面在 zmx 里是 Offset 玻璃解，CODE V 没有对应功能，本文件按 --glass catalog '
               '只写了基准牌号，**Nd/Vd 偏移丢失**：')

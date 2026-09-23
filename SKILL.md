@@ -453,6 +453,9 @@ spec：`E:\Download\patent_specs\spec_WO2024214585A1_Ex02_NikonZ2470f28SII.final
 `make_zmx.py` 默认就生成同一套（`--no-merit` 关掉，`--mf-freq` 改频率）：
 
 - **评价函数** = 优化向导 **Contrast，s+t，80 lp/mm，Gaussian Quadrature 3 环 6 臂，无空气/玻璃约束**，**逐结构一份**。
+- **变焦镜头另加焦距约束**（用户 2026-09-23 要求）：每个 ∞ 结构段首一行 `EFFL 0 <主波长> 0 0 0 0 <标称焦距> 1 0 0`，目标取 `zmx.zoom.positions[].f`（专利该变焦位置的标称焦距），近距结构不加；权重可用 `zmx.effl_weight` 改。防止优化对焦间隔时焦距被带跑。
+- **负厚度的无光焦度面（遮光平面/FS，如 d=-2.59）交付前并进前一个间隔删掉**（用户 2026-09-23 要求）：前间隔 += 负厚度，其后面号 −1，可变间隔名 / 非球面面号 / 口径表一起改名。光学完全不变（EFL/BF/全长逐位相同）。
+- **.seq 的玻璃要在本机 CODE V 目录里真的存在**：make_seq 会读 CODE V 安装目录 `glass/*.xml` 的 `<GlassName>`，查不到的牌号（如 CODE V 2026 OHARA 没有 S-LAL18N / S-LAH66N）自动写成模型玻璃并打印告警；目录位置可用环境变量 `CODEV_DIR` 指定。
   脚本输出与样板 2931 行逐行一致（数值差 ≤2e-16），OpticStudio 读出 1440 MECS + 1440 MECT + 43 BLNK + 7 CONF + 1 DMFS。
 - **变量** = 对焦间隔的 MCE THIC 行，**所有结构都开**（∞ 结构也开 = 无穷远重新对焦）：
   - 定焦：`focus` / `focus2` 的 key_before（key_after / key_last 由位置解 TOLE 跟随，守恒和自动保持）；

@@ -162,7 +162,7 @@ def _gauss_rings(n):
     return pr
 
 
-def merit_contrast(fy, wv, ncfg, freq=80.0, rings=3, arms=6, fw=None):
+def merit_contrast(fy, wv, ncfg, freq=80.0, rings=3, arms=6, fw=None, effl=None, pwav=PWAV_DEFAULT, effl_wt=1.0):
     """默认评价函数：优化向导「Contrast」s+t、freq lp/mm、GQ rings 环 arms 臂、无空气/玻璃约束，
     **逐结构铺一份**（CONF n + MECS/MECT）。用户 2026-09 在 OpticStudio 里手工生成的就是这套，
     本函数对 WO2024214585A1 那份 _OPT.zmx 的 480 个操作数逐个复现（权重误差 0）。
@@ -171,6 +171,9 @@ def merit_contrast(fy, wv, ncfg, freq=80.0, rings=3, arms=6, fw=None):
     权重 = 环权重 × 波长权重/最大波长权重 × 视场权重/最大视场权重 × 臂角权重；
     只有 Y 视场（旋转对称）时只追半个光瞳：离轴 arms/2 条臂（θ = 90° − (k+½)·360°/arms），
     每臂 π/(arms/2)；轴上视场只追 θ=0 一条臂、权重 π。
+
+    effl：逐结构焦距目标（None 表示该结构不约束）。变焦镜头每个 ∞ 结构段首写一行
+    `EFFL 0 <主波长> 0 0 0 0 <目标> <权重> 0 0`，防止优化对焦间隔时把焦距带跑（用户 2026-09-23 要求）。
     """
     fw = fw or [1.0] * len(fy)
     wmax = max(w for _, w in wv) or 1.0
@@ -200,6 +203,10 @@ def merit_contrast(fy, wv, ncfg, freq=80.0, rings=3, arms=6, fw=None):
                                        repr(py) if py else '0', repr(wt)))
     for c in range(1, ncfg + 1):
         out.append('CONF %d 0 0 0 0 0 0 0 0 0' % c)
+        tg = effl[c - 1] if effl else None
+        if tg:
+            out.append('BLNK Zoom focal length target.')
+            out.append('EFFL 0 %d 0 0 0 0 %s %s 0 0' % (pwav, num(float(tg), '%.10G'), num(effl_wt, '%.10G')))
         out.append('BLNK No air or glass constraints.')
         out.extend(body)
     return out
@@ -564,7 +571,18 @@ def build(spec, emb, catalog, asph_mode='auto', merit=True, freq=80.0):
     # ===== 配套评价函数（打开就能直接优化）=====
     # 优化向导 Contrast s+t 80 lp/mm GQ 3 环 6 臂，逐结构一份；变量 = 对焦间隔（下面 MCE 的 THIC 状态位 1）。
     if merit:
-        L.extend(merit_contrast(fy, wv, len(cfgs), freq))
+        # 变焦：每个 ∞ 结构加 EFFL 目标 = 专利该变焦位置的标称焦距（近距结构不约束）
+        effl = None
+        zpos = {p['name']: p for p in ((zx.get('zoom') or {}).get('positions') or [])}
+        if zpos:
+            effl = []
+            for c0 in cfgs:
+                inf = str(c0.get('d0', '')).upper().startswith('INF')
+                zp = zpos.get(c0.get('zoom'))
+                effl.append((zp.get('f') or c0.get('efl')) if (inf and zp) else None)
+        L.extend(merit_contrast(fy, wv, len(cfgs), freq, effl=effl,
+                                pwav=zx.get('primary_wave', PWAV_DEFAULT),
+                                effl_wt=float(zx.get('effl_weight', 1.0))))
     fv = set(focus_vars(spec, emb)) if merit else set()
     a('TOL TOFF   0   0              0              0   0 0 0 0')
     a('MNUM %d 1' % len(cfgs))
