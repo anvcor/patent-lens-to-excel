@@ -1,6 +1,6 @@
 ﻿# zapi_vigfit.ps1 —— 用本机 OpticStudio（ZOS-API，无界面）当判官，把逐结构渐晕微调到 Py/Px=±1 真过得去
 #
-#   powershell -File zapi_vigfit.ps1 -File X_catalog.zmx -Out X.vigfit.json [-Step 0.004] [-MaxIter 40]
+#   powershell -File zapi_vigfit.ps1 -File X_catalog.zmx -Out X.vigfit.json [-Step 0.01] [-MaxIter 150]
 #   python vigfit_merge.py spec.final.json X.vigfit.json      # 写回 zmx.vignetting_cfg，再 make_zmx / make_seq
 #
 # 为什么需要：vignet.py 瞄的是**近轴入瞳**，Zemax 开 RAIM Real 瞄的是**真实光阑**，大视场下两者有光瞳像差，
@@ -16,8 +16,10 @@
 # 另外报告孔径类型、逐结构 PWFN/WFNO/EPD/PMAG/TOTR，当交付前的真机体检。
 param([Parameter(Mandatory=$true)][string]$File,
       [string]$Out = "",
-      [double]$Step = 0.004,
-      [int]$MaxIter = 40,
+      # 默认原为 0.004 × 40（最多收 0.16）：广角大视场 Px±1 收不住（WO2023181666A1 24-70 GM II 广角端 F1 卡在面28/29/30）。
+      # 改成 0.01 × 150：一步最多多收 0.01 光瞳，精度损失可忽略，能收 1.5。
+      [double]$Step = 0.01,
+      [int]$MaxIter = 150,
       [string]$ZOS = "E:\ANSYS Inc\v242\Zemax OpticStudio",
       [switch]$CheckOnly,
       [switch]$NoSetVig)
