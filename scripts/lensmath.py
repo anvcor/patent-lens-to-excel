@@ -809,11 +809,18 @@ def main():
             s = expand(st, {kb: d13, ka: tot - d13})
             return paraxial(s, obj=obj)
         BF0 = bfd(emb['variable'][kb][st])[1]
+        # key_after 就是**最后一面到像面**的间隔（BF）时，对焦组 = 光阑以后整个后组前移、像面固定
+        # （US20100208366A1 TS-E24 II：D12 减、BF 增，D12+BF 恒定）。这时像距目标不是 ∞ 的 BF0，
+        # 而是跟着 BF 一起变：BF0 + (ka − ka_∞)。旧写法把像距钉在 BF0，任何倍率都「超出对焦行程」。
+        _real = [q for q in emb['surfaces'] if q['i'] != 'IMG']
+        ka_is_bf = bool(ka) and _real and _real[-1].get('D') == ka
+        d0_inf = emb['variable'][kb][st]
+        tgt = (lambda d13: BF0 + (d0_inf - d13)) if ka_is_bf else (lambda d13: BF0)
 
         def solve_d0(d13):
             """像面固定在 ∞ 近轴焦点，解物距；解不出返回 None（等于物在无穷远之外）。"""
             fx = bfd(d13)[0] or f      # 同上：用该结构自己的 EFL 定括号起点
-            return solve_obj(lambda o: bfd(d13, o)[1] - BF0, min(abs(fx), abs(f)))
+            return solve_obj(lambda o: bfd(d13, o)[1] - tgt(d13), min(abs(fx), abs(f)))
 
         def beta(d13):
             o = solve_d0(d13)

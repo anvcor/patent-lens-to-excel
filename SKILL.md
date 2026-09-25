@@ -1519,6 +1519,7 @@ FVDY   1   1 0.1263 0 0 0 1 1 1 0 0
 | **口径** | 口径全固定后没人再查相邻面干涉，面31/32 在 r≈18.95 处穿插、空气间隙为负 | 新增 `apcap.py`，排在 vignet 之后、make_zmx 之前 |
 | **`make_zmx.py`** | **非球面一律写 EVENASPH，A18/A20 被悄悄丢掉**。JP2023-183894A 面7 的 A18·r¹⁸ 在净口径处就有 2.1mm，丢了轴上 TA-RMS 从 0.0028 崩到 0.94mm；退而求其次"重拟合进 r¹⁶"残差 24nm 仍被用户打回 | 逐面判断，有 r¹⁸/r²⁰ 就写 **Extended Asphere `TYPE XASPHERE` + XDAT**（格式实证自 5 个真文件与 cv2zmx 宏），零残差；`--asph-type` 可强制 |
 | `lensmath.py` / `vignet.py` / `clearance.py` / `covercheck.py` / `apcap.py` / `aptrace.py` | 非球面式子只算到 **A16**，追迹、盖板判据、口径、渐晕全部建立在一张**错的面**上 | 各处系数表补到 `A18`/`A20`；`sag()` 加 `y²<1e6` 护栏（r²⁰ 在追迹发散时会 OverflowError） |
+| **`lensmath.py`** | **单组对焦的 key_after 就是 BF（最后一面到像面）时解不出任何倍率**：光阑+后组整体前移、D12 减 BF 增（US20100208366A1 TS-E24 II），求解器把像距钉在 ∞ 的 BF 上，0.02x/0.06x/MFD 全报「超出对焦行程」 | key_after 是最后一面的间隔时，像距目标 = BF0 + (key_before_∞ − key_before)；修后 MFD 0.21m 反解 0.334x（官方 0.34x） |
 | `lensmath.py` | **单对焦组分支根本没有 `--mfd`**（只有双浮动分支有），按产品标称 MFD 反解一态用不了 | 单组分支补上同样的二分反解，输出 `1:x` 倍率 |
 | **`vignet.py`** | **主光线求根取"从最负端数过来第一个变号"，撞上伪根**：大孔径强像差系统 h_stop(ye) 不单调，外层按像高二分视场角的 bracket 随之塌掉 —— 实测 12.98/8.65 两个视场都被钉在 8.69°（真值 14.9°/10.1°） | 扫全区间收集所有变号段，取 **\|ye\| 最小**的那个（真主光线按定义过近轴入瞳中心） |
 | `figmeas.py` / `aptrace.py` / `layout_check.py` | 裁切/旋转/画叠加图调 `convert`，**Windows 上 `convert.exe` 是 FAT→NTFS 转换器**，同名撞车 | 改用 Pillow：`figmeas.crop_rotate()` 等价 `-crop/-rotate`，`layout_check.im_draw()` 实现 `-draw` 的 line/rectangle/text 子集 |
