@@ -100,7 +100,7 @@ description: "把光学镜头专利 PDF（日本特开 JP-A、中国 CN-A、美�
 
 命令里 `-o` / `--write` 一律给到上面这些位置，别省略成相对路径写进脚本目录。
 
-**开工先看 skill 目录的 `scripts/` 齐不齐**（应有 **18** 个 .py + **1** 个 `zapi_vigfit.ps1` + `p2p_index.json`，见「脚本一览」；2026-09 新增 `aptrace.py` / `apcap.py` / `make_seq.py` / `seq2zmx.py`，2026-09-17 新增 `vigfit_merge.py` / `zapi_vigfit.ps1`，并把 `which_example.py` 收进来）。齐就直接用：
+**开工先看 skill 目录的 `scripts/` 齐不齐**（应有 **20** 个 .py + **2** 个 ps1（`zapi_vigfit.ps1` / `zapi_refocus.ps1`） + `p2p_index.json`，见「脚本一览」；2026-09 新增 `aptrace.py` / `apcap.py` / `make_seq.py` / `seq2zmx.py`，2026-09-17 新增 `vigfit_merge.py` / `zapi_vigfit.ps1`，并把 `which_example.py` 收进来）。齐就直接用：
 
 ```bash
 cp "$(dirname "$0")"/../scripts/*.py /tmp/sc     # 或直接用 skill 里的绝对路径
@@ -169,6 +169,8 @@ export PATENT_GLASS_DIR=/tmp/gc
 12 clearance.py --write && **apcap.py**  # apcap 必跑：相邻面干涉收口 + 重建 fix_semi_surfaces
 13 layout_check.py 出叠加图 → Read ov.png                  # 交付第三道卡
 14 build_workbook.py && make_zmx.py [&& make_seq.py] && 牌号存在性核查
+14a （定焦，本机有 OpticStudio 时必做，**先于 14b**）zapi_refocus.ps1 -File X_catalog.zmx -Out X.refocus.json
+     → refocus_merge.py spec.final.json X.refocus.json → 重出 make_zmx + make_seq      # 轴上离焦 MTF 峰值居中
 14b （本机有 OpticStudio 时必做）zapi_vigfit.ps1 -File X_catalog.zmx -Out X.vigfit.json   # 默认先 Set Vignetting 再收
      → vigfit_merge.py spec.final.json X.vigfit.json → 重出 make_zmx + make_seq
      → zapi_vigfit.ps1 -CheckOnly：逐结构 PWFN=APER、PMAG、TOTR、Py/Px=±1 四条全过
@@ -362,6 +364,12 @@ Zemax 会据此把上游各面的自动口径撑到造不出来（实测面9~12 
 断面图量到的是玻璃外径，不收紧就会比实际需要大 0.5~2mm；
 ⑦ `make_zmx.py` 的自校验 EFL 与专利 f 对得上（**带 Offset 解时要把偏移加回去再算**），
 且打印「孔径类型 Paraxial Working F/#」+「与孔径模型逐结构一致 ✓」；
+⑦½ **定焦件逐结构重新对焦：轴上离焦 MTF（FFT Through Focus，多色，50 lp/mm）的峰值必须在 0 离焦**（用户 2026-09-25 要求）。
+lensmath 的对焦间隔是**近轴**像面解，残余球差/色差让 MTF 峰偏几十 µm：JP2013-054269A（EF28 IS）四个结构峰位都在 −0.06~−0.07mm，
+轴上 50 lp/mm MTF 只有 0.24~0.29；`zapi_refocus.ps1` 对 MCE 里的对焦间隔（Variable 那行 THIC）做一维极大化
+（「峰值在 0」⇔「像面上轴上 MTF 对对焦间隔取极大」），D5 +0.062~+0.079 后峰位 ±0.0001、MTF 0.66~0.74（0.02x 解出 6.5349，用户手调 6.5300）。
+**必须排在 zapi_vigfit 之前**：对焦组一挪，贴边解出的渐晕就不成立（实测挪 0.07mm 后所有视场 ±1 都被挡），要重新 Set Vignetting。
+轴上视场零渐晕，对焦结果不依赖渐晕，所以顺序是 refocus → vigfit → CheckOnly。双浮动只动第一组。
 ⑧ **本机有 OpticStudio 就用 ZOS-API 真加载一遍**（`zapi_vigfit.ps1 -CheckOnly`，无界面、30 秒）：
 逐结构 `PWFN = APER`、`WFNO ≈ PWFN`、`PMAG` = 设计倍率、`TOTR` 各结构相等、**Py/Px=±1 四条实光线全过**。
 vignet.py 自检说 OK 不算数 —— 它瞄近轴入瞳，Zemax 开 Real 瞄真实光阑，前几片上会差出零点几毫米（见「孔径」一节）。
@@ -1631,6 +1639,8 @@ python3 scripts/seq2zmx.py A2628.seq -o A2628.zmx \
 | **`make_seq.py`** | **spec → CODE V 序列文件 `.seq`**（另一条出口，省掉 Zemax→CODE V 的往返）；波长/视场（**倒序**）/渐晕（**要换算**）/口径/非球面（**A..J 到 r²⁰，精确**）/位置解/多重结构全套对应；**对焦间隔 `ZOO THC 0`（变量，`--no-vars` 关）**；变焦时每个可变间隔一行 `ZOO THI`、不写 OAL；`--glass catalog\|exact`、`--no-oal` |
 | **`seq2zmx.py`** | **反方向：CODE V `.seq` → Zemax `.zmx`**（用户自己在 CODE V 里做的设计要拿进 Zemax 时用；不经过 spec.json）；玻璃名反查目录牌号、渐晕反算、CIR→DIAM+CLAP、多重结构；`--reverse-fields` / `--raim` / `--gcat` |
 | **`zapi_vigfit.ps1`** | **本机 OpticStudio（ZOS-API 无界面）当判官**：报孔径类型、逐结构 PWFN/WFNO/EPD/PMAG/TOTR；每个结构先 OpticStudio 自己的 Set Vignetting（`-NoSetVig` 关掉），再按 4 位小数向内取整、逐视场追 Py/Px=±1 收到全过，`-Out` 写 JSON；`-CheckOnly` 只验不改；每进一个结构先按快照复位（没有 MCE 行的视场是全局量，否则会漏到后面的结构） |
+| **`zapi_refocus.ps1`** | **定焦重新对焦**：逐结构对 MCE 里的对焦间隔做一维极大化（轴上 (MTFT+MTFS)/2，多色，FFT，`-Freq 50`），再用 OpticStudio 的 FFT Through Focus MTF 读回峰位验收；`-Out` 写 JSON。PowerShell 变量不分大小写：`$t`/`$T`、`$out`/`$Out` 都撞过 |
+| **`refocus_merge.py`** | 把 `zapi_refocus.ps1` 的 JSON 按结构名写回 `zmx.configs` 的 focus key_before（key_after 由位置解跟随），然后重出 zmx/seq |
 | **`vigfit_merge.py`** | 把 `zapi_vigfit.ps1` 的 JSON 写回 `zmx.vignetting_cfg`（打印逐项变化），然后重出 zmx/seq |
 | `build_workbook.py` | spec → Excel 工作簿 |
 | `glasslib.py` / `hikari_xlsx_to_csv.py` | 旧的 nd 速查器 / HIKARI 目录转 CSV |
