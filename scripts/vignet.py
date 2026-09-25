@@ -50,6 +50,104 @@ def _doe_kick(p, N, g):
 # -----------------------------------------------------------------------------
 
 
+# --- 多波长折射率 -------------------------------------------------------------
+# Zemax 的孔径（Paraxial Working F/#）、实光线瞄准、Set Vignetting 都按**主波长**（默认 e 线 0.5461）算，
+# 轴上光束则是全部系统波长的包络。只拿 nd 追迹，光阑近轴半径就差 0.2%（TS-E24：9.7733 vs 9.7937）。
+# 折射率来源（按优先级）：
+#   ① 目录牌号：读 AGF 色散公式（与 lensmath 同一套 _n），再平移到 spec 的 nd；
+#   ② Offset 玻璃解：基准牌号的色散曲线，按 (nd−1)/νd 与基准之比缩放 ——
+#      对照 OpticStudio 2024R2 INDX（TS-E24 八个 Offset 面）：e 线 ≤1.5e-6、g 线 ≤5e-5；
+#   ③ 模型玻璃 / 查不到目录：nd、νd、dPgF 定三项 Cauchy（n = A + B/λ² + C/λ⁴）。
+#      对三家全目录：e 线 ≤2e-5，F/C/g 最差 5e-4（S-NPH3 这类超重火石）。
+WAVES_DEFAULT = [(0.4861, 12.0), (0.5461, 30.0), (0.6563, 3.0), (0.5876, 22.0), (0.4358, 3.0)]
+PWAV_DEFAULT = 2
+LAM_D = 0.5875618
+_LG, _LF, _LC = 0.4358343, 0.4861327, 0.6562725
+
+
+def waves_of(zx):
+    """(主波长 µm, [全部波长 µm])。与 make_zmx.waves_of / PWAV_DEFAULT 同一套约定。"""
+    if zx.get('waves'):
+        wv = [float(w[0]) for w in zx['waves']]
+    elif zx.get('waves_um'):
+        wv = [float(w) for w in zx['waves_um']]
+    else:
+        wv = [w for w, _ in WAVES_DEFAULT]
+    k = int(zx.get('primary_wave', PWAV_DEFAULT))
+    return wv[min(max(k, 1), len(wv)) - 1], wv
+
+
+_CAT = {}
+def _catalog(vendor, gcat=None):
+    """{牌号: (公式号, CD 系数)}；按 PATENT_GLASS_DIR → 用户 Zemax Glasscat → skill 自带目录 找。"""
+    stem = (gcat or {}).get(vendor) or vendor
+    if (vendor, stem) in _CAT: return _CAT[(vendor, stem)]
+    import os
+    from lensmath import _decode
+    here = os.path.dirname(os.path.abspath(__file__))
+    dirs = [os.environ.get('PATENT_GLASS_DIR'),
+            os.path.join(os.path.expanduser('~'), 'Documents', 'Zemax', 'Glasscat'),
+            os.path.join(here, '..', 'assets', 'glass')]
+    out = {}
+    for d in dirs:
+        if not d: continue
+        for nm in (stem, vendor):
+            p = os.path.join(d, nm + '.AGF')
+            if not os.path.exists(p): continue
+            cur = None
+            for line in _decode(open(p, 'rb').read()).splitlines():
+                if line.startswith('NM '):
+                    q = line.split(); cur = q[1]
+                    try: out[cur] = [int(float(q[2])), None]
+                    except (IndexError, ValueError): cur = None
+                elif line.startswith('CD ') and cur in out:
+                    out[cur][1] = [float(x) for x in line.split()[1:]]
+            break
+        if out: break
+    _CAT[(vendor, stem)] = out
+    return out
+
+
+def _n_cat(glass, lam, gcat=None):
+    """'OHARA S-BAL42' → 目录色散公式在 lam 处的折射率（查不到返回 None）。"""
+    from lensmath import _n
+    q = (glass or '').split()
+    if len(q) < 2: return None
+    f, cd = _catalog(q[0], gcat).get(q[1], (None, None))
+    return _n(cd, f, lam) if cd else None
+
+
+def _n_cauchy(nd, vd, dpgf, lam):
+    dFC = (nd - 1.0) / vd
+    P = 0.6438 - 0.001682 * vd + (dpgf or 0.0)
+    a1, b1 = _LF**-2 - _LC**-2, _LF**-4 - _LC**-4
+    a2, b2 = _LG**-2 - _LF**-2, _LG**-4 - _LF**-4
+    det = a1 * b2 - a2 * b1
+    B = (dFC * b2 - P * dFC * b1) / det
+    C = (a1 * P * dFC - a2 * dFC) / det
+    return nd + B * (lam**-2 - LAM_D**-2) + C * (lam**-4 - LAM_D**-4)
+
+
+def n_at(row, lam, gcat=None):
+    """spec 一行的玻璃在波长 lam(µm) 处的折射率；lam=None 或 d 线直接返回 nd。"""
+    nd = row.get('nd') or 1.0
+    if lam is None or abs(lam - LAM_D) < 1e-5 or nd == 1.0: return nd
+    go = row.get('glass_offset')
+    if go:
+        nb, nbd = _n_cat(go.get('base'), lam, gcat), _n_cat(go.get('base'), LAM_D, gcat)
+        vd, vb = row.get('vd'), go.get('base_vd')
+        if nb is not None and nbd is not None and vd and vb:
+            return nd + (nb - nbd) * ((nd - 1.0) / vd) / ((nbd - 1.0) / vb)
+    elif row.get('glass'):
+        nc, ncd = _n_cat(row['glass'], lam, gcat), _n_cat(row['glass'], LAM_D, gcat)
+        if nc is not None and ncd is not None and abs(ncd - nd) < 2e-4:
+            return nc + (nd - ncd)
+    if row.get('vd'):
+        return _n_cauchy(nd, float(row['vd']), row.get('dpgf'), lam)
+    return nd
+# -----------------------------------------------------------------------------
+
+
 class Surf:
     def __init__(s, c, k, A, z, n_after, semi, is_stop, doe=None):
         s.c, s.k, s.A, s.z, s.n, s.semi, s.stop = c, k, A, z, n_after, semi, is_stop
@@ -71,8 +169,11 @@ class Surf:
         a, b = s.sag(y + h), s.sag(y - h)
         return None if a is None or b is None else (a - b) / (2 * h)
 
-def build(spec, emb, state, dmap=None):
+def build(spec, emb, state, dmap=None, lam=None):
+    """lam=None：按 nd（d 线）建系统（近轴孔径模型、口径体检都用这个）；
+    给 lam(µm)：各面折射率换成该波长（n_at），DOE 偏折按 λ/λ0 缩放（Binary 2 相位固定，偏折 ∝ λ）。"""
     asph = {str(a['surface']).replace('面', ''): a for a in emb.get('aspheric', [])}
+    gcat = (spec.get('zmx') or {}).get('gcat')
     S, z = [], 0.0
     rows = [s for s in emb['surfaces'] if s['i'] != 'IMG']
     img = [s for s in emb['surfaces'] if s['i'] == 'IMG']
@@ -82,11 +183,14 @@ def build(spec, emb, state, dmap=None):
         a = asph.get(str(s['i']))
         A = acoef(a) if a else []
         phi = (s.get('extra') or {}).get('有効径 φi')
+        doe = (s.get('doe') or {}).get('C')
+        if doe and lam is not None:
+            k_l = lam / (float(s['doe'].get('wl_nm', 587.56)) * 1e-3)
+            doe = [float(c) * k_l for c in doe]
         S.append(Surf(0.0 if s['R'] in (None, 0) else 1.0/float(s['R']),
                       (a or {}).get('k', (a or {}).get('K', 0.0)) or 0.0, A, z,
-                      s.get('nd') or 1.0, (phi/2.0) if phi else None,
-                      bool(s.get('stop') or s['i'] == 'STO'),
-                      (s.get('doe') or {}).get('C')))
+                      n_at(s, lam, gcat) if s.get('nd') else 1.0, (phi/2.0) if phi else None,
+                      bool(s.get('stop') or s['i'] == 'STO'), doe))
         z += float(D)
     return S, z, ((img[0].get('extra') or {}).get('有効径 φi') if img else None)
 
@@ -356,8 +460,12 @@ def _solve_t(f, fp, t0, ta, tb):
     return None
 
 
-def trace(S, zimg, y0, z0, ang, apert=True):
-    """从 (y0,z0) 以角 ang(rad) 出发追子午实光线。返回 (各面高度, 被挡的面序号或None, 像高)。"""
+def trace(S, zimg, y0, z0, ang, apert=True, wide=False):
+    """从 (y0,z0) 以角 ang(rad) 出发追子午实光线。返回 (各面高度, 被挡的面序号或None, 像高)。
+
+    求交窗口默认按口径开（1.05×semi+0.2，面型多项式只在净口径附近才有意义），超出就当追失。
+    wide=True 把窗口放到 1.5×semi+1：量「本来该走到多高」（轴上底线）时，口径恰恰可能已经切进光束 ——
+    RF35 MFD 的 g 线轴上光线在面12 要到 16.994，窗口 16.985 直接追失，底线就量不出来。"""
     dy, dz = math.sin(ang), math.cos(ang)
     y, z, n = y0, z0, 1.0
     hs = []
@@ -369,7 +477,7 @@ def trace(S, zimg, y0, z0, ang, apert=True):
         def _fp(tt, _s=s, _y=y, _dy=dy, _dz=dz):
             sl = _s.dsag(_y + tt * _dy)
             return None if sl is None else _dz - _dy * sl
-        _yl = (1.05 * s.semi + 0.2) if s.semi is not None else 1e4
+        _yl = ((1.5 * s.semi + 1.0) if wide else (1.05 * s.semi + 0.2)) if s.semi is not None else 1e4
         _ta, _tb = _window(y, dy, _yl, t0)
         t = _solve_t(_f, _fp, t0, _ta, _tb)
         if t is None: return hs, k, None
@@ -397,9 +505,9 @@ def trace(S, zimg, y0, z0, ang, apert=True):
     t = (zimg - z) / dz
     return hs, None, y + t * dy
 
-def trace3(S, zimg, P0, d, apert=True):
+def trace3(S, zimg, P0, d, apert=True, xy=None):
     """3D 斜光线。旋转对称系统：面型只依赖 r=hypot(x,y)，法线 = (-sl*x/r, -sl*y/r, 1)。
-    返回 (各面处的 r, 被挡面序号或 None, 像面 y, 像面 x)。"""
+    返回 (各面处的 r, 被挡面序号或 None, 像面 y, 像面 x)。给 xy=[] 时顺便记下各面交点 (x, y)。"""
     x, y, z = P0; dx, dy, dz = d
     n = 1.0; rs = []
     for k, s in enumerate(S):
@@ -420,6 +528,7 @@ def trace3(S, zimg, P0, d, apert=True):
         if t is None: return rs, k, None, None
         x += t*dx; y += t*dy; z += t*dz
         r = math.hypot(x, y); rs.append(r)
+        if xy is not None: xy.append((x, y))
         if apert and s.semi is not None and r > s.semi + 1e-9:
             return rs, k, None, None
         sl = s.dsag(r) if r > 1e-9 else 0.0
@@ -452,11 +561,16 @@ FRACS = (1.0, 0.8, 0.6, 0.4, 0.2, 0.0)
 Z0 = -80.0                      # 无限远物：光线起始平面
 
 
-def solve_state(S, zimg, zx, obj=None, margin=0.010, verbose=True, tag='', fit_ellipse=False, rEP_fixed=None):
+def solve_state(S, zimg, zx, obj=None, margin=0.010, verbose=True, tag='', fit_ellipse=False, rEP_fixed=None,
+                wfno=None, S_waves=()):
     """解一个结构（一组间隔 + 一个物距）的渐晕。
 
     obj=None 表示物在无限远，视场参数 p = 入射半角；否则 obj 是物距（mm，面1顶点起算），
     视场参数 p = 物高。两种情形都用「入瞳高度 ye」参数化光瞳（Py = (ye-yep)/rEP）。
+
+    S 应按 .zmx 的**主波长**建（build(..., lam=主波长)）；wfno = 该结构的 Paraxial Working F/#
+    （给了就在主波长上重算入瞳半径，与 OpticStudio 的 EPD 逐位一致）；
+    S_waves = 其余系统波长的同一几何，只用于轴上满光瞳包络（axial_3d）。
 
     margin：光瞳两端各内缩 margin×rEP 再折成 VDY/VCY。Layout 的 Py=±1 光线正落在端点上，
     不留余量时舍入误差 + Zemax 的实际光线瞄准（RAIM Real 打到真实光阑，不是近轴入瞳）
@@ -482,15 +596,24 @@ def solve_state(S, zimg, zx, obj=None, margin=0.010, verbose=True, tag='', fit_e
         # aperture_cfg() 按「物理光阑固定」算好的该结构入瞳半径 —— 与 .zmx 的
         # Paraxial Working F/#（逐结构 APER）是同一个模型，渐晕才对得上。
         rEP = float(rEP_fixed)
-        # 光阑面本身不参与挡光：它的大小已由孔径定义给出（Zemax 开 Real 瞄准时 Py=±1 正打在
-        # 光阑近轴半径上）。否则近距结构瞄近轴入瞳的实光线在光阑上略超专利有効径（本篇 15.51>15.405），
-        # 会凭空在轴上写出 VCY≈0.017 的假渐晕。
+        # 光阑面本身不参与挡光：它的大小已由孔径定义给出（Zemax 开 Real 瞄准时 Py=±1 打在
+        # 「轴上实边缘光线在光阑上的高度」上，见下面 r_sp）。光阑再拿专利有効径去挡，
+        # 近距结构会凭空在轴上写出 VCY≈0.017 的假渐晕（RF100：15.51 > 15.405）。
         for _s in S:
             if _s.stop: _s.semi = None
     ca, cb = -yB[ks], yA[ks]
     y1 = ca*yA[0] + cb*yB[0]; u1 = cb
     zEP = -y1/u1 if u1 else 0.0
     z_obj = None if obj is None else -abs(obj)
+    if rEP_fixed and wfno:
+        # 主波长上按 Paraxial Working F/# 重算入瞳半径（OpticStudio 的 EPD 就是这么来的）：
+        # 近轴边缘光线像方斜率 = 1/(2·WFNO)。∞：平行光入射；有限共轭：轴上物点出发，
+        # 入瞳半径 = 这条光线在近轴入瞳面上的高度。TS-E24 四个结构 EPD 与 EPDI 对到 1e-5。
+        if obj is None:
+            rEP = 0.5/(float(wfno)*abs(uA))
+        else:
+            _yo, _uo = par(abs(obj), 1.0)
+            rEP = 0.5/(float(wfno)*abs(_uo)) * (zEP + abs(obj))
 
     def start(p, ye):
         if obj is None:
@@ -509,31 +632,20 @@ def solve_state(S, zimg, zx, obj=None, margin=0.010, verbose=True, tag='', fit_e
         y0, z0, ang = start(p, ye)
         return trace(S, zimg, y0, z0, ang, apert=apert)
 
-    pupil_scale = 1.0
-    r_sp = rEP * abs(yA[ks])
+    r_par = rEP * abs(yA[ks])                  # 光阑近轴半径
+    r_sp = r_par
     if rEP_fixed:
-        # ★ 与 Zemax「Ray Aiming = Real」对齐：Py=±1 打在光阑的**近轴半径**上，不是近轴入瞳边缘。
-        # 大孔径时入瞳有球差，瞄近轴入瞳边缘的实光线在光阑上会多出 1~2%
-        # （回归实测 US20240302626A1 RF35 F1.46：13.65 vs 13.348），各面轴上需求跟着虚胖，
-        # 凭空写出轴上渐晕（VCY 0.013/0.024/0.057）和一串「★★ 切到轴上光瞳」假报警。
-        # 做法：轴上视场二分出「实光线正好落在光阑近轴半径上」的入瞳高度，拿它当本结构的 rEP。
-        # （离轴的光瞳彗差这里不管 —— 交给 zapi_vigfit.ps1 用 OpticStudio 真追迹兜底。）
-        r_sp = rEP * abs(yA[ks])
-        def _hstop(ye):
-            hs, _b, _yi = shoot(0.0, ye, apert=False)
-            return (abs(hs[ks]) - r_sp) if (hs and len(hs) > ks and _yi is not None) else None
-        lo, hi = 0.7*rEP, 1.3*rEP
-        flo, fhi = _hstop(lo), _hstop(hi)
-        for _ in range(40):                     # 有界：hi 逼近 rEP 时浮点会卡死（回归实测 >2 万次追迹）
-            if fhi is not None or hi <= rEP*(1 + 1e-9): break
-            hi = 0.5*(hi + rEP); fhi = _hstop(hi)
-        if flo is not None and fhi is not None and flo < 0 < fhi:
-            for _ in range(50):
-                mid = 0.5*(lo + hi); fm = _hstop(mid)
-                if fm is None or fm > 0: hi = mid
-                else: lo = mid
-            pupil_scale = 0.5*(lo + hi) / rEP
-            rEP = 0.5*(lo + hi)
+        # ★ OpticStudio「Ray Aiming = Real」的光阑半径（2024R2 ZOS-API 实测，TS-E24 / RF5.2 鱼眼逐位对上）：
+        #   R = 主波长轴上实光线**瞄近轴入瞳边缘**（∞：入射高 = EPD/2 的平行光；有限共轭：
+        #       轴上物点 → 近轴入瞳面上高 EPD/2 那一点的直线）在光阑面上的实际高度；
+        #   之后每个视场、每个波长的 (Px,Py) 都线性落在光阑上：光阑坐标 = 主光线 + (Px,Py)·R。
+        # 入瞳有球差时 R 比近轴半径大（TS-E24 10.061 vs 9.794，+2.7%；RF5.2 4.020 vs 3.977）——
+        # 专利印的光阑有効径（TS-E24 20.09 → 10.045）对应的也是这个实半径。
+        # 旧版反过来把入瞳缩到「实光线落在近轴半径上」（×0.975），轴上底线和光瞳都偏小一圈：
+        # TS-E24 的 axial_3d 说全过，OpticStudio 里面14~22 切到轴上光束。
+        hs0 = trace(S, zimg, *start(0.0, rEP), apert=False, wide=True)[0]
+        if hs0 and len(hs0) > ks and hs0[ks]:
+            r_sp = abs(hs0[ks])
 
     def shoot3(p, px_mm, ye):
         P0, d = start3(p, px_mm, ye)
@@ -627,17 +739,36 @@ def solve_state(S, zimg, zx, obj=None, margin=0.010, verbose=True, tag='', fit_e
     # ---- 轴上满光瞳的逐面需求半径（不加任何渐晕、不受口径阻挡）----
     # 用户 2026-09 打回：口径要是切到轴上大光瞳，**F 数就变了**（光圈变小），
     # 那不是"少一点渐晕"的问题，是整只镜头的相对孔径被改掉。所以轴上这一圈是硬底线。
+    # 光束 = OpticStudio 的轴上光束：每个系统波长各自瞄到光阑实半径 r_sp（Real 瞄准对所有波长同一个 R），
+    # 取全部波长、全部光瞳半径的逐面包络。轴上旋转对称，子午一条线扫到底即可；
+    # 不只取边缘光线 —— 强光瞳像差时某些面的最高点在光瞳中间（焦散）。
     axr = [0.0]*len(S)
-    for _i in range(48):
-        _th = 2*math.pi*_i/48
-        for _g in (1.0, 0.85, 0.6):
-            _rr = shoot3n(0.0, _g*rEP*math.cos(_th), _g*rEP*math.sin(_th))[0]
-            for _k, _v in enumerate(_rr): axr[_k] = max(axr[_k], _v)
+    for SS in [S] + list(S_waves or ()):
+        def _hs(ye, _SS=SS):
+            y0, z0, ang = start(0.0, ye)
+            return trace(_SS, zimg, y0, z0, ang, apert=False, wide=True)[0]
+        ye_e = rEP
+        if SS is not S and rEP_fixed:
+            # 从 rEP 出发做定点迭代（斜率取 rEP/r_sp，色差只差百分之几，几步就收敛）。
+            # 不用大区间二分：1.15×rEP 那头在前片上超出追迹窗口直接追失，会静默退回 rEP。
+            ok_ = None
+            for _ in range(60):
+                h = _hs(ye_e)
+                if len(h) <= ks:                   # 追失：退回上一个好点和这里的中点，不许静默退回 rEP
+                    if ok_ is None: ye_e = rEP; break
+                    ye_e = 0.5*(ok_ + ye_e); continue
+                ok_ = ye_e
+                f = abs(h[ks]) - r_sp
+                if abs(f) < 1e-9: break
+                ye_e -= f * rEP / r_sp
+        for _i in range(40, 0, -1):
+            for _k, _v in enumerate(_hs(ye_e*_i/40.0)): axr[_k] = max(axr[_k], abs(_v))
     if verbose:
         print('%s入瞳半径 %.4f  入瞳位置 面1前 %.3f%s%s'
               % (tag, rEP, -zEP, '' if obj is None else '   物距 %.2f' % obj,
-                 '' if abs(pupil_scale - 1) < 1e-6 else
-                 '   实光线瞄准缩放 ×%.4f（轴上边缘光线落在光阑近轴半径上）' % pupil_scale))
+                 '' if abs(r_sp - r_par) < 1e-6 else
+                 '   光阑实半径 %.4f（近轴 %.4f，%+.2f%%；Real 瞄准 Py=±1 落在这里）'
+                 % (r_sp, r_par, 100*(r_sp/r_par - 1))))
         print('  视场 Y′  实际半角      VDY      VCY      VCX   通过光瞳  Py/Px±1  主要卡光面')
     for fr in FRACS:
         Y = ymax*fr
@@ -694,9 +825,9 @@ def solve_state(S, zimg, zx, obj=None, margin=0.010, verbose=True, tag='', fit_e
                 vig.append([0.0, 0.0, 0.0, 0.0]); continue
             yseed = yep - rEP + 2*rEP*(0.5*(best[1]+best[2]))/NS
         # ---- 光阑参考的光瞳坐标（孔径模型启用时）----
-        # Zemax RAIM Real：Py=±1 是「实光线打在光阑 主光线高度 ± 光阑近轴半径」，
+        # Zemax RAIM Real：Py=±1 是「实光线打在光阑 主光线高度 ± 光阑实半径 r_sp」（r_sp 见上），
         # 不是入瞳上的 yep±rEP。两者差的是光瞳像差（轴上球差 + 离轴彗差/畸变），
-        # 单一缩放补不齐：回归实测 RF100 离轴要 OpticStudio 补 4~7 步，RF35 轴上凭空多出渐晕。
+        # 单一缩放补不齐：回归实测 RF100 离轴要 OpticStudio 补 4~7 步。
         # 所以逐视场二分出 Py=±1 对应的入瞳高度当搜索边界，VDY/VCY/VCX 再折回光阑坐标。
         stopref = bool(rEP_fixed)
         if stopref:
@@ -735,16 +866,24 @@ def solve_state(S, zimg, zx, obj=None, margin=0.010, verbose=True, tag='', fit_e
                         xp, fp = xa, fa
                         xa, fa = xb, fb
                     return None
+                def ye_dir(target, sign):
+                    # 扫描范围逐级放宽：大视场光瞳畸变极大，Py=±1 在入瞳上可以离主光线 2~3 个 rEP
+                    # （TS-E24 54°：Py=+0.6 已在 yep+1.7rEP）。只扫 1.6rEP、扫完没跨过就返回 None，
+                    # stopref 会静默退回入瞳坐标 —— 把 Py≈−0.33 当成 −1，VCY 0.21 vs OpticStudio 0.73。
+                    for span in (1.6, 4.0, 8.0):
+                        r_ = ye_at(target, yep, yep + sign*span*rEP)
+                        if r_ is not None: return r_
+                    return None
                 def ye_find(target):
                     # 按 target 在主光线哪一侧决定扫描方向（光阑高度随入瞳高度单调，朝向 gs）
-                    up = gs*(target - s0) >= 0
-                    r_ = ye_at(target, yep, yep + (1.6 if up else -1.6)*rEP)
-                    return r_ if r_ is not None else ye_at(target, yep, yep + (-1.6 if up else 1.6)*rEP)
+                    up = 1.0 if gs*(target - s0) >= 0 else -1.0
+                    r_ = ye_dir(target, up)
+                    return r_ if r_ is not None else ye_dir(target, -up)
                 def py_of(ye):
                     h = hstop(ye)
                     return None if h is None else gs*(h - s0)/r_sp
-                ye_top = ye_at(s0 + gs*r_sp, yep, yep + 1.6*rEP)
-                ye_bot = ye_at(s0 - gs*r_sp, yep, yep - 1.6*rEP)
+                ye_top = ye_dir(s0 + gs*r_sp, +1.0)
+                ye_bot = ye_dir(s0 - gs*r_sp, -1.0)
                 if ye_top is None or ye_bot is None: stopref = False
         top_lim = ye_top if stopref else yep + rEP
         bot_lim = ye_bot if stopref else yep - rEP
@@ -760,7 +899,7 @@ def solve_state(S, zimg, zx, obj=None, margin=0.010, verbose=True, tag='', fit_e
         # 统计卡光面（粗扫，只为找渐晕定义面）
         blk_cnt = {}
         for i in range(121):
-            ye = yep - rEP + 2*rEP*i/120
+            ye = bot_lim + (top_lim - bot_lim)*i/120
             b = shoot(p, ye)[1]
             if b is not None:
                 blk_cnt[b] = blk_cnt.get(b, 0) + 1
@@ -787,32 +926,57 @@ def solve_state(S, zimg, zx, obj=None, margin=0.010, verbose=True, tag='', fit_e
         # VCX：光瞳中心高度上横向扫描（Zemax 的椭圆光瞳，X 半轴取在椭圆中心处）
         vcx = 0.0
         px_lim = rEP
+        aim_x = None
         if stopref:
-            yc_s = hstop(yc) or 0.0
-            def xstop(px):
-                rr_ = shoot3n(p, px, yc)[0]
-                if not rr_ or len(rr_) <= ks: return None
-                return math.sqrt(max(rr_[ks]**2 - yc_s**2, 0.0))
-            def px_at(target):
-                # 同 ye_at：从 0 往外分步扫，追不出来就拿最后两点线性外推
-                xa_, fa_, xp_, fp_ = 0.0, 0.0, None, None
-                for i in range(1, 65):
-                    xb_ = 1.6*rEP*i/64; fb_ = xstop(xb_)
-                    if fb_ is None:
-                        if xp_ is None or fa_ <= fp_ or target <= fa_: return None
-                        return xa_ + (target - fa_)*(xa_ - xp_)/(fa_ - fp_)
-                    if fb_ >= target:
-                        for _ in range(50):
-                            mid = 0.5*(xa_ + xb_); fm = xstop(mid)
-                            if fm is None or fm >= target: xb_ = mid
-                            else: xa_ = mid
-                        return 0.5*(xa_ + xb_)
-                    xp_, fp_ = xa_, fa_
-                    xa_, fa_ = xb_, fb_
-                return None
-            _pl = px_at(r_sp)
-            if _pl: px_lim = _pl
-        if shoot3(p, 0.0, yc)[1] is None:
+            # ★ Zemax 的 Px 是**二维瞄准**：Px=t 的实光线精确落在光阑点 (t·R, 光瞳中心 y) 上。
+            # 旧写法固定入瞳 y、只改入瞳 x，再用 sqrt(r²−y²) 估光阑 x —— 斜光线在光阑上的 y 会漂，
+            # VCX 系统性偏小，回归里 6 格 Px±1 在 OpticStudio 被挡（TS-E24 MFD 视场4、RF50 MFD 视场1 等）。
+            yc_t = s0 + gs*vdy*r_sp                 # 光瞳中心在光阑上的 y（vdy 此时仍是求解朝向）
+            def _stop_xy(px_, ye_):
+                xy_ = []
+                trace3(S, zimg, *start3(p, px_, ye_), apert=False, xy=xy_)
+                return xy_[ks] if len(xy_) > ks else None
+            def aim_x(t, guess):
+                """入瞳 (px, ye)，使实光线落在光阑 (t·R, yc_t)；解不出返回 None。"""
+                px_, ye_ = guess
+                h_ = 1e-4*rEP
+                # 门槛按光阑半径取相对值：求交本身有 ~1e-6 mm 的数值噪声（RF800 实测），
+                # 绝对 1e-8 永远收不住，瞄准「失败」会被当成挡光（VCX 假到 0.55）。1e-5·R 对光瞳坐标可忽略。
+                tol_a = 1e-7*r_sp
+                best = None
+                for _ in range(30):
+                    q0 = _stop_xy(px_, ye_)
+                    if q0 is None: return None
+                    fx, fy = q0[0] - t*r_sp, q0[1] - yc_t
+                    e_ = max(abs(fx), abs(fy))
+                    if best is None or e_ < best[0]: best = (e_, px_, ye_)
+                    if e_ < tol_a: return px_, ye_
+                    qa, qb = _stop_xy(px_ + h_, ye_), _stop_xy(px_, ye_ + h_)
+                    if qa is None or qb is None: break
+                    a11, a21 = (qa[0] - q0[0])/h_, (qa[1] - q0[1])/h_
+                    a12, a22 = (qb[0] - q0[0])/h_, (qb[1] - q0[1])/h_
+                    det = a11*a22 - a12*a21
+                    if det == 0: break
+                    px_ -= (fx*a22 - fy*a12)/det
+                    ye_ -= (a11*fy - a21*fx)/det
+                return (best[1], best[2]) if best[0] < 100*tol_a else None
+            g0 = aim_x(0.0, (0.0, yc))
+            if g0 is None: aim_x = None
+        if aim_x is not None:
+            # 沿光阑 x 从 0 扫到 R（续接上一个解当初值），第一个被挡 / 瞄不出来的就是边
+            last_t, last_g, hit_t = 0.0, g0, None
+            for i in range(1, 51):
+                t = i/50.0; g_ = aim_x(t, last_g)
+                if g_ is None or shoot3(p, g_[0], g_[1])[1] is not None: hit_t = t; break
+                last_t, last_g = t, g_
+            if hit_t is not None:  # X 向没挡住任何东西时 VCX 就是 0，绝不能再减余量
+                lo2, hi2 = last_t, hit_t
+                for _ in range(30):
+                    m = 0.5*(lo2 + hi2); g_ = aim_x(m, last_g)
+                    if g_ is not None and shoot3(p, g_[0], g_[1])[1] is None: lo2, last_g = m, g_
+                    else: hi2 = m
+                vcx = max(0.0, 1 - (lo2 - margin))
+        elif shoot3(p, 0.0, yc)[1] is None:
             last, hit = 0.0, False
             for i in range(1, 201):
                 px = i/200.0*px_lim
@@ -824,13 +988,7 @@ def solve_state(S, zimg, zx, obj=None, margin=0.010, verbose=True, tag='', fit_e
                     m = 0.5*(lo2+hi2)
                     if shoot3(p, m, yc)[1] is None: lo2 = m
                     else: hi2 = m
-                if stopref:
-                    _pe = max(0.5*(lo2+hi2) - m_ep, 0.0)
-                    xe = xstop(_pe)
-                    if xe is None: xe = r_sp*_pe/px_lim          # 追不出来就按线性映射
-                    vcx = max(0.0, 1 - xe/r_sp)
-                else:
-                    vcx = max(0.0, 1 - (0.5*(lo2+hi2) - m_ep)/rEP)
+                vcx = max(0.0, 1 - (0.5*(lo2+hi2) - m_ep)/rEP)
         vcx = 0.0 if vcx < 0.002 else vcx
         # --- 椭圆边界体检 + 收缩：真实通光区是几个圆的交集，椭圆会在斜方位上探出去 ---
         ax, ay = (1-vcx)*rEP, (1-vcy)*rEP
@@ -862,16 +1020,14 @@ def solve_state(S, zimg, zx, obj=None, margin=0.010, verbose=True, tag='', fit_e
             _yb = ye_find(s0 + gs*(_vd - (1-vcy))*r_sp)
             if _yt is not None and _yb is not None:
                 yc, ay = 0.5*(_yt + _yb), 0.5*abs(_yt - _yb)
-                _ycs = hstop(yc) or 0.0
-                _lo, _hi = 0.0, 1.6*rEP
-                _axp = None
-                try:
-                    _axp = px_at((1-vcx)*r_sp) if (1-vcx) > 0 else 0.0
-                except NameError:
-                    _axp = None
-                ax = _axp if _axp is not None else (1-vcx)*px_lim
+        pxg = None
+        if stopref and aim_x is not None:
+            yc_t = s0 + gs*_vd*r_sp                 # 按取整后的 VDY 重瞄 Px=±1
+            pxg = aim_x(1 - vcx, (0.0, yc))
+            if pxg is not None: ax = abs(pxg[0])
         pyok = (all(shoot(p, yc + s*ay)[1] is None for s in (-1.0, 1.0))
-                and all(shoot3(p, s*ax, yc)[1] is None for s in (-1.0, 1.0)))
+                and (all(shoot3(p, s*pxg[0], pxg[1])[1] is None for s in (-1.0, 1.0)) if pxg else
+                     all(shoot3(p, s*ax, yc)[1] is None for s in (-1.0, 1.0))))
         eb = ellipse_blocked(p, yc, ax, ay, 72)
         for i in range(24):
             th = 2*math.pi*i/24
@@ -926,15 +1082,20 @@ def main():
     if any(r['src'] != '固定光阑' for r in aprows):
         print('  注：专利近距 F 数比「光阑全开不变」暗 —— 这支镜头近距会收光圈（或专利按别的口径定义），'
               '按专利值走；中间结构是插值的，回话要说')
+    # 追迹用 .zmx 的主波长（OpticStudio 的 EPD / Real 瞄准 / Set Vignetting 都按它算），
+    # 其余波长只进轴上满光瞳包络。近轴孔径模型（aperture_cfg 的 WFNO）仍按 nd 定 —— 它只给 F 数。
+    lam_p, lams = waves_of(zx)
+    print('  追迹波长：主 %.4f µm；轴上包络 %s' % (lam_p, ', '.join('%.4f' % l for l in lams)))
     vig_cfg, maxr, blk_all, axall = [], None, {}, None
     for c, ar in zip(cfgs, aprows):
         dmap = cfg_dmap(spec, emb, c)
         d0 = c.get('d0')
         obj = None if (d0 is None or str(d0).upper().startswith('INF')) else float(d0)
-        S, zimg, _ = build(spec, emb, state, dmap)
+        S, zimg, _ = build(spec, emb, state, dmap, lam=lam_p)
+        Sw = [build(spec, emb, state, dmap, lam=l)[0] for l in lams if abs(l - lam_p) > 1e-9]
         v, mr, blk, _b, axr = solve_state(S, zimg, zx, obj, a.margin, True,
                                           '\n== %s ==  ' % c.get('name', '?'), a.fit_ellipse,
-                                          rEP_fixed=ar['rEP'])
+                                          rEP_fixed=ar['rEP'], wfno=ar['wfno'], S_waves=Sw)
         vig_cfg.append(v)
         maxr = mr if maxr is None else [max(x, y) for x, y in zip(maxr, mr)]
         axall = axr if axall is None else [max(x, y) for x, y in zip(axall, axr)]

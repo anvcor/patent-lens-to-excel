@@ -3,8 +3,9 @@
 #   powershell -File zapi_vigfit.ps1 -File X_catalog.zmx -Out X.vigfit.json [-Step 0.01] [-MaxIter 150]
 #   python vigfit_merge.py spec.final.json X.vigfit.json      # 写回 zmx.vignetting_cfg，再 make_zmx / make_seq
 #
-# 为什么需要：vignet.py 瞄的是**近轴入瞳**，Zemax 开 RAIM Real 瞄的是**真实光阑**，大视场下两者有光瞳像差，
-# 前几片（面1~3）上的落点差零点几毫米。实测 JP2021-047297A：脚本自检 Py/Px±1 全 OK，
+# 为什么需要：vignet.py 已按 OpticStudio 的 Real 瞄准建模（光阑实半径 R = 主波长轴上实光线瞄近轴入瞳边缘时
+# 在光阑上的高度，(Px,Py) 线性落在光阑上），但它是纯 Python 近似追迹 + 椭圆拟合，边沿上仍会差几个千分点；
+# 历史上（2026-09 之前把光阑当成近轴半径）前几片（面1~3）上的落点差零点几毫米。实测 JP2021-047297A：脚本自检 Py/Px±1 全 OK，
 # OpticStudio 里 INF~0.25x 结构视场1~4 的 Py−1 / Px±1 仍被面1/2/3 切；连 OpticStudio 自己的
 # Set Vignetting 也是「正好压在口径边上」，Px±1 照样判渐晕。只有真追迹才看得出来。
 #

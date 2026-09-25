@@ -98,6 +98,9 @@ seq2zmx.py                  反方向 .seq → .zmx（也用来回转验证 make
 2. **近距结构的几何**：任何按结构重建系统的地方都要用 `vignet.cfg_dmap()`（补齐 key_after / key_last），
    不能只覆盖 key_before。
 3. **渐晕的光瞳坐标是光阑参考的**（对齐 Zemax RAIM Real）；拿 OpticStudio 对照时 .zmx 口径必须全部固定。
+   光阑半径**不是近轴半径**：R = 主波长轴上实光线瞄近轴入瞳边缘（EPD/2）时在光阑上的高度，
+   (Px,Py) 对所有视场、所有波长都线性落成「主光线 + (Px,Py)·R」（2026-09-25 ZOS-API 实测，见 SKILL.md「Real 瞄准的光阑半径」）。
+   `vignet.py` 追迹用 .zmx 的**主波长**（`waves_of` 与 `make_zmx` 同一约定），`axial_3d` 取全部系统波长的包络。
 4. **顺序**：vignet → clearance → apcap → make_*；`vignet --write` 把渐晕定义面**并入** `fix_semi_surfaces`（原有全量保留，定义面另存 `vig_def_surfaces`），
    apcap 仍会按全部有口径的面重建一次；`--trim` 收紧之后绝不能再跑 vignet（自激塌缩）。
 5. **CODE V 视场顺序与 Zemax 相反**（轴上在前），`YRI` / 渐晕 / `ZOO … F<i>` 一起倒；带 OAL 解的面不写 `ZOO THI`。
