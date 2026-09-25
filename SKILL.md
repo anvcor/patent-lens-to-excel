@@ -370,6 +370,7 @@ lensmath 的对焦间隔是**近轴**像面解，残余球差/色差让 MTF 峰�
 （「峰值在 0」⇔「像面上轴上 MTF 对对焦间隔取极大」），D5 +0.062~+0.079 后峰位 ±0.0001、MTF 0.66~0.74（0.02x 解出 6.5349，用户手调 6.5300）。
 **必须排在 zapi_vigfit 之前**：对焦组一挪，贴边解出的渐晕就不成立（实测挪 0.07mm 后所有视场 ±1 都被挡），要重新 Set Vignetting。
 轴上视场零渐晕，对焦结果不依赖渐晕，所以顺序是 refocus → vigfit → CheckOnly。双浮动只动第一组。
+**对焦会改近距结构的轴上光锥**：整组前伸 / 后组前移时 BF 一变，近距结构的轴上需求跟着变（US8970966B2 EF40 STM：refocus 后 MFD 面7/8/9 超出 0.005~0.011，被切着的轴上光束又反过来把 MTF 峰拉偏 −0.005）。完整顺序：make_zmx → refocus → **OpticStudio 量轴上需求（不挡光、5 波长×全结构）+0.05 抬口径** → 抬过就再 refocus 一遍 → vigfit → CheckOnly → 最后 `zapi_refocus.ps1 -Scan 0.05`（不带 -Out）复查峰位全 0。
 ⑧ **本机有 OpticStudio 就用 ZOS-API 真加载一遍**（`zapi_vigfit.ps1 -CheckOnly`，无界面、30 秒）：
 逐结构 `PWFN = APER`、`WFNO ≈ PWFN`、`PMAG` = 设计倍率、`TOTR` 各结构相等、**Py/Px=±1 四条实光线全过**。
 vignet.py 自检说 OK 不算数 —— 它已按 OpticStudio 的 Real 瞄准建模（见「Real 瞄准的光阑半径」），
