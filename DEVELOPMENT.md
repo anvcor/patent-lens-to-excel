@@ -170,6 +170,10 @@ python tools/build_skill.py                # → E:\Download\patent-lens-to-exce
 
 ## 10. 变更记录
 
+- **2026-09-25**：`lensmath` Offset 基准重写为 `offset_base()`（按厂家顺序 / 球面件不用模压料 / 窗口外色散优先 / 停产无铅可用），
+  `best()` 加 `mold_ok`（按元件排除模压料）；新增可选面字段 `pgf`。TS-E24 II 面7/18/19 → S-BSM4 / S-BAL3 / S-LAH60V。
+  回归 10 个 spec + 另 9 个带 Offset 解的历史 spec（按各自真实厂家顺序）旧/新逐面比对：只有无等效面的 Offset 基准变（EFL 逐位不变），基准始终留在首选厂家内。
+
 - **2026-09-17（晚）**：**变焦镜头**支持（`lensmath.zoom_configs`、`aperture_cfg` 按变焦位置分组、make_zmx/make_seq 全可变间隔进 MCE/ZOO、
   covercheck 变量 BF、apcap/clearance 全行程最小间隔）；**配套评价函数 + 对焦变量**（Contrast s+t 80lp/mm GQ3×6 逐结构，
   与用户样板逐行一致；.seq `ZOO THC 0`）；make_zmx 默认只出 catalog；删掉 MCE 后多余的 `CONF 1`；`zmx.mfd`。

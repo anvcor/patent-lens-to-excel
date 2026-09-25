@@ -129,7 +129,11 @@ def legacy(g):
     """停产牌号（AGF status=2）或该厂的老一代（含铅系列）—— 2000 年环保化以后的镜头不会用。"""
     return g.get('status') == 2 or _gen(g) != 0
 
-def best(val, vd, libs, key, asph, brand_slack=BRAND_SLACK, match_tol=2e-5, alt_only=(), eco=True):
+def best(val, vd, libs, key, asph, brand_slack=BRAND_SLACK, match_tol=2e-5, alt_only=(), eco=True,
+         mold_ok=True):
+    """asph 是**本面**是否非球面（决定模压料的罚分与平局资格，沿用旧行为）；
+    mold_ok 按**整块元件**给（元件任一面是非球面即 True），False 时模压料直接不进候选。
+    默认 True 只为 detect_line 这类统计用途保持旧行为；逐面选料必须显式传。"""
     un, uv = _ulp(val), _ulp(vd)
     c = []
     for rank, lib in enumerate(libs.values()):
@@ -137,6 +141,9 @@ def best(val, vd, libs, key, asph, brand_slack=BRAND_SLACK, match_tol=2e-5, alt_
             gv = g[key]
             if gv is None: continue
             if eco and legacy(g): continue      # 含铅/停产的一律不参与（--allow-legacy 可关）
+            # 球面元件绝不用模压料（M-/MP-/MC-/D-/Q-/L-）。原先只罚 +60 分，
+            # 可 nd 一项动辄上千分，罚分形同虚设：TS-E24 II 面19（胶合球面）选出了 HOYA MP-NBFD10-20
+            if MOLD.match(g['name']) and not mold_ok: continue
             s = ((gv - val) / 2e-4) ** 2 + ((g['vd'] - vd) / 0.15) ** 2
             if MOLD.match(g['name']) and not asph: s += 60
             # 边界要含进来：印 νd=30.1 时半刻度正好 0.05，目录里 30.05 的牌号
@@ -205,6 +212,69 @@ def best(val, vd, libs, key, asph, brand_slack=BRAND_SLACK, match_tol=2e-5, alt_
 
 # 各厂 νd 的定义与舍入差异本来就有 0.1 量级，不能拿它当厂家裁决依据
 VD_BAND = 0.12
+
+# ================= Offset 玻璃解的基准 =================
+# Offset 解能把 nd 的差整块吃掉，吃不掉的是**色散曲线的形状**（νd、部分色散）。
+# 所以基准要先贴 νd / dPgF，nd 只是次要项。旧逻辑的三个坑（US20100208366A1 TS-E24 II 实测）：
+#   面7  1.61601/58.7 → HOYA BACD4：只在「最近牌号」那一家里找，OHARA S-BSM4（νd 58.72）根本没进候选；
+#   面18 1.55400/52.2 → HOYA E-FEL1（νd 45.8，Vd offset +6.4）：窗口里没人就直接拿 nd 最近的；
+#   面19 1.84175/37.2 → HOYA MP-NBFD10-20：球面胶合件用了模压料。
+OFS_ND_WIN, OFS_VD_WIN = 0.002, 1.0        # 「窗口内」= 基本就是这颗料
+OFS_ND_CAP = 0.03                          # 窗口外按色散挑时 nd 最多差这么多（没有就放开）
+OFS_SIG_VD, OFS_SIG_PGF, OFS_SIG_ND = 0.2, 0.001, 0.02   # 打分：νd 0.2 ≈ dPgF 0.001 ≈ nd 0.02
+OFS_OBSOLETE = 1.0                         # 停产（但无铅）牌号的罚分 ≈ νd 多差 0.2
+OFS_VENDOR_VD = 0.5                        # 首选厂家 |Δvd| 不比全局最优差过这么多，也算「合理」
+OFS_VENDOR_PGF = 0.002                     # 同上，dPgF（专利印了 θgF 时）
+
+def offset_base(val, vd, libs, key, asph, alt_only=(), eco=True, pgf=None):
+    """给无等效牌号的面挑 Offset 解的基准玻璃，返回 (glass, 说明)。
+    asph   —— 按**整块元件**判；False 时模压料一律不要。
+    pgf    —— 专利若印了 θgF(Pg,F)，传进来参与打分；没印就只看 νd。
+    eco    —— 排除含铅老一代（OHARA 非 S-/L-、HIKARI 非 J-/Q-）。**停产但无铅**的
+              （OHARA S-BSM4 这类）允许做基准、只小罚：老专利用的正是它们，色散数据仍是真的。"""
+    tpg = None if pgf is None else pgf - (0.6438 - 0.001682 * vd)
+    vendors = [v for v in libs if v not in alt_only] or list(libs)
+    cand = []
+    for v in vendors:
+        for g in libs[v]:
+            if g[key] is None: continue
+            if eco and _gen(g): continue
+            # CDGM/HOYA 没有世代前缀可判，停产的（CDGM F/ZF…）多半含铅 → 只放行有前缀可证无铅的厂家
+            if eco and g.get('status') == 2 and v not in CURRENT: continue
+            mold = bool(MOLD.match(g['name']))
+            if mold and not asph: continue
+            dn, dv = g[key] - val, g['vd'] - vd
+            sc = (dv / OFS_SIG_VD) ** 2 + (dn / OFS_SIG_ND) ** 2
+            p = dpgf(g) if tpg is not None else None
+            if tpg is not None:
+                sc += ((p - tpg) / OFS_SIG_PGF) ** 2 if p is not None else 25.0
+            if g.get('status') == 2: sc += OFS_OBSOLETE
+            cand.append({'g': g, 'v': v, 'dn': abs(dn), 'dv': abs(dv), 's': sc, 'mold': mold,
+                         'dp': None if p is None else abs(p - tpg), 'old': g.get('status') == 2})
+    if not cand: return None, ''
+    eps = 1 + 1e-9
+    # ① 窗口内（|Δnd|≤0.002 且 |Δvd|≤1）：按 --vendors 顺序取第一家；
+    #    非球面元件优先模压料，其次现行牌号，再按 nd 最近（与旧逻辑一致，免得无谓改动）
+    win = [x for x in cand if x['dn'] <= OFS_ND_WIN * eps and x['dv'] <= OFS_VD_WIN * eps]
+    for v in vendors:
+        w = [x for x in win if x['v'] == v]
+        if w:
+            w.sort(key=lambda x: (not (asph and x['mold']), x['old'], x['dn']))
+            return w[0]['g'], '窗口内'
+    # ② 窗口外：色散优先（νd、有 θgF 时加 dPgF），nd 只做次要项
+    pool = [x for x in cand if x['dn'] <= OFS_ND_CAP * eps] or cand
+    top = min(pool, key=lambda x: x['s'])
+    for v in vendors:
+        pv = [x for x in pool if x['v'] == v]
+        if not pv: continue
+        b = min(pv, key=lambda x: x['s'])
+        # 「合理」按 νd 的绝对差距判，不按分数：各厂 νd 的定义/舍入本来就差 0.1 量级，
+        # 分数一平方就把 2.16 vs 2.10 这种等价候选放大成「不合理」（RF28-70 面29 S-BSL7 vs BSC7）
+        ok = b['dv'] <= max(OFS_VD_WIN, top['dv'] + OFS_VENDOR_VD) * eps and \
+            (b['dp'] is None or b['dp'] <= max(0.003, (top['dp'] or 0) + OFS_VENDOR_PGF))
+        if ok:
+            return b['g'], '色散优先'
+    return top['g'], '色散优先（首选厂家无合理候选）'
 
 def surfaces_with_glass(emb):
     return [s for s in emb['surfaces'] if s.get('nd')]
@@ -489,10 +559,10 @@ def main():
         asph = s.get('type') == '非球面'
         asph_eff = asph or (s.get('lens') in ASPH_LENS)
         c = best(s['nd'], s['vd'], libs, line, asph, a.brand_slack, a.match_tol,
-                 tuple(a.alt_only), eco=not a.allow_legacy)
+                 tuple(a.alt_only), eco=not a.allow_legacy, mold_ok=asph_eff)
         if not c:        # 无铅池里一个都没有 —— 退回全目录并告警，绝不静默
             c = best(s['nd'], s['vd'], libs, line, asph, a.brand_slack, a.match_tol,
-                     tuple(a.alt_only), eco=False)
+                     tuple(a.alt_only), eco=False, mold_ok=asph_eff)
             if c: print('  ★ 面%s 无铅目录里没有候选，回退到含铅/停产牌号 %s'
                         % (s['i'], c[0][2]['name']))
         g = c[0][2]
@@ -511,24 +581,13 @@ def main():
         print('  面%-4s %.5f/%-5.1f %s → %-6s %-13s nd=%.5f νd=%.2f Δ%+.5f | %s%s'
               % (s['i'], s['nd'], s['vd'], 'ASP' if asph else '   ', g['vendor'], g['name'],
                  g['nd'], g['vd'], g[line] - s['nd'], ' ; '.join(alts), tag))
-        # 无等效牌号的面要另挑一颗「贴合实物」的基准玻璃做 Offset 解：
-        #   现行牌号优先；**非球面元件再优先取模压料**（Q-/M-/D-/L- …）——
-        #   非球面落在模压料上本来就是匹配可信的标志，也正是实物用的料。
-        base = g
+        # 无等效牌号的面要另挑一颗「贴合实物」的基准玻璃做 Offset 解（规则见 offset_base）：
+        #   按 --vendors 顺序、球面元件不用模压料、窗口外色散优先。
+        base, base_how = g, ''
         if abs(g[line] - s['nd']) > a.match_tol:
-            # 候选必须同时靠近 nd **和** νd —— 只卡 nd 会挑出阿贝数差 30 的火石料
-            # （实测面23 一度选到 J-F16：nd 只差 0.00024，νd 却差 32.6）。
-            same = [x[2] for x in c if x[2]['vendor'] == g['vendor']
-                    and abs(x[2][line] - s['nd']) <= 0.002
-                    and abs(x[2]['vd'] - s['vd']) <= 1.0 and _gen(x[2]) == 0]
-            # 非球面按**整块元件**判：胶合/单片里只要有一面是非球面，这块玻璃就是
-            # 模压件，nd 挂在前表面而 * 号常常打在后表面（本篇 L31 = 面23+面24）。
-            if asph_eff:
-                mold = [x for x in same if MOLD.match(x['name'])]
-                if mold:
-                    mold.sort(key=lambda x: abs(x[line] - s['nd'])); base = mold[0]
-            if base is g and same:
-                same.sort(key=lambda x: abs(x[line] - s['nd'])); base = same[0]
+            bb, base_how = offset_base(s['nd'], s['vd'], libs, line, asph_eff, tuple(a.alt_only),
+                                       eco=not a.allow_legacy, pgf=s.get('pgf'))
+            if bb is not None: base = bb
         dn = g[line] - s['nd']
         if a.write:
             s.setdefault('extra', {})
@@ -561,13 +620,13 @@ def main():
                          s['glass_offset']['d_nd'], s['glass_offset']['d_vd']))
                 s['note'] = (s.get('note', '') + '；' + nt).lstrip('；')
                 NOMATCH.append((s['i'], s['nd'], s['vd'], g['vendor'], g['name'], dn,
-                                s['glass_offset']))
+                                s['glass_offset'], base_how))
     if NOMATCH:
         print('\n  ★ 无等效牌号（保留专利印刷值，zmx 该面走模型玻璃）:')
-        for i, nd, vd, v, n, dn, go in NOMATCH:
+        for i, nd, vd, v, n, dn, go, how in NOMATCH:
             print('     面%-4s %.5f/%.1f  最近 %s %s Δnd%+.5f' % (i, nd, vd, v, n, dn))
-            print('            → Offset 解：基准 %-18s nd=%.5f νd=%.4f  Nd offset %+.5f  Vd offset %+.4f'
-                  % (go['base'], go['base_nd'], go['base_vd'], go['d_nd'], go['d_vd']))
+            print('            → Offset 解：基准 %-18s nd=%.5f νd=%.4f  Nd offset %+.5f  Vd offset %+.4f  [%s]'
+                  % (go['base'], go['base_nd'], go['base_vd'], go['d_nd'], go['d_vd'], how))
     # ---- 近轴 ----
     zx = spec.get('zmx', {}); fc = zx.get('focus', {})
     st = emb.get('states', [None])[0]

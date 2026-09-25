@@ -91,6 +91,7 @@ surface 上：
 | 字段 | 说明 |
 |---|---|
 | `glass_offset` | Zemax **Offset 玻璃解**。`{"base":"HIKARI Q-PSKH1S","base_nd":1.59255,"base_vd":67.8569,"base_dpgf":0.01421,"d_nd":0.00039,"d_vd":0.0431}`。由 `lensmath.py` 在「无等效牌号」时自动写入；`make_zmx.py` 见到就铺 `GLAS <base> 4 …` 行，优先于 `glass` / 模型玻璃 |
+| `pgf` | 可选。专利印的部分分散比 θgF（Pg,F 本身，不是 ΔPgF）。有它 `lensmath` 挑 Offset 基准时才把 dPgF 纳入打分 |
 | `extra["有効径 φi"]` | 该面的净口径**直径**（不是半径）。由 `aptrace.py` 逐面写入，`apcap.py` 可能再收口 |
 
 `zmx` 下：
