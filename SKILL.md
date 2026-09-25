@@ -660,6 +660,21 @@ L11+L12 17.4 / L13+L14 17.0 / L21 13.2 / L31 14.5 / L32 15.7 / 盖板 22.5（机
 WO2019187633 Ex1 **9.31° vs 9.38** —— 差 0.7% 属正常，实光线 vs 近轴）。
 对上了，Ymax、口径、标定三件事同时验证通过 —— 别跳过这一条。
 
+### 半视场 >90° 的鱼眼：视场改用角度（`zmx.field_type: "angle"`）
+
+**OpticStudio 的 Real Image Height 解不出 >90° 的主光线**（FTYP 3 下视场1 整条追不出来，zapi 报 `Py/Px@S0`）；
+Angle 视场到 95°/100° 照常追（官方样例 `Wide angle lens 200 degree field.zmx` 就是 `FTYP 0`）。spec 写
+`"field_type": "angle", "max_angle": <专利 ω>` → make_zmx 写 `FTYP 0` + `YFLN ω×[1,.8,.6,.4,.2,0]`（等距投影鱼眼等角 ≈ 等像高），
+make_seq 写 `YAN` 并自动加 **`WID Y`**（CODE V Wide Angle Mode，>90° 必须开，只能配 XAN/YAN）。
+**vignet.py 不支持 >90°**（`tan(p)` + 搜索上限 70°）：渐晕直接交给 `zapi_vigfit.ps1`（Set Vignetting + 收 ±1），
+轴上需求用 ZOS-API 不挡光追一遍（5 波长 × 全结构取最大）再 +0.05 抬口径 —— 口径要改在面的 `extra["有効径 φi"]`，
+**make_zmx 读的是它，不是 `zmx.semi_diameters`**。
+
+**近距结构的物面是平面，>90° 的视场在平物面上没有交点**：OpticStudio 会把 95.49° 折成 −84.6°、像高跑到 −7.60
+（算的其实是另一侧 84.6° 的视场）。用 `"fields_cfg": {结构名: [视场值…]}` 把近距结构的视场1 收到 89° →
+make_zmx 写 MCE `YFIE <视场> <结构> <值>`，make_seq 写 `ZOO YAN F<i>`（OpticStudio 实测读得回）。
+实测回归：US20220221688A1 Ex2（RF5.2mm F2.8 L Dual Fisheye，95.49° ↔ 实像高 8.572，专利印 8.55）。
+
 ## 光线瞄准 Ray Aiming —— 默认就要开 Real
 
 `.zmx` 里就是 `RAIM` 行的**第 2 位**：**0 = Off / 1 = Paraxial / 2 = Real**。

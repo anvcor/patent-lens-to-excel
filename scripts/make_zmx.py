@@ -125,11 +125,32 @@ def waves_of(zx):
     return list(WAVES_DEFAULT)
 
 
+def is_angle_field(zx):
+    """zmx.field_type = "angle"：视场按物方角度（度）给，FTYP 0。
+    半视场 >90° 的鱼眼必须这样 —— OpticStudio 的 Real Image Height 解不出 >90° 的主光线
+    （US20220221688A1 RF5.2 Dual Fisheye：像高 8.55 ↔ 95.49°，FTYP 3 下视场1 整条追不出来），
+    而 Angle 视场到 95°/100° 都能追（官方样例 Wide angle lens 200 degree field.zmx 就是 FTYP 0）。"""
+    return str(zx.get('field_type', '')).lower() in ('angle', 'object_angle', 'yan')
+
+
+def fields_cfg(zx, cfgs, base):
+    """zmx.fields_cfg = {结构名: [视场值…]} → 逐结构视场表（缺的结构用 base）；没有就返回 None。"""
+    fc = zx.get('fields_cfg')
+    if not fc:
+        return None
+    miss = [k for k in fc if k not in [c['name'] for c in cfgs]]
+    if miss:
+        print('  ⚠ zmx.fields_cfg 的键对不上结构名：%s' % miss)
+    return [[float(v) for v in fc.get(c['name'], base)] for c in cfgs]
+
+
 def fields_of(zx, emb):
     """zmx.fields_y 直接给就用；否则按最大像高取 6 等分点。
     最大像高优先级：zmx.max_y > 各种数据里的 Y > 像面有効径/2。"""
     if zx.get('fields_y'):
         return [float(y) for y in zx['fields_y']]
+    if is_angle_field(zx):                       # 视场按物方角度给（鱼眼 >90°）：最大半角 × 6 等分
+        return [round(float(zx['max_angle']) * f, 4) for f in FIELD_FRACS]
     ymax = zx.get('max_y')
     if ymax is None:
         for k, v in emb.get('general', []):
@@ -423,7 +444,7 @@ def build(spec, emb, catalog, asph_mode='auto', merit=True, freq=80.0):
     a('RAIM 0 %d 1 1 0 0 0 0 0 1' % ra); a('PUSH 0 0 0 0 0 0'); a('SDMA 0 1 0')
     a('OMMA 1 1')
     fy = fields_of(zx, emb); wv = waves_of(zx)
-    a('FTYP 3 0 %d %d 0 0 0' % (len(fy), len(wv)))
+    a('FTYP %d 0 %d %d 0 0 0' % (0 if is_angle_field(zx) else 3, len(fy), len(wv)))
     a('ROPD 2'); a('HYPR 0'); a('PICB 1')
     n12 = max(12, len(fy))
     a('XFLN ' + ' '.join(['0']*n12))
@@ -635,6 +656,17 @@ def build(spec, emb, catalog, asph_mode='auto', merit=True, freq=80.0):
     if len(cfgs) > 1:
         for i, v in enumerate(wf, 1):
             a('APER   0   %d %s 0 0 0 1 1 1 0 0' % (i, num(round(v, 6), '%.6G')))
+    # ===== 逐结构视场值：YFIE（zmx.fields_cfg = {结构名: [视场值…]}，Zemax 顺序由大到小）=====
+    # 鱼眼（>90° 角度视场）的近距结构：物面是平面，95° 的主光线在平物面上没有交点 ——
+    # OpticStudio 会把它折成 −84.6°、像高跑到另一侧（US20220221688A1 实测）。近距结构只能取 <90°。
+    fcfg = fields_cfg(zx, cfgs, fields_of(zx, emb))
+    if fcfg:
+        for f in range(len(fcfg[0])):
+            vals = [fcfg[ci][f] for ci in range(len(cfgs))]
+            if len(set(vals)) == 1:
+                continue
+            for ci, v in enumerate(vals, 1):
+                a('YFIE  %2d   %d %s 0 0 0 1 1 1 0 0' % (f+1, ci, num(float(v), '%.6G')))
     vcfg = zx.get('vignetting_cfg')
     if vcfg and len(vcfg) == len(cfgs):
         for op, ix in (('FVCY', 3), ('FVCX', 2), ('FVDY', 1), ('FVDX', 0)):

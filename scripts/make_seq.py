@@ -163,13 +163,22 @@ def build(spec, emb, title, gmode):
     a('REF   %d' % (1 + [w for w, _ in order].index(prim)))
     a('WTW   ' + ' '.join(str(int(g)) for _, g in order))
     a("INI   '   '")
-    ymax = float(zx['max_y']); nf = 6
+    ang = str(zx.get('field_type', '')).lower() in ('angle', 'object_angle', 'yan')
+    nf = 6
     # **CODE V 的视场顺序与 Zemax 相反**：第 1 行是轴上，逐行增大，第 6 行才是最大视场。
     # 用户 2026-09 明确要求。渐晕行（VUY/VLY/VUX/VLX 与 ZOO … F<i>）必须跟着一起倒。
-    ys = [round(ymax * i / (nf - 1), 6) for i in range(nf)]
+    if zx.get('fields_y'):
+        ys = sorted(float(y) for y in zx['fields_y']); nf = len(ys)
+    else:
+        ymax = float(zx['max_angle'] if ang else zx['max_y'])
+        ys = [round(ymax * i / (nf - 1), 6) for i in range(nf)]
     FLIP = lambda seq: list(seq)[::-1]          # Zemax 是由大到小，CODE V 由小到大
-    a('XRI   ' + ' '.join('0.0' for _ in ys))
-    a('YRI   ' + ' '.join(num(y) for y in ys))
+    # 角度视场（鱼眼）：XAN/YAN；>90° 必须开 Wide Angle Mode（WID Y，只能配 XAN/YAN，
+    # LensSystemSetupRM「Wide Angle Mode」：普通模式下 >90° 的视场瞄准会失败）
+    a(('XAN   ' if ang else 'XRI   ') + ' '.join('0.0' for _ in ys))
+    a(('YAN   ' if ang else 'YRI   ') + ' '.join(num(y) for y in ys))
+    if ang and max(abs(y) for y in ys) > 90:
+        a('WID   Y')
     a('WTF   ' + ' '.join('1.0' for _ in ys))
     vig = FLIP(zx.get('vignetting') or [[0, 0, 0, 0]] * nf)
     def vuy(f): return round(f[3] - f[1], 6)
@@ -281,6 +290,16 @@ def build(spec, emb, title, gmode):
         a('ZOO   %d' % len(cfgs)); a('ZOO   TIT')
         for i, c in enumerate(cfgs, 1): a('TIT   Z%d "%s"' % (i, c['name']))
         L.extend(wrap('ZOO   FNO', [num(round(v, 6)) for v in wf]))
+        # 逐结构视场值（zmx.fields_cfg，鱼眼近距结构把 >90° 的视场收到 <90°）→ ZOO YAN/YRI F<i>
+        fcz = zx.get('fields_cfg')
+        if fcz:
+            base = FLIP(ys)                                   # Zemax 顺序（由大到小）
+            tab = [FLIP([float(v) for v in fcz.get(c['name'], base)]) for c in cfgs]
+            for fi in range(nf):
+                vals = [t[fi] for t in tab]
+                if len(set(vals)) > 1:
+                    L.extend(wrap('ZOO   %s F%d' % ('YAN' if ang else 'YRI', fi + 1),
+                                  [num(v) for v in vals]))
         vc = [FLIP(v) for v in (zx.get('vignetting_cfg') or [])]
         if vc and len(vc) == len(cfgs):
             vx = lambda f: round(f[2], 6)

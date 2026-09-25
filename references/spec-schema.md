@@ -104,5 +104,7 @@ surface 上：
 | `aperture` | `vignet.py --write` 写入：`{type:"paraxial_working_fno", stop_semi_paraxial, wfno_cfg[], stop_semi_cfg[], epd_cfg[], wfno_fixed_stop[], source[], configs[]}`。`make_zmx.py` 据此写 `FNUM <wfno_cfg[0]> 1` + 逐结构 `APER`，`make_seq.py` 写 `FNO` + `ZOO FNO` |
 | `vignetting_source` | `vigfit_merge.py` 写回 OpticStudio 真追迹微调后的渐晕时留的标记 |
 | `mfd` | **定焦**：产品标称最短撮影距離（像面起算 mm）。专利没印近距态时写它，`lensmath.py` 自动当 `--mfd` 用，凑齐 INF/0.02x/0.06x/MFD 四结构 |
+| `field_type` / `max_angle` | `"angle"` = 视场按物方角度（度），FTYP 0 / CODE V `YAN`（>90° 自动 `WID Y`）。半视场 >90° 的鱼眼必须用它；`max_angle` = 专利 ω，按 6 等分出视场 |
+| `fields_cfg` | `{结构名: [视场值…]}`（Zemax 顺序由大到小）：逐结构改视场值 → MCE `YFIE` / `ZOO YAN`（或 `ZOO YRI`）。鱼眼近距结构平物面到不了 >90°，收到 89° |
 | `focus_vars` | 可选，`["D18","D21"]`：配套评价函数的变量（MCE THIC 状态位 1 / .seq `ZOO THC 0`）。不写时定焦取 focus/focus2 的 key_before，变焦取「同一变焦位置内会变的间隔去掉面序最后一个」 |
 | `zoom` | **变焦镜头**。`{"positions":[{"name":"W","label":"Wide","inf":"W-INF","near":["W-MFD"],"f":24.70,"fno":2.91}, …], "betas":[0.06], "include_near":false, "near_d0_printed":165.0}`。`inf`/`near` 是 `embodiments[].states` 里的状态名，`variable` 里**所有可变间隔**都要有这些状态的值。写了 `zoom` 就不要写 `focus`/`focus2`（没有近距态时才用单组 `focus` 兜底）。`lensmath.py` 据此生成 `configs`（每个结构带 `zoom` 键 + 所有可变间隔 + `beta`/`efl`），`vignet.aperture_cfg` 按 `zoom` 分组、各用 `positions[].fno` 定光阑 |
